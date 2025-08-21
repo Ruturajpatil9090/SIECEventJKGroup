@@ -7,6 +7,7 @@ class Eve_SponsorMaster(Base):
 
     SponsorMasterId = Column(Integer, primary_key=True)
     Sponsor_Name = Column(String(255), nullable=False)
+    Sponsor_logo = Column(String(255), nullable=True)
     Event_Code = Column(Integer)
     CategoryMaster_Code = Column(Integer)
     CategorySubMaster_Code = Column(Integer)

@@ -1,7 +1,16 @@
 // import React, { useEffect, useRef } from 'react';
 
-// const Modal = ({ isOpen, onClose, title, children }) => {
+// const Modal = ({ isOpen, onClose, title, children, size = 'md', width }) => {
 //   const modalRef = useRef(null);
+  
+//   const sizeClasses = {
+//     sm: 'max-w-sm',
+//     md: 'max-w-md',
+//     lg: 'max-w-lg',
+//     xl: 'max-w-xl',
+//     '2xl': 'max-w-2xl',
+//     full: 'w-full max-w-full',
+//   };
 
 //   useEffect(() => {
 //     const handleClickOutside = (event) => {
@@ -31,9 +40,15 @@
 
 //   return (
 //     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm transition-opacity duration-200">
-//       <div 
+//       <div
 //         ref={modalRef}
-//         className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 transform transition-all duration-300 scale-95 hover:scale-100"
+//         style={width ? { width } : {}}
+//           className={`bg-white rounded-lg shadow-xl ${
+//           width ? '' : sizeClasses[size] || 'max-w-md'
+//         } w-full p-6 `}
+//         // className={`bg-white rounded-lg shadow-xl ${
+//         //   width ? '' : sizeClasses[size] || 'max-w-md'
+//         // } w-full p-6 transform transition-all duration-800 scale-95 hover:scale-100`}
 //       >
 //         <div className="flex justify-between items-center mb-4">
 //           <h3 className="text-lg font-medium text-gray-900">{title}</h3>
@@ -56,6 +71,7 @@
 // };
 
 // export default Modal;
+
 
 
 
@@ -101,18 +117,15 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md', width }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm transition-opacity duration-200">
-      <div
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm transition-opacity duration-200 p-4">
+      <div 
         ref={modalRef}
         style={width ? { width } : {}}
-          className={`bg-white rounded-lg shadow-xl ${
+        className={`bg-white rounded-lg shadow-xl ${
           width ? '' : sizeClasses[size] || 'max-w-md'
-        } w-full p-6 `}
-        // className={`bg-white rounded-lg shadow-xl ${
-        //   width ? '' : sizeClasses[size] || 'max-w-md'
-        // } w-full p-6 transform transition-all duration-800 scale-95 hover:scale-100`}
+        } w-full`}
       >
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center p-6 pb-2 border-b">
           <h3 className="text-lg font-medium text-gray-900">{title}</h3>
           <button
             onClick={onClose}
@@ -124,7 +137,9 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md', width }) => {
             </svg>
           </button>
         </div>
-        <div className="mt-2">
+        
+        {/* Scrollable Content Area */}
+        <div className="p-6 max-h-[80vh] overflow-y-auto">
           {children}
         </div>
       </div>

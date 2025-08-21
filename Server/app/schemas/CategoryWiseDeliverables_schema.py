@@ -34,5 +34,15 @@ class Deliverable(DeliverableBase):
     CatDeliverableId: int
     details: List[DetailDeliverable] = []
 
+class FilteredDeliverableResponse(BaseModel):
+    CatDeliverableDetailId: int
+    CatDeliverableId: int
+    Deliverable_No: str
+    Deliverabled_Code: str
+    ID: int
+    Event_Code: int
+    CategoryMaster_Code: int
+    CategorySubMaster_Code: int
+
     class Config:
         from_attributes = True

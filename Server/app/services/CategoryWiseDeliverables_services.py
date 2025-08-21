@@ -53,6 +53,81 @@ async def get_all_deliverables_with_details(db: AsyncSession, skip: int = 0, lim
     return result.mappings().all()
 
 
+async def get_deliverables_by_filters(
+    db: AsyncSession, 
+    event_code: int, 
+    category_master_code: int, 
+    category_sub_master_code: int
+):
+    query = text("""
+    SELECT 
+        cwdm.Event_Code,
+        cwdm.CategoryMaster_Code,
+        cwdm.CategorySubMaster_Code,
+        cm.category_name,
+        csm.CategorySub_Name,
+        em.EventMaster_Name,
+        esm.EventSuper_Name,
+        cwdm.CatDeliverableId,
+        cwdd.Deliverabled_Code,
+        cwdd.Deliverable_No,
+        cwdd.CatDeliverableDetailId,
+        cwdd.CatDeliverableId as Detail_CatDeliverableId
+    FROM dbo.Eve_CategoryWiseDeliverablesMaster cwdm
+    INNER JOIN dbo.Eve_CategoryMaster cm 
+        ON cwdm.CategoryMaster_Code = cm.CategoryId
+    INNER JOIN dbo.Eve_CategorySubMaster csm 
+        ON cwdm.CategorySubMaster_Code = csm.CategorySubMasterId
+        AND csm.CategoryId = cm.CategoryId
+    INNER JOIN dbo.Eve_EventMaster em 
+        ON cwdm.Event_Code = em.EventMasterId
+    INNER JOIN dbo.Eve_EventSuperMaster esm 
+        ON em.EventSuperId = esm.EventSuperId
+    LEFT JOIN dbo.Eve_CategoryWiseDetailDeliverablesMaster cwdd
+        ON cwdm.CatDeliverableId = cwdd.CatDeliverableId
+    WHERE cwdm.Event_Code = :event_code 
+        AND cwdm.CategoryMaster_Code = :category_master_code 
+        AND cwdm.CategorySubMaster_Code = :category_sub_master_code
+    ORDER BY cwdm.CatDeliverableId, cwdd.Deliverable_No
+    """)
+    
+    result = await db.execute(query, {
+        "event_code": event_code,
+        "category_master_code": category_master_code,
+        "category_sub_master_code": category_sub_master_code
+    })
+    
+    rows = result.mappings().all()
+    
+    # Group by master deliverable and create nested structure
+    grouped_data = {}
+    for row in rows:
+        master_id = row['CatDeliverableId']
+        
+        if master_id not in grouped_data:
+            grouped_data[master_id] = {
+                "Event_Code": row['Event_Code'],
+                "CategoryMaster_Code": row['CategoryMaster_Code'],
+                "CategorySubMaster_Code": row['CategorySubMaster_Code'],
+                "category_name": row['category_name'],
+                "CategorySub_Name": row['CategorySub_Name'],
+                "EventMaster_Name": row['EventMaster_Name'],
+                "EventSuper_Name": row['EventSuper_Name'],
+                "CatDeliverableId": master_id,
+                "details": []
+            }
+        
+        # Add detail if it exists (check if Deliverabled_Code is not null)
+        if row['Deliverabled_Code'] is not None:
+            detail = {
+                "Deliverabled_Code": row['Deliverabled_Code'],
+                "Deliverable_No": row['Deliverable_No'],
+                "CatDeliverableDetailId": row['CatDeliverableDetailId'],
+                "CatDeliverableId": row['Detail_CatDeliverableId']
+            }
+            grouped_data[master_id]['details'].append(detail)
+    
+    return list(grouped_data.values())
 
 async def get_max_deliverable_id(db: AsyncSession):
     result = await db.execute(select(func.max(CategoryWiseDeliverablesMaster.CatDeliverableId)))

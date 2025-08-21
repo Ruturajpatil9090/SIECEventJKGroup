@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status,Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from ..schemas.CategoryWiseDeliverables_schema import (
     Deliverable,
     DeliverableCreate,
-    DeliverableUpdate
+    DeliverableUpdate,
+    FilteredDeliverableResponse
 )
 from ..services.CategoryWiseDeliverables_services import (
     get_deliverables,
@@ -13,7 +14,8 @@ from ..services.CategoryWiseDeliverables_services import (
     update_deliverable,
     delete_deliverable,
     get_max_deliverable_id,
-    get_all_deliverables_with_details
+    get_all_deliverables_with_details,
+    get_deliverables_by_filters
 )
 from ..models.database import get_db
 
@@ -65,6 +67,31 @@ async def get_category_wise_deliverables_with_details(
             })
     
     return list(grouped_results.values())
+
+
+
+@router.get("/filtered")
+async def get_filtered_deliverables(
+    event_code: int = Query(..., description="Event code"),
+    category_master_code: int = Query(..., description="Category master code"),
+    category_sub_master_code: int = Query(..., description="Category sub master code"),
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        deliverables = await get_deliverables_by_filters(
+            db=db,
+            event_code=event_code,
+            category_master_code=category_master_code,
+            category_sub_master_code=category_sub_master_code
+        )
+        
+        return deliverables
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching filtered deliverables: {str(e)}"
+        )
 
 @router.get("/getlastDeliverableId", response_model=int)
 async def get_max_deliverable_id_endpoint(

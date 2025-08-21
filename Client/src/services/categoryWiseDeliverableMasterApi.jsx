@@ -2,10 +2,10 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const categoryWiseDeliverablesApi = createApi({
     reducerPath: "categoryWiseDeliverablesApi",
-    baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8000" }), 
+    baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8000" }),
     tagTypes: ['CategoryWiseDeliverables'],
     endpoints: (builder) => ({
-         getCategoryWiseDeliverables: builder.query({
+        getCategoryWiseDeliverables: builder.query({
             query: () => '/categorywisedeliverables',
             providesTags: ['CategoryWiseDeliverables']
         }),
@@ -15,6 +15,13 @@ export const categoryWiseDeliverablesApi = createApi({
         }),
         getMaxCatDeliverableId: builder.query({
             query: () => '/categorywisedeliverables/getlastDeliverableId',
+            providesTags: ['CategoryWiseDeliverables']
+        }),
+        getFilteredCategoryWiseDeliverables: builder.query({
+            query: ({ event_code, category_master_code, category_sub_master_code }) => ({
+                url: '/categorywisedeliverables/filtered',
+                params: { event_code, category_master_code, category_sub_master_code }
+            }),
             providesTags: ['CategoryWiseDeliverables']
         }),
         addCategoryWiseDeliverable: builder.mutation({
@@ -43,11 +50,12 @@ export const categoryWiseDeliverablesApi = createApi({
     })
 })
 
-export const { 
-    useGetCategoryWiseDeliverablesQuery, 
+export const {
+    useGetCategoryWiseDeliverablesQuery,
     useGetCategoryWiseDeliverableByIdQuery,
     useGetMaxCatDeliverableIdQuery,
-    useAddCategoryWiseDeliverableMutation, 
-    useUpdateCategoryWiseDeliverableMutation, 
-    useDeleteCategoryWiseDeliverableMutation 
+    useLazyGetFilteredCategoryWiseDeliverablesQuery,
+    useAddCategoryWiseDeliverableMutation,
+    useUpdateCategoryWiseDeliverableMutation,
+    useDeleteCategoryWiseDeliverableMutation
 } = categoryWiseDeliverablesApi;

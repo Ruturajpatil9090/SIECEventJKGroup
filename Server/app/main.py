@@ -3,8 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from .models.database import engine, Base
 from .controllers import auth_controller,deliverables_controller,category_controller,category_sub_controller,event_super_controller,event_controller,CategoryWiseDeliverables_controller,sponsor_master_controller
 import asyncio
+import os
 
 app = FastAPI()
+
+# Create upload directory
+os.makedirs("uploads/sponsor_logos", exist_ok=True)
 
 # CORS settings
 app.add_middleware(

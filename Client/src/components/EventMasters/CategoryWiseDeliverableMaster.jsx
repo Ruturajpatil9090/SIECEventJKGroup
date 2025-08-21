@@ -44,7 +44,6 @@ function CategoryWiseDeliverableMaster() {
     const { data: categories = [], isLoading: isCategoriesLoading } = useGetCategoryMasterQuery();
     const { data: subCategories = [], refetch: refetchSubCategories, isLoading: isSubCategoriesLoading } = useGetCategorySubMasterQuery();
     const { data: allDeliverables = [], isLoading: isDeliverablesLoading } = useGetDeliverablesQuery();
-    console.log("tableData", tableData)
 
     const { data: maxCatDeliverableId = 0, isLoading: isMaxIdLoading, refetch: refetchMaxId } = useGetMaxCatDeliverableIdQuery();
 
