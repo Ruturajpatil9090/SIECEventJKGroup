@@ -168,8 +168,8 @@ export default function Sidebar() {
               )}
             </li>
 
-            <SidebarItem icon={<ShoppingCart size={20} />} text="Sponsor Deliverable Tracker" path="" />
-            <SidebarItem icon={<BookOpen size={20} />} text="Expo Registory & Tracker - Sponsor" path="" />
+            {/* <SidebarItem icon={<ShoppingCart size={20} />} text="Sponsor Deliverable Tracker" path="" /> */}
+            <SidebarItem icon={<BookOpen size={20} />} text="Expo Registory & Tracker - Sponsor" path="/exporegistry-tracker" />
             <SidebarItem icon={<Ticket size={20} />} text="Passess Registory & Tracker - Sponsor" path="" />
             <SidebarItem icon={<Award size={20} />} text="Award Registory & Tracker - Sponsor" path="" />
             <SidebarItem icon={<Mic size={20} />} text="Speaker Sponsors" path="" />
@@ -177,8 +177,8 @@ export default function Sidebar() {
             <SidebarItem icon={<Gavel size={20} />} text="Ministerial RoundTable Session - Sponsors" path="" />
             <SidebarItem icon={<Gavel size={20} />} text="Secretarial RoundTable Session - Sponsors" path="" />
             <hr className="my-3" />
-            <SidebarItem icon={<Award size={20} />} text="Category Sponsors Slots & Availability" path="" />
-            <SidebarItem icon={<Award size={20} />} text="Networking Table Slots & Trackers" path="" />
+            {/* <SidebarItem icon={<Award size={20} />} text="Category Sponsors Slots & Availability" path="" />
+            <SidebarItem icon={<Award size={20} />} text="Networking Table Slots & Trackers" path="" /> */}
             <Profile />
           </ul>
         </SidebarContext.Provider>

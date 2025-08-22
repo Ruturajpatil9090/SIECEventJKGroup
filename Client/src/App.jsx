@@ -9,6 +9,7 @@ import EventSuperMaster from "./components/EventMasters/EventSuperMaster"
 import EventMaster from "./components/EventMasters/EventMaster";
 import CategoryWiseDeliverableMaster from "./components/EventMasters/CategoryWiseDeliverableMaster"
 import SponsorMaster from "./components/EventMasters/sponsorMaster"
+import ExpoRegistryTracker from "./components/ExpoRegistryTracker/ExpoRegistryTracker";
 // import Footer from "./Pages/Footer/Footer";
 import Login from "./Pages/Login/Login";
 
@@ -44,6 +45,7 @@ const Layout = () => {
             <Route path="/eventmaster" element={<EventMaster />} />
             <Route path="/CategoryWiseDeliverableMaster" element={<CategoryWiseDeliverableMaster />} />
             <Route path="/sponsor-master" element={<SponsorMaster />} />
+             <Route path="/exporegistry-tracker" element={<ExpoRegistryTracker />} />
           </Routes>
           {/* <Footer /> */}
         </div>

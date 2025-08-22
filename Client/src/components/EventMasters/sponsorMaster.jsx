@@ -930,6 +930,7 @@ import {
     useGetDeliverablesQuery,
 } from '../../services/deliverablesApi';
 import { useLazyGetFilteredCategoryWiseDeliverablesQuery } from "../../services/categoryWiseDeliverableMasterApi"
+import { useGetUserMastersQuery } from '../../services/userMasterApi';
 import CreateNewButton from "../../common/Buttons/AddButton";
 
 function SponsorMaster() {
@@ -939,12 +940,14 @@ function SponsorMaster() {
     const initialFormdata = {
         SponsorMasterId: '',
         Sponsor_Name: '',
+        Doc_Date: '',
         Event_Code: '',
         CategoryMaster_Code: '',
         CategorySubMaster_Code: '',
         Proposal_Sent: '',
         Approval_Received: '',
         Sponsorship_Amount: '',
+        Sponsorship_Amount_Advance: '',
         Payment_Status: '',
         Proforma_Invoice_Sent: '',
         Final_Invoice_Sent: '',
@@ -965,6 +968,9 @@ function SponsorMaster() {
         Passes_Registry_Tracker: '',
         Sponsor_Speakers: '',
         Networking_Table_Slots_Tracker: '',
+        Created_By: '',
+        Modified_By: '',
+        User_Id: '',
         details: []
     }
     const [formData, setFormData] = useState(initialFormdata);
@@ -983,6 +989,11 @@ function SponsorMaster() {
         useLazyGetFilteredCategoryWiseDeliverablesQuery();
 
     const { data: maxSponsorId, isLoading: isMaxIdLoading, refetch: refetchMaxId } = useGetMaxSponsorIdQuery();
+
+    const { data: userdata = [], isLoading: isUserdataLoading } = useGetUserMastersQuery();
+
+    console.log("userdata", userdata)
+
 
     const [addSponsor] = useAddSponsorMutation();
     const [updateSponsor] = useUpdateSponsorMutation();
@@ -1086,6 +1097,11 @@ function SponsorMaster() {
         label: `${event.EventMasterId} - ${event.EventMaster_Name}`
     })), [events]);
 
+    const userdataOptions = useMemo(() => userdata.map(user => ({
+        value: user.User_Id,
+        label: `${user.User_Id} - ${user.userfullname}`
+    })), [userdata]);
+
     const categoryOptions = useMemo(() => categories.map(category => ({
         value: category.CategoryId,
         label: `${category.CategoryId} - ${category.category_name}`
@@ -1103,9 +1119,10 @@ function SponsorMaster() {
     }, [subCategories, formData.CategoryMaster_Code]);
 
     const paymentStatusOptions = [
-        { value: 'P', label: 'Pending' },
-        { value: 'H', label: 'Partially Paid' },
-        { value: 'C', label: 'Paid' },
+        { value: 'Pending', label: 'Pending' },
+        { value: 'Partially Paid', label: 'Partially Paid' },
+        { value: 'Paid', label: 'Paid' },
+        { value: 'Cancelled', label: 'Cancelled' },
     ];
 
     const yesNoOptions = [
@@ -1130,6 +1147,11 @@ function SponsorMaster() {
             header: 'Sub Category',
             accessor: 'CategorySub_Name',
             cellRenderer: (value, row) => row.CategorySubMaster_Code ? `${row.CategorySubMaster_Code} - ${value}` : 'N/A'
+        },
+        {
+            header: 'User Name',
+            accessor: 'User_Name',
+            cellRenderer: (value, row) => `${row.User_Id} - ${value}`
         },
         { header: 'Contact Person', accessor: 'Contact_Person' },
         { header: 'Contact Email', accessor: 'Contact_Email' },
@@ -1175,12 +1197,14 @@ function SponsorMaster() {
         setFormData({
             SponsorMasterId: row.SponsorMasterId || '',
             Sponsor_Name: row.Sponsor_Name || '',
+            Doc_Date: row.Doc_Date || '',
             Event_Code: row.Event_Code || '',
             CategoryMaster_Code: row.CategoryMaster_Code || '',
             CategorySubMaster_Code: row.CategorySubMaster_Code || '',
             Proposal_Sent: row.Proposal_Sent || '',
             Approval_Received: row.Approval_Received || '',
             Sponsorship_Amount: row.Sponsorship_Amount || '',
+            Sponsorship_Amount_Advance: row.Sponsorship_Amount_Advance || '',
             Payment_Status: row.Payment_Status || '',
             Proforma_Invoice_Sent: row.Proforma_Invoice_Sent || '',
             Final_Invoice_Sent: row.Final_Invoice_Sent || '',
@@ -1201,10 +1225,14 @@ function SponsorMaster() {
             Passes_Registry_Tracker: row.Passes_Registry_Tracker || '',
             Sponsor_Speakers: row.Sponsor_Speakers || '',
             Networking_Table_Slots_Tracker: row.Networking_Table_Slots_Tracker || '',
+            Created_By: row.Created_By || '',
+            Modified_By: row.Modified_By || '',
+            User_Id: row.User_Id || '',
             details: Array.isArray(row.details) ? [...row.details] : []
         });
 
         const eventOption = eventOptions.find(o => o.value === row.Event_Code) || null;
+        const userdataOption = userdataOptions.find(o => o.value === row.User_Id) || null;
         const categoryOption = categoryOptions.find(o => o.value === row.CategoryMaster_Code) || null;
         const subCategoryOption = subCategories
             .filter(sub => sub.CategoryId === row.CategoryMaster_Code)
@@ -1216,6 +1244,7 @@ function SponsorMaster() {
 
         setSelectedOptions({
             event: eventOption,
+            user: userdataOption,
             category: categoryOption,
             subCategory: subCategoryOption,
         });
@@ -1231,7 +1260,8 @@ function SponsorMaster() {
             ...formData,
             CategorySubMaster_Code: formData.CategorySubMaster_Code === '' ? 0 : parseInt(formData.CategorySubMaster_Code),
             CategoryMaster_Code: formData.CategoryMaster_Code === '' ? 0 : parseInt(formData.CategoryMaster_Code),
-            Sponsorship_Amount: formData.Sponsorship_Amount ? parseFloat(formData.Sponsorship_Amount) : 0
+            Sponsorship_Amount: formData.Sponsorship_Amount ? parseFloat(formData.Sponsorship_Amount) : 0,
+            Sponsorship_Amount_Advance: formData.Sponsorship_Amount_Advance ? parseFloat(formData.Sponsorship_Amount_Advance) : 0
         };
 
         const finalDetails = selectedDeliverablesInModal.map(selectedId => {
@@ -1292,6 +1322,7 @@ function SponsorMaster() {
         setSelectedOptions({
             event: null,
             category: null,
+            user: null,
             subCategory: null,
         });
         setEditId(null);
@@ -1447,6 +1478,59 @@ function SponsorMaster() {
                         </div>
 
                         <div>
+                            <label htmlFor="User_Id" className="block text-sm font-medium text-gray-700 mb-1">User Master</label>
+                            <Select
+                                id="User_Id"
+                                options={userdataOptions}
+                                value={selectedOptions.user}
+                                onChange={(option) => {
+                                    setSelectedOptions(prev => ({ ...prev, user: option }));
+                                    setFormData(prev => ({ ...prev, User_Id: option ? option.value : '' }));
+                                }}
+                                autoComplete='off'
+                                placeholder="Select an event..."
+                                isSearchable
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="Proposal_Sent" className="block text-sm font-medium text-gray-700 mb-1">Proposal Sent</label>
+                            <Select
+                                id="Proposal_Sent"
+                                options={yesNoOptions}
+                                value={yesNoOptions.find(option => option.value === formData.Proposal_Sent)}
+                                onChange={(option) => setFormData(prev => ({ ...prev, Proposal_Sent: option ? option.value : '' }))}
+                                placeholder="Select..."
+                                isSearchable
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="Approval_Received" className="block text-sm font-medium text-gray-700 mb-1">Approval Received</label>
+                            <Select
+                                id="Approval_Received"
+                                options={yesNoOptions}
+                                value={yesNoOptions.find(option => option.value === formData.Approval_Received)}
+                                onChange={(option) => setFormData(prev => ({ ...prev, Approval_Received: option ? option.value : '' }))}
+                                placeholder="Select..."
+                                isSearchable
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="Payment_Status" className="block text-sm font-medium text-gray-700 mb-1">Payment Status</label>
+                            <Select
+                                id="Payment_Status"
+                                options={paymentStatusOptions}
+                                value={paymentStatusOptions.find(option => option.value === formData.Payment_Status)}
+                                onChange={(option) => setFormData(prev => ({ ...prev, Payment_Status: option ? option.value : '' }))}
+                                placeholder="Select payment status..."
+                                isSearchable
+                                autoComplete='off'
+                            />
+                        </div>
+
+                        <div>
                             <label htmlFor="Sponsorship_Amount" className="block text-sm font-medium text-gray-700 mb-1">Sponsorship Amount</label>
                             <input
                                 id="Sponsorship_Amount"
@@ -1461,15 +1545,16 @@ function SponsorMaster() {
                         </div>
 
                         <div>
-                            <label htmlFor="Payment_Status" className="block text-sm font-medium text-gray-700 mb-1">Payment Status</label>
-                            <Select
-                                id="Payment_Status"
-                                options={paymentStatusOptions}
-                                value={paymentStatusOptions.find(option => option.value === formData.Payment_Status)}
-                                onChange={(option) => setFormData(prev => ({ ...prev, Payment_Status: option ? option.value : '' }))}
-                                placeholder="Select payment status..."
-                                isSearchable
+                            <label htmlFor="Sponsorship_Amount_Advance" className="block text-sm font-medium text-gray-700 mb-1">Advance</label>
+                            <input
+                                id="Sponsorship_Amount_Advance"
+                                type="number"
+                                step="0.01"
+                                name="Sponsorship_Amount_Advance"
+                                value={formData.Sponsorship_Amount_Advance}
                                 autoComplete='off'
+                                onChange={(e) => setFormData(prev => ({ ...prev, Sponsorship_Amount_Advance: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
                             />
                         </div>
 
@@ -1574,29 +1659,7 @@ function SponsorMaster() {
                             />
                         </div>
 
-                        <div>
-                            <label htmlFor="Proposal_Sent" className="block text-sm font-medium text-gray-700 mb-1">Proposal Sent</label>
-                            <Select
-                                id="Proposal_Sent"
-                                options={yesNoOptions}
-                                value={yesNoOptions.find(option => option.value === formData.Proposal_Sent)}
-                                onChange={(option) => setFormData(prev => ({ ...prev, Proposal_Sent: option ? option.value : '' }))}
-                                placeholder="Select..."
-                                isSearchable
-                            />
-                        </div>
 
-                        <div>
-                            <label htmlFor="Approval_Received" className="block text-sm font-medium text-gray-700 mb-1">Approval Received</label>
-                            <Select
-                                id="Approval_Received"
-                                options={yesNoOptions}
-                                value={yesNoOptions.find(option => option.value === formData.Approval_Received)}
-                                onChange={(option) => setFormData(prev => ({ ...prev, Approval_Received: option ? option.value : '' }))}
-                                placeholder="Select..."
-                                isSearchable
-                            />
-                        </div>
 
                         <div>
                             <label htmlFor="Proforma_Invoice_Sent" className="block text-sm font-medium text-gray-700 mb-1">Proforma Invoice Sent</label>

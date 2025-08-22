@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .models.database import engine, Base
-from .controllers import auth_controller,deliverables_controller,category_controller,category_sub_controller,event_super_controller,event_controller,CategoryWiseDeliverables_controller,sponsor_master_controller
+from .controllers import auth_controller,deliverables_controller,category_controller,category_sub_controller,event_super_controller,event_controller,CategoryWiseDeliverables_controller,sponsor_master_controller,user_master_controller,expo_registry_tracker_controller
 import asyncio
 import os
 
@@ -28,6 +28,9 @@ app.include_router(event_super_controller.router)
 app.include_router(event_controller.router)
 app.include_router(CategoryWiseDeliverables_controller.router)
 app.include_router(sponsor_master_controller.router)
+app.include_router(user_master_controller.router)
+app.include_router(expo_registry_tracker_controller.router)
+
 
 @app.on_event("startup")
 async def startup():

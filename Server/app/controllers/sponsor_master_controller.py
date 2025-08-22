@@ -4,7 +4,8 @@ from typing import List, Optional
 from ..schemas.sponsor_master_schema import (
     SponsorMaster,
     SponsorMasterCreate,
-    SponsorMasterUpdate
+    SponsorMasterUpdate,
+    SponsorMasterWithDetails
 )
 from ..services.sponsor_master_services import (
     get_sponsors,
@@ -13,7 +14,7 @@ from ..services.sponsor_master_services import (
     update_sponsor,
     delete_sponsor,
     get_max_sponsor_id,
-    get_sponsors_with_details
+    get_all_sponsor_with_details
 )
 from ..models.database import get_db
 import json
@@ -23,23 +24,82 @@ router = APIRouter(
     tags=["sponsors"]
 )
 
-@router.get("/", response_model=List[SponsorMaster])
-async def read_sponsors(
-    skip: int = 0,
-    limit: int = 100,
-    db: AsyncSession = Depends(get_db),
-):
-    sponsors = await get_sponsors(db, skip=skip, limit=limit)
-    return sponsors
+# @router.get("/", response_model=List[SponsorMasterWithDetails])
+# async def read_sponsors(
+#     skip: int = 0,
+#     limit: int = 100,
+#     db: AsyncSession = Depends(get_db),
+# ):
+#     sponsors = await get_sponsors(db, skip=skip, limit=limit)
+#     return sponsors
 
-@router.get("/getSponsorsById", response_model=List[SponsorMaster])
-async def get_sponsors_with_details_endpoint(
+
+@router.get("/")
+async def get_sponsormaster_with_details(
     skip: int = 0, 
     limit: int = 100,
     db: AsyncSession = Depends(get_db)
 ):
-    sponsors = await get_sponsors_with_details(db, skip, limit)
-    return sponsors
+    results = await get_all_sponsor_with_details(db, skip, limit)
+    grouped_results = {}
+    for row in results:
+        cat_deliverable_id = row['SponsorMasterId']
+        
+        if cat_deliverable_id not in grouped_results:
+            grouped_results[cat_deliverable_id] = {
+              "Sponsor_Name": row['Sponsor_Name'],
+                "Sponsor_logo": row['Sponsor_logo'],
+                "Doc_Date": row['Doc_Date'].isoformat() if row['Doc_Date'] else None,
+                "Event_Code": row['Event_Code'],
+                "CategoryMaster_Code": row['CategoryMaster_Code'],
+                "CategorySubMaster_Code": row['CategorySubMaster_Code'],
+                "Proposal_Sent": row['Proposal_Sent'],
+                "Approval_Received": row['Approval_Received'],
+                "Sponsorship_Amount": str(row['Sponsorship_Amount']) if row['Sponsorship_Amount'] is not None else None,
+                "Sponsorship_Amount_Advance": str(row['Sponsorship_Amount_Advance']) if row['Sponsorship_Amount_Advance'] is not None else None,
+                "Payment_Status": row['Payment_Status'],
+                "Proforma_Invoice_Sent": row['Proforma_Invoice_Sent'],
+                "Final_Invoice_Sent": row['Final_Invoice_Sent'],
+                "GST_Details_Received": row['GST_Details_Received'],
+                "Contact_Person": row['Contact_Person'],
+                "Contact_Email": row['Contact_Email'],
+                "Contact_Phone": row['Contact_Phone'],
+                "Notes": row['Notes'],
+                "Address": row['Address'],
+                "CIN": row['CIN'],
+                "Sponsor_Deliverables_Tracker": row['Sponsor_Deliverables_Tracker'],
+                "Website": row['Website'],
+                "Awards_Registry_Tracker": row['Awards_Registry_Tracker'],
+                "Category_Sponsors": row['Category_Sponsors'],
+                "Designation": row['Designation'],
+                "Expo_Registry": row['Expo_Registry'],
+                "GST": row['GST'],
+                "Passes_Registry_Tracker": row['Passes_Registry_Tracker'],
+                "Sponsor_Speakers": row['Sponsor_Speakers'],
+                "Networking_Table_Slots_Tracker": row['Networking_Table_Slots_Tracker'],
+                "Created_By": row['Created_By'],
+                "Modified_By": row['Modified_By'],
+                "User_Id": row['User_Id'],
+                "SponsorMasterId": row['SponsorMasterId'],
+                "category_name": row['category_name'],
+                "EventMaster_Name": row['EventMaster_Name'],
+                "CategorySub_Name": row['CategorySub_Name'],
+                "User_Name": row['User_Name'],
+                "details": []
+            }
+        
+        if row['Deliverabled_Code'] is not None:
+            grouped_results[cat_deliverable_id]['details'].append({
+                "Deliverabled_Code": row['Deliverabled_Code'],
+                "Deliverable_No": row['Deliverable_No'],
+                "ID": row['ID'],
+                "SponsorDetailId": row['SponsorDetailId'],
+                "SponsorMasterId": row['SponsorMasterId']
+            })
+    
+    return list(grouped_results.values())
+
+
 
 @router.get("/getlastSponsorId", response_model=int)
 async def get_max_sponsor_id_endpoint(

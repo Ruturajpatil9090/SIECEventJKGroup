@@ -1,11 +1,13 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Numeric, Text
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Numeric, Text,DateTime
 from sqlalchemy.orm import relationship
 from .database import Base
+from datetime import datetime
 
 class Eve_SponsorMaster(Base):
     __tablename__ = "Eve_SponsorMaster"
 
     SponsorMasterId = Column(Integer, primary_key=True)
+    Doc_Date = Column(DateTime)
     Sponsor_Name = Column(String(255), nullable=False)
     Sponsor_logo = Column(String(255), nullable=True)
     Event_Code = Column(Integer)
@@ -14,6 +16,7 @@ class Eve_SponsorMaster(Base):
     Proposal_Sent = Column(String(1))  
     Approval_Received = Column(String(1))  
     Sponsorship_Amount = Column(Numeric(15, 2))
+    Sponsorship_Amount_Advance = Column(Numeric(15, 2))
     Payment_Status = Column(String(50))
     Proforma_Invoice_Sent = Column(String(1)) 
     Final_Invoice_Sent = Column(String(1)) 
@@ -34,6 +37,9 @@ class Eve_SponsorMaster(Base):
     Passes_Registry_Tracker = Column(Text)
     Sponsor_Speakers = Column(Text)
     Networking_Table_Slots_Tracker = Column(Text)
+    Created_By = Column(String(255))
+    Modified_By = Column(String(255))
+    User_Id = Column(Integer)
 
     details = relationship(
         "Eve_SponsorMasterDetail", 
