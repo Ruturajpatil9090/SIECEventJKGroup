@@ -114,6 +114,7 @@ export default function Sidebar() {
                   <SidebarItem icon={<Package size={16} />} text="Deliverable Master" path='/deliverable-master' />
                   <SidebarItem icon={<Tag size={16} />} text="Category Master" path='/category-master' />
                   <SidebarItem icon={<Layers size={16} />} text="Category Sub Master" path='/categorysub-master' />
+                  <SidebarItem icon={<Layers size={16} />} text="Award Master" path='/award-master' />
                 </ul>
               )}
 
@@ -164,6 +165,12 @@ export default function Sidebar() {
                     path='/categorysub-master'
                     forceExpand={true}
                   />
+                      <SidebarItem
+                    icon={<Layers size={16} />}
+                    text="Award Master"
+                    path='/award-master'
+                    forceExpand={true}
+                  />
                 </div>
               )}
             </li>
@@ -171,11 +178,11 @@ export default function Sidebar() {
             {/* <SidebarItem icon={<ShoppingCart size={20} />} text="Sponsor Deliverable Tracker" path="" /> */}
             <SidebarItem icon={<BookOpen size={20} />} text="Expo Registory & Tracker - Sponsor" path="/exporegistry-tracker" />
             <SidebarItem icon={<Ticket size={20} />} text="Passess Registory & Tracker - Sponsor" path="" />
-            <SidebarItem icon={<Award size={20} />} text="Award Registory & Tracker - Sponsor" path="" />
+            <SidebarItem icon={<Award size={20} />} text="Award Registory & Tracker - Sponsor" path="/award-registry" />
             <SidebarItem icon={<Mic size={20} />} text="Speaker Sponsors" path="" />
-            <SidebarItem icon={<Users2 size={20} />} text="Curated Session - Sponsors" path="" />
-            <SidebarItem icon={<Gavel size={20} />} text="Ministerial RoundTable Session - Sponsors" path="" />
-            <SidebarItem icon={<Gavel size={20} />} text="Secretarial RoundTable Session - Sponsors" path="" />
+            <SidebarItem icon={<Users2 size={20} />} text="Curated Session - Sponsors" path="/curated-sessions" />
+            <SidebarItem icon={<Gavel size={20} />} text="Ministerial RoundTable Session - Sponsors" path="/ministrial-sessions" />
+            {/* <SidebarItem icon={<Gavel size={20} />} text="Secretarial RoundTable Session - Sponsors" path="" /> */}
             <hr className="my-3" />
             {/* <SidebarItem icon={<Award size={20} />} text="Category Sponsors Slots & Availability" path="" />
             <SidebarItem icon={<Award size={20} />} text="Networking Table Slots & Trackers" path="" /> */}

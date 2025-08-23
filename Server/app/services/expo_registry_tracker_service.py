@@ -15,27 +15,28 @@ async def get_max_tracker_id(db: AsyncSession):
     max_id = result.scalar()
     return max_id if max_id is not None else 0
 
-async def get_expo_registry_trackers(db: AsyncSession, skip: int = 0, limit: int = 100):
-    result = await db.execute(
-        select(ExpoRegistryTracker)
-        .order_by(asc(ExpoRegistryTracker.ExpoRegistryTrackerId))
-        .offset(skip)
-        .limit(limit)
-    )
-    return result.scalars().all()
+# async def get_expo_registry_trackers(db: AsyncSession, skip: int = 0, limit: int = 100):
+#     result = await db.execute(
+#         select(ExpoRegistryTracker)
+#         .order_by(asc(ExpoRegistryTracker.ExpoRegistryTrackerId))
+#         .offset(skip)
+#         .limit(limit)
+#     )
+#     return result.scalars().all()
 
 
-# async def get_expo_registry_trackers(db: AsyncSession):
-#     query = text("""
-# SELECT        dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_EventMaster.EventMaster_Name, dbo.Eve_DeliverablesMaster.Deliverables, dbo.Eve_ExpoRegistryTracker.*
-# FROM            dbo.Eve_ExpoRegistryTracker INNER JOIN
-#                          dbo.Eve_SponsorMaster ON dbo.Eve_ExpoRegistryTracker.SponsorMasterId = dbo.Eve_SponsorMaster.SponsorMasterId INNER JOIN
-#                          dbo.Eve_EventMaster ON dbo.Eve_ExpoRegistryTracker.Event_Code = dbo.Eve_EventMaster.EventMasterId INNER JOIN
-#                          dbo.Eve_DeliverablesMaster ON dbo.Eve_ExpoRegistryTracker.Deliverabled_Code = dbo.Eve_DeliverablesMaster.id
-#     """)
+async def get_expo_registry_trackers(db: AsyncSession):
+    query = text("""
+SELECT        dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_EventMaster.EventMaster_Name, dbo.Eve_DeliverablesMaster.Deliverables, dbo.Eve_ExpoRegistryTracker.*
+FROM            dbo.Eve_ExpoRegistryTracker INNER JOIN
+                         dbo.Eve_SponsorMaster ON dbo.Eve_ExpoRegistryTracker.SponsorMasterId = dbo.Eve_SponsorMaster.SponsorMasterId INNER JOIN
+                         dbo.Eve_EventMaster ON dbo.Eve_ExpoRegistryTracker.Event_Code = dbo.Eve_EventMaster.EventMasterId INNER JOIN
+                         dbo.Eve_DeliverablesMaster ON dbo.Eve_ExpoRegistryTracker.Deliverabled_Code = dbo.Eve_DeliverablesMaster.id
+                 order by dbo.Eve_ExpoRegistryTracker.ExpoRegistryTrackerId desc
+    """)
     
-#     result = await db.execute(query)
-#     return result.mappings().all()
+    result = await db.execute(query)
+    return result.mappings().all()
 
 async def create_expo_registry_tracker(db: AsyncSession, tracker: ExpoRegistryTrackerCreate):
     db_tracker = ExpoRegistryTracker(**tracker.model_dump())

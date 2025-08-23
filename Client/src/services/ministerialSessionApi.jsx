@@ -1,0 +1,68 @@
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+
+export const ministerialSessionApi = createApi({
+    reducerPath: "ministerialSessionApi",
+    baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8000" }),
+    tagTypes: ['MinisterialSession'],
+    endpoints: (builder) => ({
+        getMinisterialSessions: builder.query({
+            query: () => '/ministerial-sessions',
+            providesTags: ['MinisterialSession']
+        }),
+        getMinisterialSessionById: builder.query({
+            query: (id) => `/ministerial-sessions/${id}`,
+            providesTags: ['MinisterialSession']
+        }),
+        getMaxMinisterialSessionId: builder.query({
+            query: () => '/ministerial-sessions/getlastMinisterialSessionId',
+            providesTags: ['MinisterialSession']
+        }),
+        getMinisterialSessionsByEventCode: builder.query({
+            query: (eventCode) => `/ministerial-sessions/?event_code=${eventCode}`,
+            providesTags: ['MinisterialSession']
+        }),
+        getMinisterialSessionsBySponsor: builder.query({
+            query: (sponsorId) => `/ministerial-sessions/?sponsor_id=${sponsorId}`,
+            providesTags: ['MinisterialSession']
+        }),
+        getMinisterialSessionsByTrack: builder.query({
+            query: (track) => `/ministerial-sessions/?track=${track}`,
+            providesTags: ['MinisterialSession']
+        }),
+        addMinisterialSession: builder.mutation({
+            query: (ministerialSession) => ({
+                url: '/ministerial-sessions',
+                method: "POST",
+                body: ministerialSession
+            }),
+            invalidatesTags: ['MinisterialSession']
+        }),
+        updateMinisterialSession: builder.mutation({
+            query: ({ id, ...ministerialSession }) => ({
+                url: `/ministerial-sessions/${id}`,
+                method: "PUT",
+                body: ministerialSession
+            }),
+            invalidatesTags: ['MinisterialSession']
+        }),
+        deleteMinisterialSession: builder.mutation({
+            query: (id) => ({
+                url: `/ministerial-sessions/${id}`,
+                method: "DELETE",
+            }),
+            invalidatesTags: ['MinisterialSession']
+        })
+    })
+})
+
+export const {
+    useGetMinisterialSessionsQuery,
+    useGetMinisterialSessionByIdQuery,
+    useGetMaxMinisterialSessionIdQuery,
+    useGetMinisterialSessionsByEventCodeQuery,
+    useGetMinisterialSessionsBySponsorQuery,
+    useGetMinisterialSessionsByTrackQuery,
+    useAddMinisterialSessionMutation,
+    useUpdateMinisterialSessionMutation,
+    useDeleteMinisterialSessionMutation
+} = ministerialSessionApi;

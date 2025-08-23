@@ -13,8 +13,6 @@ from ..services.expo_registry_tracker_service import (
     update_expo_registry_tracker,
     delete_expo_registry_tracker,
     get_max_tracker_id,
-    get_trackers_by_event_code,
-    get_trackers_by_sponsor
 )
 from ..models.database import get_db
 from ..utils.security import get_current_user
@@ -24,20 +22,25 @@ router = APIRouter(
     tags=["expo-registry"]
 )
 
+# @router.get("/", response_model=List[ExpoRegistryTracker])
+# async def read_expo_registry_trackers(
+#     skip: int = 0,
+#     limit: int = 100,
+#     event_code: Optional[str] = Query(None),
+#     sponsor_id: Optional[int] = Query(None),
+#     db: AsyncSession = Depends(get_db),
+# ):
+#     if event_code:
+#         return await get_trackers_by_event_code(db, event_code)
+#     elif sponsor_id:
+#         return await get_trackers_by_sponsor(db, sponsor_id)
+#     else:
+#         return await get_expo_registry_trackers(db, skip=skip, limit=limit)
+    
 @router.get("/", response_model=List[ExpoRegistryTracker])
-async def read_expo_registry_trackers(
-    skip: int = 0,
-    limit: int = 100,
-    event_code: Optional[str] = Query(None),
-    sponsor_id: Optional[int] = Query(None),
-    db: AsyncSession = Depends(get_db),
-):
-    if event_code:
-        return await get_trackers_by_event_code(db, event_code)
-    elif sponsor_id:
-        return await get_trackers_by_sponsor(db, sponsor_id)
-    else:
-        return await get_expo_registry_trackers(db, skip=skip, limit=limit)
+async def get_all_Categories_data(db: AsyncSession = Depends(get_db)):
+    results = await get_expo_registry_trackers(db)
+    return results
 
 @router.get("/getlastExpoRegistryId", response_model=int)
 async def get_max_tracker_id_endpoint(

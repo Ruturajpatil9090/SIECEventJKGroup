@@ -991,10 +991,6 @@ function SponsorMaster() {
     const { data: maxSponsorId, isLoading: isMaxIdLoading, refetch: refetchMaxId } = useGetMaxSponsorIdQuery();
 
     const { data: userdata = [], isLoading: isUserdataLoading } = useGetUserMastersQuery();
-
-    console.log("userdata", userdata)
-
-
     const [addSponsor] = useAddSponsorMutation();
     const [updateSponsor] = useUpdateSponsorMutation();
     const [deleteSponsor] = useDeleteSponsorMutation();
@@ -1049,7 +1045,7 @@ function SponsorMaster() {
                 setSelectedDeliverablesInModal(existingDeliverableCodes);
                 setLogoFile(null);
                 if (selectedRow.Sponsor_logo) {
-                    setLogoPreviewUrl(`http://localhost:8000/sponsors/logo/${getFileName(selectedRow.Sponsor_logo)}`);
+                    setLogoPreviewUrl(`https://events-api.chinimandi.com/sponsors/logo/${getFileName(selectedRow.Sponsor_logo)}`);
                 } else {
                     setLogoPreviewUrl(null);
                 }

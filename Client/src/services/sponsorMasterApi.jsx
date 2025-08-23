@@ -50,7 +50,7 @@ export const sponsorMasterApi = createApi({
         }),
 
         updateSponsor: builder.mutation({
-            queryFn: async ({ id, sponsorData, logoFile }, _queryApi, _extraOptions, baseQuery) => {
+            queryFn: async ({ id, sponsorData, logoFile}, _queryApi, _extraOptions, baseQuery) => {
                 const formData = new FormData();
                 formData.append("sponsor_data", JSON.stringify(sponsorData));
                 if (logoFile) {

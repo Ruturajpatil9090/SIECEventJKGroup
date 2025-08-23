@@ -1,0 +1,102 @@
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List, Optional
+from ..schemas.curated_session_schema import (
+    CuratedSession, 
+    CuratedSessionCreate, 
+    CuratedSessionUpdate
+)
+from ..services.curated_session_service import (
+    get_curated_session,
+    get_curated_sessions,
+    create_curated_session,
+    update_curated_session,
+    delete_curated_session,
+    get_max_curated_session_id,
+    get_curated_sessions_by_event_code,
+    get_curated_sessions_by_sponsor,
+    get_curated_sessions_by_track
+)
+from ..models.database import get_db
+
+router = APIRouter(
+    prefix="/curated-sessions",
+    tags=["curated-sessions"]
+)
+
+@router.get("/", response_model=List[CuratedSession])
+async def get_all_curated_sessions(
+    event_code: Optional[int] = Query(None),
+    sponsor_id: Optional[int] = Query(None),
+    track: Optional[str] = Query(None),
+    db: AsyncSession = Depends(get_db)
+):
+    if event_code:
+        return await get_curated_sessions_by_event_code(db, event_code)
+    elif sponsor_id:
+        return await get_curated_sessions_by_sponsor(db, sponsor_id)
+    elif track:
+        return await get_curated_sessions_by_track(db, track)
+    else:
+        results = await get_curated_sessions(db)
+        return results
+
+@router.get("/getlastCuratedSessionId", response_model=int)
+async def get_max_curated_session_id_endpoint(
+    db: AsyncSession = Depends(get_db),
+):
+    return await get_max_curated_session_id(db)
+
+@router.post("/", response_model=CuratedSession, status_code=status.HTTP_201_CREATED)
+async def create_curated_session_endpoint(
+    session_data: CuratedSessionCreate,
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        return await create_curated_session(db, session_data)
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+@router.get("/{session_id}", response_model=CuratedSession)
+async def read_curated_session(
+    session_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    db_session = await get_curated_session(db, session_id=session_id)
+    if db_session is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Curated session not found"
+        )
+    return db_session
+
+@router.put("/{session_id}", response_model=CuratedSession)
+async def update_existing_curated_session(
+    session_id: int,
+    session: CuratedSessionUpdate,
+    db: AsyncSession = Depends(get_db),
+):
+    updated_session = await update_curated_session(db=db, session_id=session_id, session=session)
+    if updated_session is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Curated session not found"
+        )
+    return updated_session
+
+@router.delete("/{session_id}")
+async def delete_existing_curated_session(
+    session_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    success = await delete_curated_session(db=db, session_id=session_id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Curated session not found"
+        )
+    return {"message": "Curated session deleted successfully"}

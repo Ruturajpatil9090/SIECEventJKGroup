@@ -20,6 +20,9 @@ class ExpoRegistryTrackerUpdate(ExpoRegistryTrackerBase):
 
 class ExpoRegistryTracker(ExpoRegistryTrackerBase):
     ExpoRegistryTrackerId: int
+    EventMaster_Name: Optional[str] = None
+    Sponsor_Name: Optional[str] = None 
+    Deliverables: Optional[str] = None
 
     class Config:
         from_attributes = True

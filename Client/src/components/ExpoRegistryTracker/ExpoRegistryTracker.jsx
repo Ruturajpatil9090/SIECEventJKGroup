@@ -98,22 +98,27 @@ function ExpoRegistryTracker() {
             header: 'Expo Registry ID',
             accessor: 'ExpoRegistryTrackerId',
         },
-        {
-            header: 'Deliverable Code',
-            accessor: 'Deliverabled_Code',
+        // {
+        //     header: 'Deliverable Code',
+        //     accessor: 'Deliverabled_Code',
+        // },
+        // {
+        //     header: 'Deliverable No',
+        //     accessor: 'Deliverable_No',
+        // },
+                {
+            header: 'Event Name',
+            accessor: 'EventMaster_Name',
         },
         {
-            header: 'Deliverable No',
-            accessor: 'Deliverable_No',
+            header: 'Sponsor Name',
+            accessor: 'Sponsor_Name',
         },
-        {
-            header: 'Sponsor',
-            accessor: 'sponsor_name',
+                {
+            header: 'Deliverables',
+            accessor: 'Deliverables',
         },
-        {
-            header: 'Event Code',
-            accessor: 'Event_Code',
-        },
+
         {
             header: 'Booth to be Provided',
             accessor: 'Booth_to_be_provided',
@@ -370,7 +375,7 @@ function ExpoRegistryTracker() {
                             />
                         </div>
 
-                        <div>
+                        {/* <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Deliverable Code</label>
                             <input
                                 type="number"
@@ -392,7 +397,7 @@ function ExpoRegistryTracker() {
                                 autoComplete='off'
                                 className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
                             />
-                        </div>
+                        </div> */}
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Event Code</label>
@@ -403,13 +408,15 @@ function ExpoRegistryTracker() {
                                 placeholder="Select an event..."
                                 isSearchable
                                 required
-                                className="basic-single"
+                                className="basic-single cursor-not-allowed" 
                                 classNamePrefix="select"
+                                 isDisabled 
                                 styles={{
                                     control: (provided) => ({
                                         ...provided,
                                         minHeight: '42px',
                                         borderColor: '#d1d5db',
+                                         cursor: 'not-allowed', 
                                         '&:hover': {
                                             borderColor: '#d1d5db'
                                         }
@@ -435,8 +442,9 @@ function ExpoRegistryTracker() {
                                 onChange={handleSponsorChange}
                                 placeholder="Select a sponsor..."
                                 isSearchable
-                                className="basic-single"
+                              className="basic-single cursor-not-allowed" 
                                 classNamePrefix="select"
+                                  isDisabled 
                                 styles={{
                                     control: (provided) => ({
                                         ...provided,

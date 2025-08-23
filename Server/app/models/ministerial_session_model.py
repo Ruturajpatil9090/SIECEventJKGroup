@@ -1,0 +1,22 @@
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.orm import relationship
+from .database import Base
+
+class EveMinisterialSession(Base):
+    __tablename__ = "Eve_MinisterialSessions"
+
+    MinisterialSessionId = Column(Integer, primary_key=True, autoincrement=True)
+    Event_Code = Column(Integer, nullable=True)
+    SponsorMasterId = Column(Integer, nullable=True)
+    Deliverabled_Code = Column(Integer, nullable=True)
+    Deliverable_No = Column(Integer, nullable=True)
+    Speaker_Name = Column(String(255), nullable=True)
+    designation = Column(String(255), nullable=True)
+    Mobile_No = Column(String(50), nullable=True)
+    Email_Address = Column(String(50), nullable=True)
+    MinisterialSession_Bio = Column(String(255), nullable=True)
+    Speaking_Date = Column(DateTime, nullable=True)
+    Track = Column(String(255), nullable=True)
+
+    def __repr__(self):
+        return f"<EveMinisterialSession {self.MinisterialSessionId}>"

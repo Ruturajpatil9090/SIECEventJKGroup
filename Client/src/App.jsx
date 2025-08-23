@@ -10,6 +10,10 @@ import EventMaster from "./components/EventMasters/EventMaster";
 import CategoryWiseDeliverableMaster from "./components/EventMasters/CategoryWiseDeliverableMaster"
 import SponsorMaster from "./components/EventMasters/sponsorMaster"
 import ExpoRegistryTracker from "./components/ExpoRegistryTracker/ExpoRegistryTracker";
+import AwardMaster from "./components/EventMasters/AwardMaster";
+import AwardRegistryTracker from "./components/ExpoRegistryTracker/AwardRegistryTracker";
+import CuratedSession from "./components/ExpoRegistryTracker/CuratedSession";
+import MinisterialSession from "./components/ExpoRegistryTracker/MinisterialSession";
 // import Footer from "./Pages/Footer/Footer";
 import Login from "./Pages/Login/Login";
 
@@ -46,6 +50,10 @@ const Layout = () => {
             <Route path="/CategoryWiseDeliverableMaster" element={<CategoryWiseDeliverableMaster />} />
             <Route path="/sponsor-master" element={<SponsorMaster />} />
              <Route path="/exporegistry-tracker" element={<ExpoRegistryTracker />} />
+              <Route path="/award-master" element={<AwardMaster />} />
+              <Route path="/award-registry" element={<AwardRegistryTracker />} />
+              <Route path="/curated-sessions" element={<CuratedSession />} />
+                    <Route path="/ministrial-sessions" element={<MinisterialSession />} />
           </Routes>
           {/* <Footer /> */}
         </div>

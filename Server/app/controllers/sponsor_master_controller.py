@@ -18,6 +18,7 @@ from ..services.sponsor_master_services import (
 )
 from ..models.database import get_db
 import json
+from app.websockets.connection_manager import manager
 
 router = APIRouter(
     prefix="/sponsors",
@@ -117,7 +118,7 @@ async def create_sponsor_endpoint(
         sponsor_dict = json.loads(sponsor_data)
         sponsor_create = SponsorMasterCreate(**sponsor_dict)
         
-        return await create_sponsor(db, sponsor_create, logo)
+        return await create_sponsor(db, sponsor_create, logo,ws_manager=manager)
     except json.JSONDecodeError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -158,7 +159,8 @@ async def update_existing_sponsor(
             db=db, 
             sponsor_id=sponsor_id, 
             sponsor_data=sponsor_update,
-            logo_file=logo
+            logo_file=logo,
+          ws_manager=manager
         )
         if updated_sponsor is None:
             raise HTTPException(
@@ -183,7 +185,7 @@ async def delete_existing_sponsor(
     sponsor_id: int,
     db: AsyncSession = Depends(get_db),
 ):
-    success = await delete_sponsor(db=db, sponsor_id=sponsor_id)
+    success = await delete_sponsor(db=db, sponsor_id=sponsor_id, ws_manager=manager)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
