@@ -13,6 +13,7 @@ from ..services.event_service import (
     get_all_events
 )
 from ..models.database import get_db
+from app.websockets.connection_manager import manager
 
 router = APIRouter(
     prefix="/event-masters",
@@ -45,7 +46,7 @@ async def create_event_master_endpoint(
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        return await create_event_master(db, event_master_data)
+        return await create_event_master(db, event_master_data,ws_manager=manager)
     except Exception as e:
         await db.rollback()
         raise HTTPException(
@@ -83,7 +84,8 @@ async def update_existing_event_master(
     updated_event_master = await update_event_master(
         db=db, 
         event_master_id=event_master_id, 
-        event_master=event_master
+        event_master=event_master,
+        ws_manager=manager
     )
     if updated_event_master is None:
         raise HTTPException(
@@ -97,7 +99,7 @@ async def delete_existing_event_master(
     event_master_id: int,
     db: AsyncSession = Depends(get_db),
 ):
-    success = await delete_event_master(db=db, event_master_id=event_master_id)
+    success = await delete_event_master(db=db, event_master_id=event_master_id,ws_manager=manager)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

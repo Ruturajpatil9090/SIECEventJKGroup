@@ -16,8 +16,15 @@ import {
   Phone,
   ChevronDown,
   ChevronRight,
-  Home
+  Home,
+  List,
+  Calendar,
+  Grid,
+  Trophy,
+  MapPin
 } from "lucide-react";
+
+
 import { Link, useLocation } from "react-router-dom";
 import { createContext, useContext, useState, useRef, useEffect } from "react";
 import logo from "../assets/jkIndia.png";
@@ -49,7 +56,7 @@ export default function Sidebar() {
         <div className="p-2 pb-1 flex justify-between items-center">
           <img
             src={logo}
-            className={`overflow-hidden transition-all ${expanded ? "w-28" : "w-0"}`}
+            className={`overflow-hidden transition-all ${expanded ? "w-24" : "w-0"}`}
             alt="JK India Logo"
           />
           <button
@@ -105,76 +112,83 @@ export default function Sidebar() {
                 </div>
               )}
 
-              {expanded && showSubMenu && (
-                <ul className="ml-8">
-                   <SidebarItem icon={<Users size={16} />} text="Category Wise Deliverable Master" path='/CategoryWiseDeliverableMaster' />
-                  <SidebarItem icon={<Users size={16} />} text="Event Super Master" path='/eventsupermaster' />
-                  <SidebarItem icon={<Users size={16} />} text="Event Master" path='/eventmaster' />
-                  <SidebarItem icon={<Users size={16} />} text="Sponsor Master" path='/sponsor-master' />
-                  <SidebarItem icon={<Package size={16} />} text="Deliverable Master" path='/deliverable-master' />
-                  <SidebarItem icon={<Tag size={16} />} text="Category Master" path='/category-master' />
-                  <SidebarItem icon={<Layers size={16} />} text="Category Sub Master" path='/categorysub-master' />
-                  <SidebarItem icon={<Layers size={16} />} text="Award Master" path='/award-master' />
-                </ul>
-              )}
+     {expanded && showSubMenu && (
+  <ul className="ml-8">
+    <SidebarItem icon={<List size={16} />} text="Category Wise Deliverable Master" path='/CategoryWiseDeliverableMaster' />
+    <SidebarItem icon={<Award size={16} />} text="Event Super Master" path='/eventsupermaster' />
+    <SidebarItem icon={<Calendar size={16} />} text="Event Master" path='/eventmaster' />
+    <SidebarItem icon={<Users size={16} />} text="Sponsor Master" path='/sponsor-master' />
+    <SidebarItem icon={<Package size={16} />} text="Deliverable Master" path='/deliverable-master' />
+    <SidebarItem icon={<Grid size={16} />} text="Category Master" path='/category-master' />
+    <SidebarItem icon={<Layers size={16} />} text="Category Sub Master" path='/categorysub-master' />
+    <SidebarItem icon={<Trophy size={16} />} text="Award Master" path='/award-master' />
+    <SidebarItem icon={<MapPin size={16} />} text="Slot Master" path='/slot-master' />
+  </ul>
+)}
 
-              {!expanded && showSubMenu && (
-                <div
-                  className="absolute left-full top-0 w-100 bg-white shadow-lg rounded-md z-50 py-1"
-                  onMouseLeave={() => setShowSubMenu(false)}
-                >
-                      <SidebarItem
-                    icon={<Layers size={16} />}
-                    text="Category Wise Deliverable Master"
-                    path='/CategoryWiseDeliverableMaster'
-                    forceExpand={true}
-                  />
-                  <SidebarItem
-                    icon={<Layers size={16} />}
-                    text="Event Super Master"
-                    path='/eventsupermaster'
-                    forceExpand={true}
-                  />
-                  <SidebarItem
-                    icon={<Layers size={16} />}
-                    text="Event Master"
-                    path='/eventmaster'
-                    forceExpand={true}
-                  />
-                  <SidebarItem
-                    icon={<Users size={16} />}
-                    text="Sponsor Master"
-                    path='/sponsor-master'
-                    forceExpand={true}
-                  />
-                  <SidebarItem
-                    icon={<Package size={16} />}
-                    text="Deliverable Master"
-                    path='/deliverable-master'
-                    forceExpand={true}
-                  />
-                  <SidebarItem
-                    icon={<Tag size={16} />}
-                    text="Category Master"
-                    path='/category-master'
-                    forceExpand={true}
-                  />
-                  <SidebarItem
-                    icon={<Layers size={16} />}
-                    text="Category Sub Master"
-                    path='/categorysub-master'
-                    forceExpand={true}
-                  />
-                      <SidebarItem
-                    icon={<Layers size={16} />}
-                    text="Award Master"
-                    path='/award-master'
-                    forceExpand={true}
-                  />
-                </div>
-              )}
+{!expanded && showSubMenu && (
+  <div
+    className="absolute left-full top-0 w-100 bg-white shadow-lg rounded-md z-50 py-1"
+    onMouseLeave={() => setShowSubMenu(false)}
+  >
+    <SidebarItem
+      icon={<List size={16} />}
+      text="Category Wise Deliverable Master"
+      path='/CategoryWiseDeliverableMaster'
+      forceExpand={true}
+    />
+    <SidebarItem
+      icon={<Award size={16} />}
+      text="Event Super Master"
+      path='/eventsupermaster'
+      forceExpand={true}
+    />
+    <SidebarItem
+      icon={<Calendar size={16} />}
+      text="Event Master"
+      path='/eventmaster'
+      forceExpand={true}
+    />
+    <SidebarItem
+      icon={<Users size={16} />}
+      text="Sponsor Master"
+      path='/sponsor-master'
+      forceExpand={true}
+    />
+    <SidebarItem
+      icon={<Package size={16} />}
+      text="Deliverable Master"
+      path='/deliverable-master'
+      forceExpand={true}
+    />
+    <SidebarItem
+      icon={<Grid size={16} />}
+      text="Category Master"
+      path='/category-master'
+      forceExpand={true}
+    />
+    <SidebarItem
+      icon={<Layers size={16} />}
+      text="Category Sub Master"
+      path='/categorysub-master'
+      forceExpand={true}
+    />
+    <SidebarItem
+      icon={<Trophy size={16} />}
+      text="Award Master"
+      path='/award-master'
+      forceExpand={true}
+    />
+    <SidebarItem
+      icon={<MapPin size={16} />}
+      text="Slot Master"
+      path='/slot-master'
+      forceExpand={true}
+    />
+  </div>
+)}
             </li>
-
+  <hr className="my-3 " />
             {/* <SidebarItem icon={<ShoppingCart size={20} />} text="Sponsor Deliverable Tracker" path="" /> */}
             <SidebarItem icon={<BookOpen size={20} />} text="Expo Registory & Tracker - Sponsor" path="/exporegistry-tracker" />
             <SidebarItem icon={<Ticket size={20} />} text="Passess Registory & Tracker - Sponsor" path="" />

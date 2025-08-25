@@ -3,12 +3,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..models.category_sub_model import CategorySubMaster
 from ..schemas.category_sub_schema import CategorySubCreate, CategorySubUpdate
 from sqlalchemy import select, func
+from typing import Optional
+from ..websockets.connection_manager import ConnectionManager
 
-async def create_category_sub(db: AsyncSession, category_sub: CategorySubCreate):
+async def create_category_sub(db: AsyncSession, category_sub: CategorySubCreate,ws_manager: Optional[ConnectionManager] = None):
     db_category_sub = CategorySubMaster(**category_sub.model_dump())
     db.add(db_category_sub)
     await db.commit()
     await db.refresh(db_category_sub)
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_category_sub")
     return db_category_sub
 
 async def get_category_sub(db: AsyncSession, category_sub_id: int):
@@ -58,7 +62,8 @@ async def get_category_subs_by_category(db: AsyncSession, category_id: int):
 async def update_category_sub(
     db: AsyncSession, 
     category_sub_id: int, 
-    category_sub: CategorySubUpdate
+    category_sub: CategorySubUpdate,
+    ws_manager: Optional[ConnectionManager] = None
 ):
     update_data = category_sub.model_dump(exclude_unset=True)
     
@@ -68,9 +73,11 @@ async def update_category_sub(
         .values(**update_data)
     )
     await db.commit()
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_category_sub")
     return await get_category_sub(db, category_sub_id)
 
-async def delete_category_sub(db: AsyncSession, category_sub_id: int):
+async def delete_category_sub(db: AsyncSession, category_sub_id: int,ws_manager: Optional[ConnectionManager] = None):
     db_category_sub = await get_category_sub(db, category_sub_id)
     if not db_category_sub:
         return False
@@ -80,4 +87,6 @@ async def delete_category_sub(db: AsyncSession, category_sub_id: int):
         .where(CategorySubMaster.CategorySubMasterId == category_sub_id)
     )
     await db.commit()
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_category_sub")
     return True

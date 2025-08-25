@@ -12,6 +12,7 @@ from ..services.category_service import (
 )
 from ..models.database import get_db
 from ..utils.security import get_current_user
+from app.websockets.connection_manager import manager
 
 router = APIRouter(
     prefix="/categories",
@@ -39,7 +40,7 @@ async def create_category_endpoint(
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        return await create_category(db, category_data)
+        return await create_category(db, category_data,ws_manager=manager)
     except Exception as e:
         await db.rollback()
         raise HTTPException(
@@ -66,7 +67,7 @@ async def update_existing_category(
     category: CategoryUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    updated_category = await update_category(db=db, category_id=category_id, category=category)
+    updated_category = await update_category(db=db, category_id=category_id, category=category,ws_manager=manager)
     if updated_category is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -91,7 +92,7 @@ async def update_existing_category(
 @router.delete("/{category_id}")
 async def delete_category_endpoint(category_id: int, db: AsyncSession = Depends(get_db)):
     try:
-        success = await delete_category(db, category_id)
+        success = await delete_category(db, category_id,ws_manager=manager)
         if success:
             return {"message": "Category deleted successfully"}
         else:

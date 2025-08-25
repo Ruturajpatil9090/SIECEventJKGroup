@@ -7,6 +7,9 @@ from ..models.CategoryWiseDeliverables_model import (
     CategoryWiseDeliverablesMaster,
     CategoryWiseDetailDeliverablesMaster
 )
+from typing import Optional
+from ..websockets.connection_manager import ConnectionManager
+
 
 async def get_max_deliverable_no(db: AsyncSession):
     result = await db.execute(select(func.max(DeliverablesMaster.Deliverable_No)))
@@ -50,7 +53,7 @@ async def get_max_deliverable_no_by_category(db: AsyncSession, category: str):
     max_no = result.scalar()
     return max_no if max_no is not None else 0
 
-async def create_deliverable(db: AsyncSession, deliverable: DeliverablesMasterCreate):
+async def create_deliverable(db: AsyncSession, deliverable: DeliverablesMasterCreate,ws_manager: Optional[ConnectionManager] = None):
     max_no = await get_max_deliverable_no_by_category(db, deliverable.Category)
     
     db_deliverable = DeliverablesMaster(
@@ -62,6 +65,8 @@ async def create_deliverable(db: AsyncSession, deliverable: DeliverablesMasterCr
         db.add(db_deliverable)
         await db.commit()
         await db.refresh(db_deliverable)
+        if ws_manager:
+            await ws_manager.broadcast(message="refresh_deliverables")
         return db_deliverable
     except Exception as e:
         await db.rollback()
@@ -70,7 +75,8 @@ async def create_deliverable(db: AsyncSession, deliverable: DeliverablesMasterCr
 async def update_deliverable(
     db: AsyncSession, 
     deliverable_id: int, 
-    deliverable: DeliverablesMasterUpdate
+    deliverable: DeliverablesMasterUpdate,
+    ws_manager: Optional[ConnectionManager] = None
 ):
     db_deliverable = await get_deliverable(db, deliverable_id)
     if not db_deliverable:
@@ -85,41 +91,31 @@ async def update_deliverable(
         .values(**update_data)
     )
     await db.commit()
+    if ws_manager:
+            await ws_manager.broadcast(message="refresh_deliverables")
     return await get_deliverable(db, deliverable_id)
 
-# async def delete_deliverable(db: AsyncSession, deliverable_id: int):
-#     db_deliverable = await get_deliverable(db, deliverable_id)
-#     if not db_deliverable:
-#         return False
-    
-#     await db.execute(
-#         delete(DeliverablesMaster)
-#         .where(DeliverablesMaster.id == deliverable_id)
-#     )
-#     await db.commit()
-#     return True
 
-async def delete_deliverable(db: AsyncSession, deliverable_id: int):
+async def delete_deliverable(db: AsyncSession, deliverable_id: int,ws_manager: Optional[ConnectionManager] = None):
     # First check if the deliverable exists
     db_deliverable = await get_deliverable(db, deliverable_id)
     if not db_deliverable:
         return False
     
-    # Check if the deliverable is referenced in CategoryWiseDeliverablesDetails
     result = await db.execute(
         select(func.count(CategoryWiseDetailDeliverablesMaster.CatDeliverableDetailId))
         .where(CategoryWiseDetailDeliverablesMaster.Deliverabled_Code == deliverable_id)
     )
     reference_count = result.scalar()
     
-    # If referenced, cannot delete
     if reference_count > 0:
         return False
     
-    # If not referenced, proceed with deletion
     await db.execute(
         delete(DeliverablesMaster)
         .where(DeliverablesMaster.id == deliverable_id)
     )
     await db.commit()
+    if ws_manager:
+            await ws_manager.broadcast(message="refresh_deliverables")
     return True

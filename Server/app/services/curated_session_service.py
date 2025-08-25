@@ -1,7 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, asc, func, text
+from typing import Optional
 from ..models.curated_session_model import EveCuratedSession
 from ..schemas.curated_session_schema import CuratedSessionCreate, CuratedSessionUpdate
+from ..websockets.connection_manager import ConnectionManager
 
 async def get_curated_session(db: AsyncSession, session_id: int):
     result = await db.execute(
@@ -39,14 +41,16 @@ async def get_curated_sessions(db: AsyncSession):
     result = await db.execute(query)
     return result.mappings().all()
 
-async def create_curated_session(db: AsyncSession, session: CuratedSessionCreate):
+async def create_curated_session(db: AsyncSession, session: CuratedSessionCreate,ws_manager: Optional[ConnectionManager] = None):
     db_session = EveCuratedSession(**session.model_dump())
     db.add(db_session)
     await db.commit()
     await db.refresh(db_session)
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_curated_sessions")
     return db_session
 
-async def update_curated_session(db: AsyncSession, session_id: int, session: CuratedSessionUpdate):
+async def update_curated_session(db: AsyncSession, session_id: int, session: CuratedSessionUpdate,ws_manager: Optional[ConnectionManager] = None):
     update_data = session.model_dump(exclude_unset=True)
     
     await db.execute(
@@ -55,15 +59,19 @@ async def update_curated_session(db: AsyncSession, session_id: int, session: Cur
         .values(**update_data)
     )
     await db.commit()
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_curated_sessions")
     return await get_curated_session(db, session_id)
 
-async def delete_curated_session(db: AsyncSession, session_id: int):
+async def delete_curated_session(db: AsyncSession, session_id: int,ws_manager: Optional[ConnectionManager] = None):
     db_session = await get_curated_session(db, session_id)
     if not db_session:
         return False
     
     await db.delete(db_session)
     await db.commit()
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_curated_sessions")
     return True
 
 async def get_curated_sessions_by_event_code(db: AsyncSession, event_code: int):

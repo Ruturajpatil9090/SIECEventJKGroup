@@ -18,6 +18,7 @@ from ..services.CategoryWiseDeliverables_services import (
     get_deliverables_by_filters
 )
 from ..models.database import get_db
+from app.websockets.connection_manager import manager
 
 router = APIRouter(
     prefix="/categorywisedeliverables",
@@ -105,7 +106,7 @@ async def create_deliverable_endpoint(
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        return await create_deliverable(db, deliverable_data)
+        return await create_deliverable(db, deliverable_data,ws_manager=manager)
     except Exception as e:
         await db.rollback()
         raise HTTPException(
@@ -135,7 +136,8 @@ async def update_existing_deliverable(
     updated_deliverable = await update_deliverable(
         db=db, 
         deliverable_id=deliverable_id, 
-        deliverable=deliverable
+        deliverable=deliverable,
+        ws_manager=manager
     )
     if updated_deliverable is None:
         raise HTTPException(
@@ -149,7 +151,7 @@ async def delete_existing_deliverable(
     deliverable_id: int,
     db: AsyncSession = Depends(get_db),
 ):
-    success = await delete_deliverable(db=db, deliverable_id=deliverable_id)
+    success = await delete_deliverable(db=db, deliverable_id=deliverable_id,ws_manager=manager)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

@@ -17,6 +17,7 @@ from ..services.category_sub_service import (
     get_max_categorySubMasterId,
     get_all_Categories
 )
+from app.websockets.connection_manager import manager
 
 router = APIRouter(
     prefix="/category-subs",
@@ -29,7 +30,7 @@ async def create_subcategory(
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        return await create_category_sub(db, category_sub)
+        return await create_category_sub(db, category_sub,ws_manager=manager)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -89,7 +90,7 @@ async def update_subcategory(
     category_sub: CategorySubUpdate,
     db: AsyncSession = Depends(get_db)
 ):
-    updated_subcategory = await update_category_sub(db, category_sub_id, category_sub)
+    updated_subcategory = await update_category_sub(db, category_sub_id, category_sub,ws_manager=manager)
     if not updated_subcategory:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -102,7 +103,7 @@ async def delete_subcategory(
     category_sub_id: int,
     db: AsyncSession = Depends(get_db)
 ):
-    success = await delete_category_sub(db, category_sub_id)
+    success = await delete_category_sub(db, category_sub_id,ws_manager=manager)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

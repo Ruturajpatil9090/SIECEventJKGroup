@@ -18,6 +18,7 @@ from ..services.curated_session_service import (
     get_curated_sessions_by_track
 )
 from ..models.database import get_db
+from app.websockets.connection_manager import manager
 
 router = APIRouter(
     prefix="/curated-sessions",
@@ -53,7 +54,7 @@ async def create_curated_session_endpoint(
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        return await create_curated_session(db, session_data)
+        return await create_curated_session(db, session_data,ws_manager=manager)
     except Exception as e:
         await db.rollback()
         raise HTTPException(
@@ -80,7 +81,7 @@ async def update_existing_curated_session(
     session: CuratedSessionUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    updated_session = await update_curated_session(db=db, session_id=session_id, session=session)
+    updated_session = await update_curated_session(db=db, session_id=session_id, session=session,ws_manager=manager)
     if updated_session is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -93,7 +94,7 @@ async def delete_existing_curated_session(
     session_id: int,
     db: AsyncSession = Depends(get_db),
 ):
-    success = await delete_curated_session(db=db, session_id=session_id)
+    success = await delete_curated_session(db=db, session_id=session_id,ws_manager=manager)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

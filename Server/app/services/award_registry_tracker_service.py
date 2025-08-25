@@ -2,6 +2,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, asc, func, text
 from ..models.award_registry_tracker_model import AwardRegistryTracker
 from ..schemas.award_registry_tracker_schema import AwardRegistryTrackerCreate, AwardRegistryTrackerUpdate
+from typing import Optional
+from ..websockets.connection_manager import ConnectionManager
 
 async def get_award_registry_tracker(db: AsyncSession, tracker_id: int):
     result = await db.execute(
@@ -31,14 +33,16 @@ ORDER BY dbo.Eve_AwardRegistryTracker.AwardRegistryTrackerId DESC
     result = await db.execute(query)
     return result.mappings().all()
 
-async def create_award_registry_tracker(db: AsyncSession, tracker: AwardRegistryTrackerCreate):
+async def create_award_registry_tracker(db: AsyncSession, tracker: AwardRegistryTrackerCreate,ws_manager: Optional[ConnectionManager] = None):
     db_tracker = AwardRegistryTracker(**tracker.model_dump())
     db.add(db_tracker)
     await db.commit()
     await db.refresh(db_tracker)
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_award_registry_trackers")
     return db_tracker
 
-async def update_award_registry_tracker(db: AsyncSession, tracker_id: int, tracker: AwardRegistryTrackerUpdate):
+async def update_award_registry_tracker(db: AsyncSession, tracker_id: int, tracker: AwardRegistryTrackerUpdate,ws_manager: Optional[ConnectionManager] = None):
     update_data = tracker.model_dump(exclude_unset=True)
     
     await db.execute(
@@ -47,15 +51,19 @@ async def update_award_registry_tracker(db: AsyncSession, tracker_id: int, track
         .values(**update_data)
     )
     await db.commit()
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_award_registry_trackers")
     return await get_award_registry_tracker(db, tracker_id)
 
-async def delete_award_registry_tracker(db: AsyncSession, tracker_id: int):
+async def delete_award_registry_tracker(db: AsyncSession, tracker_id: int,ws_manager: Optional[ConnectionManager] = None):
     db_tracker = await get_award_registry_tracker(db, tracker_id)
     if not db_tracker:
         return False
     
     await db.delete(db_tracker)
     await db.commit()
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_award_registry_trackers")
     return True
 
 async def get_award_trackers_by_event_code(db: AsyncSession, event_code: int):

@@ -14,6 +14,7 @@ import { awardMasterApi } from '../services/awardMasterApi';
 import { awardRegistryApi } from '../services/awardRegistryApi';
 import { curatedSessionApi } from '../services/curatedSessionApi';
 import { ministerialSessionApi } from '../services/ministerialSessionApi';
+import { slotMasterApi } from '../services/slotMasterApi';
 
 // WebSocket URL
 const WS_URL = "ws://localhost:8000/ws";
@@ -33,10 +34,11 @@ export const store = configureStore({
     [awardRegistryApi.reducerPath]: awardRegistryApi.reducer,
     [curatedSessionApi.reducerPath]: curatedSessionApi.reducer,
     [ministerialSessionApi.reducerPath]: ministerialSessionApi.reducer,
+    [slotMasterApi.reducerPath]: slotMasterApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
-     .prepend(listenerMiddleware.middleware)
+      .prepend(listenerMiddleware.middleware)
       .concat(createWebSocketMiddleware(WS_URL))
       .concat(deliverableApi.middleware)
       .concat(categoryMasterApi.middleware)
@@ -51,4 +53,5 @@ export const store = configureStore({
       .concat(awardRegistryApi.middleware)
       .concat(curatedSessionApi.middleware)
       .concat(ministerialSessionApi.middleware)
+      .concat(slotMasterApi.middleware)
 });

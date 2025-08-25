@@ -160,7 +160,7 @@ async def update_existing_sponsor(
             sponsor_id=sponsor_id, 
             sponsor_data=sponsor_update,
             logo_file=logo,
-          ws_manager=manager
+            ws_manager=manager
         )
         if updated_sponsor is None:
             raise HTTPException(

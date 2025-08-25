@@ -12,6 +12,7 @@ from ..services.deliverables_service import (
 from ..models.database import get_db
 from ..utils.security import get_current_user
 from ..schemas.user_schema import User
+from app.websockets.connection_manager import manager
 
 router = APIRouter(prefix="/deliverables", tags=["deliverables"])
 
@@ -44,7 +45,7 @@ async def create_new_deliverable(
     db: AsyncSession = Depends(get_db),
     # current_user: User = Depends(get_current_user)
 ):
-    return await create_deliverable(db=db, deliverable=deliverable)
+    return await create_deliverable(db=db, deliverable=deliverable,ws_manager=manager)
 
 @router.get("/{deliverable_id}", response_model=DeliverablesMaster)
 async def read_deliverable(
@@ -66,7 +67,8 @@ async def update_existing_deliverable(
     updated_deliverable = await update_deliverable(
         db=db, 
         deliverable_id=deliverable_id, 
-        deliverable=deliverable
+        deliverable=deliverable,
+        ws_manager=manager
     )
     if updated_deliverable is None:
         raise HTTPException(status_code=404, detail="Deliverable not found")
@@ -87,7 +89,7 @@ async def update_existing_deliverable(
 @router.delete("/{deliverable_id}")
 async def delete_deliverable_endpoint(deliverable_id: int, db: AsyncSession = Depends(get_db)):
     try:
-        success = await delete_deliverable(db, deliverable_id)
+        success = await delete_deliverable(db, deliverable_id,ws_manager=manager)
         if success:
             return {"message": "Deliverable deleted successfully"}
         else:

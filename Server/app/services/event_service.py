@@ -3,6 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..models.event_model import EventMaster
 from ..schemas.event_schema import EventMasterCreate, EventMasterUpdate
 from sqlalchemy import select, func
+from ..websockets.connection_manager import ConnectionManager
+from typing import Optional
 
 async def get_event_master(db: AsyncSession, event_master_id: int):
     result = await db.execute(
@@ -43,14 +45,16 @@ async def get_event_masters(db: AsyncSession, skip: int = 0, limit: int = 100):
     )
     return result.scalars().all()
 
-async def create_event_master(db: AsyncSession, event_master: EventMasterCreate):
+async def create_event_master(db: AsyncSession, event_master: EventMasterCreate,ws_manager: Optional[ConnectionManager] = None):
     db_event_master = EventMaster(**event_master.model_dump())
     db.add(db_event_master)
     await db.commit()
     await db.refresh(db_event_master)
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_event_master")
     return db_event_master
 
-async def update_event_master(db: AsyncSession, event_master_id: int, event_master: EventMasterUpdate):
+async def update_event_master(db: AsyncSession, event_master_id: int, event_master: EventMasterUpdate,ws_manager: Optional[ConnectionManager] = None):
     update_data = event_master.model_dump(exclude_unset=True)
     
     await db.execute(
@@ -59,15 +63,19 @@ async def update_event_master(db: AsyncSession, event_master_id: int, event_mast
         .values(**update_data)
     )
     await db.commit()
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_event_master")
     return await get_event_master(db, event_master_id)
 
-async def delete_event_master(db: AsyncSession, event_master_id: int):
+async def delete_event_master(db: AsyncSession, event_master_id: int,ws_manager: Optional[ConnectionManager] = None):
     db_event_master = await get_event_master(db, event_master_id)
     if not db_event_master:
         return False
     
     await db.delete(db_event_master)
     await db.commit()
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_event_master")
     return True
 
 async def get_events_by_super_id(db: AsyncSession, event_super_id: int):

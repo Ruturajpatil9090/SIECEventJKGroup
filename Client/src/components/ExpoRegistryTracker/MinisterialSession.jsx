@@ -228,7 +228,7 @@ function MinisterialSessionTracker() {
             Mobile_No: row.Mobile_No || '',
             Email_Address: row.Email_Address || '',
             MinisterialSession_Bio: row.MinisterialSession_Bio || '',
-            Speaking_Date: row.Speaking_Date ? new Date(row.Speaking_Date).toISOString().split('T')[0] : '',
+            Speaking_Date: row.Speaking_Date ? getCurrentDate() : getCurrentDate(),
             Track: row.Track || ''
         });
         setEditId(row.MinisterialSessionId);
@@ -310,7 +310,7 @@ function MinisterialSessionTracker() {
             )}
 
             <TableUtility
-                headerContent={<CreateNewButton onClick={handleAddNew} />}
+                // headerContent={<CreateNewButton onClick={handleAddNew} />}
                 title="Ministerial Session Tracker"
                 columns={columns}
                 data={tableData}

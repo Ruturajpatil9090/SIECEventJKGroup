@@ -5,6 +5,14 @@ import { sponsorMasterApi } from '../services/sponsorMasterApi';
 import { awardRegistryApi } from '../services/awardRegistryApi';
 import { curatedSessionApi } from '../services/curatedSessionApi';
 import { ministerialSessionApi } from '../services/ministerialSessionApi';
+import { categoryWiseDeliverablesApi } from "../services/categoryWiseDeliverableMasterApi";
+import { eventSuperMasterApi } from "../services/eventSuperMasterApi";
+import { eventMasterApi } from "../services/eventMasterApi";
+import { deliverableApi } from '../services/deliverablesApi';
+import { categoryMasterApi } from '../services/categoryMasterApi';
+import { categorySubMasterApi } from '../services/categorySubMasterApi';
+import { awardMasterApi } from "../services/awardMasterApi";
+import { slotMasterApi } from '../services/slotMasterApi';
 
 export const listenerMiddleware = createListenerMiddleware();
 
@@ -23,19 +31,89 @@ listenerMiddleware.startListening({
             listenerApi.dispatch(
                 awardRegistryApi.util.invalidateTags(['AwardRegistry'])
             );
-             listenerApi.dispatch(
+            listenerApi.dispatch(
                 curatedSessionApi.util.invalidateTags(['CuratedSession'])
             );
-             listenerApi.dispatch(
+            listenerApi.dispatch(
                 ministerialSessionApi.util.invalidateTags(['MinisterialSession'])
             );
+              listenerApi.dispatch(
+                slotMasterApi.util.invalidateTags(['SlotMaster'])
+            );
         }
-        else if (payload === "refresh_ministerial_sessions") {
+        else if (action.payload === "refresh_ministerial_sessions") {
             console.log("Received refresh signal. Invalidating Ministerial Sessions cache.");
             listenerApi.dispatch(
                 ministerialSessionApi.util.invalidateTags(['MinisterialSession'])
             );
         }
+        else if (action.payload === "refresh_curated_sessions") {
+            console.log("Received refresh signal. Invalidating Curated Sessions cache.");
+            listenerApi.dispatch(
+                curatedSessionApi.util.invalidateTags(['CuratedSession'])
+            );
+        }
+        else if (action.payload === "refresh_category_wise_deliverables") {
+            console.log("Received refresh signal. Invalidating Curated Sessions cache.");
+            listenerApi.dispatch(
+                categoryWiseDeliverablesApi.util.invalidateTags(['CategoryWiseDeliverables'])
+            );
+        }
+        else if (action.payload === "refresh_event_super") {
+            console.log("Received refresh signal. Invalidating Event Super Master cache.");
+            listenerApi.dispatch(
+                eventSuperMasterApi.util.invalidateTags(['EventSuperMaster'])
+            );
+        }
+        else if (action.payload === "refresh_event_master") {
+            console.log("Received refresh signal. Invalidating Event Master cache.");
+            listenerApi.dispatch(
+                eventMasterApi.util.invalidateTags(['EventMaster'])
+            );
+        }
+        else if (action.payload === "refresh_deliverables") {
+            console.log("Received refresh signal. Invalidating Deliverables cache.");
+            listenerApi.dispatch(
+                deliverableApi.util.invalidateTags(['Deliverable'])
+            );
+        }
+        else if (action.payload === "refresh_category") {
+            console.log("Received refresh signal. Invalidating Category Master cache.");
+            listenerApi.dispatch(
+                categoryMasterApi.util.invalidateTags(['CategoryMaster'])
+            );
+        }
+        else if (action.payload === "refresh_category_sub") {
+            console.log("Received refresh signal. Invalidating Category Sub Master cache.");
+            listenerApi.dispatch(
+                categorySubMasterApi.util.invalidateTags(['CategorySubMaster'])
+            );
+        }
+        else if (action.payload === "refresh_award_master") {
+            console.log("Received refresh signal. Invalidating Award Master cache.");
+            listenerApi.dispatch(
+                awardMasterApi.util.invalidateTags(['AwardMaster'])
+            );
+        }
+        else if (action.payload === "refresh_expo_registry_trackers") {
+            console.log("Received refresh signal. Invalidating Expo Registry cache.");
+            listenerApi.dispatch(
+                expoRegistryApi.util.invalidateTags(['ExpoRegistry'])
+            );
+        }
+        else if (action.payload === "refresh_award_registry_trackers") {
+            console.log("Received refresh signal. Invalidating Award Registry cache.");
+            listenerApi.dispatch(
+                awardRegistryApi.util.invalidateTags(['AwardRegistry'])
+            );
+        }
+               else if (action.payload === "refresh_slot_master") {
+            console.log("Received refresh signal. Invalidating Award Registry cache.");
+            listenerApi.dispatch(
+                slotMasterApi.util.invalidateTags(['SlotMaster'])
+            );
+        }
+        
     },
-    
+
 });

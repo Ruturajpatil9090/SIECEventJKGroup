@@ -14,6 +14,7 @@ import AwardMaster from "./components/EventMasters/AwardMaster";
 import AwardRegistryTracker from "./components/ExpoRegistryTracker/AwardRegistryTracker";
 import CuratedSession from "./components/ExpoRegistryTracker/CuratedSession";
 import MinisterialSession from "./components/ExpoRegistryTracker/MinisterialSession";
+import SlotMaster from "./components/EventMasters/SlotMaster";
 // import Footer from "./Pages/Footer/Footer";
 import Login from "./Pages/Login/Login";
 
@@ -49,11 +50,12 @@ const Layout = () => {
             <Route path="/eventmaster" element={<EventMaster />} />
             <Route path="/CategoryWiseDeliverableMaster" element={<CategoryWiseDeliverableMaster />} />
             <Route path="/sponsor-master" element={<SponsorMaster />} />
-             <Route path="/exporegistry-tracker" element={<ExpoRegistryTracker />} />
-              <Route path="/award-master" element={<AwardMaster />} />
-              <Route path="/award-registry" element={<AwardRegistryTracker />} />
-              <Route path="/curated-sessions" element={<CuratedSession />} />
-                    <Route path="/ministrial-sessions" element={<MinisterialSession />} />
+            <Route path="/exporegistry-tracker" element={<ExpoRegistryTracker />} />
+            <Route path="/award-master" element={<AwardMaster />} />
+            <Route path="/award-registry" element={<AwardRegistryTracker />} />
+            <Route path="/curated-sessions" element={<CuratedSession />} />
+            <Route path="/ministrial-sessions" element={<MinisterialSession />} />
+            <Route path="/slot-master" element={<SlotMaster />} />
           </Routes>
           {/* <Footer /> */}
         </div>

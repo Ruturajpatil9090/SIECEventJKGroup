@@ -1,7 +1,7 @@
 from sqlalchemy import select, update, delete, asc, func,text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-
+from typing import Optional
 from ..models.CategoryWiseDeliverables_model import (
     CategoryWiseDeliverablesMaster,
     CategoryWiseDetailDeliverablesMaster
@@ -10,6 +10,7 @@ from ..schemas.CategoryWiseDeliverables_schema import (
     DeliverableCreate, 
     DeliverableUpdate
 )
+from ..websockets.connection_manager import ConnectionManager
 
 async def get_deliverable(db: AsyncSession, deliverable_id: int):
     result = await db.execute(
@@ -46,7 +47,6 @@ async def get_all_deliverables_with_details(db: AsyncSession, skip: int = 0, lim
     LEFT JOIN dbo.Eve_CategoryWiseDetailDeliverablesMaster cwdd
         ON cwdm.CatDeliverableId = cwdd.CatDeliverableId
     ORDER BY cwdm.CatDeliverableId DESC
-    OFFSET :skip ROWS FETCH NEXT :limit ROWS ONLY
     """)
     
     result = await db.execute(query, {"skip": skip, "limit": limit})
@@ -99,7 +99,6 @@ async def get_deliverables_by_filters(
     
     rows = result.mappings().all()
     
-    # Group by master deliverable and create nested structure
     grouped_data = {}
     for row in rows:
         master_id = row['CatDeliverableId']
@@ -117,7 +116,6 @@ async def get_deliverables_by_filters(
                 "details": []
             }
         
-        # Add detail if it exists (check if Deliverabled_Code is not null)
         if row['Deliverabled_Code'] is not None:
             detail = {
                 "Deliverabled_Code": row['Deliverabled_Code'],
@@ -144,7 +142,7 @@ async def get_deliverables(db: AsyncSession, skip: int = 0, limit: int = 100):
     )
     return result.scalars().all()
 
-async def create_deliverable(db: AsyncSession, deliverable: DeliverableCreate):
+async def create_deliverable(db: AsyncSession, deliverable: DeliverableCreate,ws_manager: Optional[ConnectionManager] = None):
     db_deliverable = CategoryWiseDeliverablesMaster(**deliverable.model_dump(exclude={"details"}))
     db.add(db_deliverable)
     await db.commit()
@@ -161,9 +159,11 @@ async def create_deliverable(db: AsyncSession, deliverable: DeliverableCreate):
         db.add(db_detail)
 
     await db.commit()
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_category_wise_deliverables")
     return await get_deliverable(db, db_deliverable.CatDeliverableId)
 
-async def update_deliverable(db: AsyncSession, deliverable_id: int, deliverable: DeliverableUpdate):
+async def update_deliverable(db: AsyncSession, deliverable_id: int, deliverable: DeliverableUpdate,ws_manager: Optional[ConnectionManager] = None):
     db_deliverable = await get_deliverable(db, deliverable_id)
     if not db_deliverable:
         return None
@@ -215,13 +215,17 @@ async def update_deliverable(db: AsyncSession, deliverable_id: int, deliverable:
                 db.add(db_detail)
 
     await db.commit()
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_category_wise_deliverables")
     return await get_deliverable(db, deliverable_id)
 
-async def delete_deliverable(db: AsyncSession, deliverable_id: int):
+async def delete_deliverable(db: AsyncSession, deliverable_id: int,ws_manager: Optional[ConnectionManager] = None):
     db_deliverable = await get_deliverable(db, deliverable_id)
     if not db_deliverable:
         return False
 
     await db.delete(db_deliverable)
     await db.commit()
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_category_wise_deliverables")
     return True

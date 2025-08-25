@@ -1,8 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL
 
 export const awardMasterApi = createApi({
     reducerPath: "awardMasterApi",
-    baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8000" }),
+    baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL}),
     tagTypes: ['AwardMaster'],
     endpoints: (builder) => ({
 

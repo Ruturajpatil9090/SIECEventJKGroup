@@ -12,14 +12,12 @@ from app.services.Award_master_services import (
     delete_Award_Master
 )
 from app.models.database import get_db
-
+from app.websockets.connection_manager import manager
 
 router = APIRouter(
     prefix="/award",
     tags=["Award"]
 )
-
-
 
 @router.get("/", response_model=List[Award])
 async def read_awards(
@@ -44,12 +42,12 @@ async def read_max_award_id(db: AsyncSession = Depends(get_db)):
 
 @router.post("/add", response_model=AwardBase, status_code=status.HTTP_201_CREATED)
 async def create_award(award: AwardCreate, db: AsyncSession = Depends(get_db)):
-    return await create_Award_Master(db=db, award=award)
+    return await create_Award_Master(db=db, award=award,ws_manager=manager)
 
 
 @router.put("/{award_id}", response_model=AwardBase)
 async def update_award(award_id: int, award: AwardUpdate, db: AsyncSession = Depends(get_db)):
-    db_award = await update_Award_Master(db=db, award_id=award_id, award=award)
+    db_award = await update_Award_Master(db=db, award_id=award_id, award=award,ws_manager=manager)
     if not db_award:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Award not found")
     return db_award
@@ -57,7 +55,7 @@ async def update_award(award_id: int, award: AwardUpdate, db: AsyncSession = Dep
 
 @router.delete("/{award_id}", response_model=AwardBase)
 async def delete_award(award_id: int, db: AsyncSession = Depends(get_db)):
-    db_award = await delete_Award_Master(db=db, award_id=award_id)
+    db_award = await delete_Award_Master(db=db, award_id=award_id,ws_manager=manager)
     if not db_award:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Award not found")
     return db_award

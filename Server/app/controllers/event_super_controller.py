@@ -12,6 +12,7 @@ from ..services.event_super_service import (
 )
 from ..models.database import get_db
 from ..utils.security import get_current_user
+from app.websockets.connection_manager import manager
 
 router = APIRouter(
     prefix="/event-supers",
@@ -39,7 +40,7 @@ async def create_event_super_endpoint(
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        return await create_event_super(db, event_super_data)
+        return await create_event_super(db, event_super_data,ws_manager=manager)
     except Exception as e:
         await db.rollback()
         raise HTTPException(
@@ -66,7 +67,7 @@ async def update_existing_event_super(
     event_super: EventSuperUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    updated_event_super = await update_event_super(db=db, event_super_id=event_super_id, event_super=event_super)
+    updated_event_super = await update_event_super(db=db, event_super_id=event_super_id, event_super=event_super,ws_manager=manager)
     if updated_event_super is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -90,7 +91,7 @@ async def update_existing_event_super(
 
 @router.delete("/{event_super_id}")
 async def delete_event_super_endpoint(event_super_id: int, db: AsyncSession = Depends(get_db)):
-    success = await delete_event_super(db, event_super_id)
+    success = await delete_event_super(db, event_super_id,ws_manager=manager)
     
     if success:
         return {"message": "EventSuper deleted successfully"}

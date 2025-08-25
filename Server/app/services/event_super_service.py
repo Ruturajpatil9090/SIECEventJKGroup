@@ -4,6 +4,8 @@ from ..models.event_super_model import EventSuper
 from ..models.event_model import EventMaster
 from ..schemas.event_super_schema import EventSuperCreate, EventSuperUpdate
 from sqlalchemy import select, func
+from typing import Optional
+from ..websockets.connection_manager import ConnectionManager
 
 async def get_event_super(db: AsyncSession, event_super_id: int):
     result = await db.execute(select(EventSuper).filter(EventSuper.EventSuperId == event_super_id))
@@ -27,14 +29,16 @@ async def get_event_supers(db: AsyncSession, skip: int = 0, limit: int = 100):
     )
     return result.scalars().all()
 
-async def create_event_super(db: AsyncSession, event_super: EventSuperCreate):
+async def create_event_super(db: AsyncSession, event_super: EventSuperCreate,ws_manager: Optional[ConnectionManager] = None):
     db_event_super = EventSuper(**event_super.model_dump())
     db.add(db_event_super)
     await db.commit()
     await db.refresh(db_event_super)
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_event_super")
     return db_event_super
 
-async def update_event_super(db: AsyncSession, event_super_id: int, event_super: EventSuperUpdate):
+async def update_event_super(db: AsyncSession, event_super_id: int, event_super: EventSuperUpdate,ws_manager: Optional[ConnectionManager] = None):
     update_data = event_super.model_dump(exclude_unset=True)
     
     await db.execute(
@@ -43,6 +47,8 @@ async def update_event_super(db: AsyncSession, event_super_id: int, event_super:
         .values(**update_data)
     )
     await db.commit()
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_event_super")
     return await get_event_super(db, event_super_id)
 
 # async def delete_event_super(db: AsyncSession, event_super_id: int):
@@ -55,7 +61,7 @@ async def update_event_super(db: AsyncSession, event_super_id: int, event_super:
 #     return True
 
 
-async def delete_event_super(db: AsyncSession, event_super_id: int):
+async def delete_event_super(db: AsyncSession, event_super_id: int,ws_manager: Optional[ConnectionManager] = None):
     db_event_super = await get_event_super(db, event_super_id)
     if not db_event_super:
         return False
@@ -71,4 +77,6 @@ async def delete_event_super(db: AsyncSession, event_super_id: int):
     
     await db.delete(db_event_super)
     await db.commit()
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_event_super")
     return True

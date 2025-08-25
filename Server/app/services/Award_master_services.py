@@ -2,13 +2,13 @@ from sqlalchemy import desc, select, update, delete, asc, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.Award_master_model import AwardMaster
 from app.schemas.Award_master_schemas import AwardUpdate, AwardCreate
-
+from typing import Optional
+from ..websockets.connection_manager import ConnectionManager
 
 
 async def get_Award_master_by_id(db: AsyncSession, award_id: int):
     result = await db.execute(select(AwardMaster).where(AwardMaster.AwardId == award_id))
     return result.scalar_one_or_none()
-
 
 
 async def get_max_Award_master(db: AsyncSession):
@@ -27,8 +27,7 @@ async def get_Award_master(db: AsyncSession, skip: int = 0, limit: int = 100):
     return result.scalars().all()
 
 
-
-async def create_Award_Master(db: AsyncSession, award: AwardCreate):
+async def create_Award_Master(db: AsyncSession, award: AwardCreate,ws_manager: Optional[ConnectionManager] = None):
     max_id = await get_max_Award_master(db)
     new_id = max_id + 1
 
@@ -40,10 +39,12 @@ async def create_Award_Master(db: AsyncSession, award: AwardCreate):
     db.add(db_award)
     await db.commit()
     await db.refresh(db_award)
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_award_master")
     return db_award
 
 
-async def update_Award_Master(db: AsyncSession, award_id: int, award: AwardUpdate):
+async def update_Award_Master(db: AsyncSession, award_id: int, award: AwardUpdate,ws_manager: Optional[ConnectionManager] = None):
     update_data = award.model_dump(exclude_unset=True)
 
     await db.execute(
@@ -52,17 +53,20 @@ async def update_Award_Master(db: AsyncSession, award_id: int, award: AwardUpdat
         .values(**update_data)
     )
     await db.commit()
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_award_master")
 
-    # fetch and return the updated record
     return await get_Award_master_by_id(db, award_id)
 
 
 
-async def delete_Award_Master(db: AsyncSession, award_id: int):
+async def delete_Award_Master(db: AsyncSession, award_id: int,ws_manager: Optional[ConnectionManager] = None):
     db_award = await get_Award_master_by_id(db, award_id)
     if not db_award:
         return None
 
     await db.delete(db_award)
     await db.commit()
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_award_master")
     return db_award

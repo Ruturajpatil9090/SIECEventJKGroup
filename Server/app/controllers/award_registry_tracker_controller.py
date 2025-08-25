@@ -18,6 +18,7 @@ from ..services.award_registry_tracker_service import (
     get_award_trackers_by_deliverable
 )
 from ..models.database import get_db
+from app.websockets.connection_manager import manager
 
 router = APIRouter(
     prefix="/award-registry",
@@ -53,7 +54,7 @@ async def create_award_registry_tracker_endpoint(
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        return await create_award_registry_tracker(db, tracker_data)
+        return await create_award_registry_tracker(db, tracker_data,ws_manager=manager)
     except Exception as e:
         await db.rollback()
         raise HTTPException(
@@ -80,7 +81,7 @@ async def update_existing_award_registry_tracker(
     tracker: AwardRegistryTrackerUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    updated_tracker = await update_award_registry_tracker(db=db, tracker_id=tracker_id, tracker=tracker)
+    updated_tracker = await update_award_registry_tracker(db=db, tracker_id=tracker_id, tracker=tracker,ws_manager=manager)
     if updated_tracker is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -93,7 +94,7 @@ async def delete_existing_award_registry_tracker(
     tracker_id: int,
     db: AsyncSession = Depends(get_db),
 ):
-    success = await delete_award_registry_tracker(db=db, tracker_id=tracker_id)
+    success = await delete_award_registry_tracker(db=db, tracker_id=tracker_id,ws_manager=manager)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

@@ -65,7 +65,8 @@ export const sponsorMasterApi = createApi({
 
                 return result;
             },
-            invalidatesTags: (result, error, { id }) => [{ type: 'SponsorMaster', id }],
+            invalidatesTags: (result, error, id) => [{ type: 'SponsorMaster', id }],
+            // invalidatesTags: (result, error, { id }) => [{ type: 'SponsorMaster', id }],
         }),
         deleteSponsor: builder.mutation({
             query: (id) => ({
