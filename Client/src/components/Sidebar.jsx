@@ -191,7 +191,7 @@ export default function Sidebar() {
   <hr className="my-3 " />
             {/* <SidebarItem icon={<ShoppingCart size={20} />} text="Sponsor Deliverable Tracker" path="" /> */}
             <SidebarItem icon={<BookOpen size={20} />} text="Expo Registory & Tracker - Sponsor" path="/exporegistry-tracker" />
-            <SidebarItem icon={<Ticket size={20} />} text="Passess Registory & Tracker - Sponsor" path="" />
+            <SidebarItem icon={<Ticket size={20} />} text="Passess Registory & Tracker - Sponsor" path="/passess-registry" />
             <SidebarItem icon={<Award size={20} />} text="Award Registory & Tracker - Sponsor" path="/award-registry" />
             <SidebarItem icon={<Mic size={20} />} text="Speaker Sponsors" path="" />
             <SidebarItem icon={<Users2 size={20} />} text="Curated Session - Sponsors" path="/curated-sessions" />

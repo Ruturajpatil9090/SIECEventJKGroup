@@ -1705,7 +1705,7 @@ function SponsorMaster() {
                             />
                         </div>
 
-                        <div className="sm:col-span-1">
+                        {/* <div className="sm:col-span-1">
                             <label htmlFor="Sponsor_Deliverables_Tracker" className="block text-sm font-medium text-gray-700 mb-1">Sponsor Deliverables Tracker</label>
                             <textarea
                                 id="Sponsor_Deliverables_Tracker"
@@ -1788,7 +1788,7 @@ function SponsorMaster() {
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                                 rows={1}
                             />
-                        </div>
+                        </div> */}
 
 
                         <div>

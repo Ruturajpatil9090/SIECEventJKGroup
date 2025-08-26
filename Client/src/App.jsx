@@ -15,6 +15,7 @@ import AwardRegistryTracker from "./components/ExpoRegistryTracker/AwardRegistry
 import CuratedSession from "./components/ExpoRegistryTracker/CuratedSession";
 import MinisterialSession from "./components/ExpoRegistryTracker/MinisterialSession";
 import SlotMaster from "./components/EventMasters/SlotMaster";
+import PassessRegistry from "./components/ExpoRegistryTracker/PassessRegistry";
 // import Footer from "./Pages/Footer/Footer";
 import Login from "./Pages/Login/Login";
 
@@ -56,6 +57,7 @@ const Layout = () => {
             <Route path="/curated-sessions" element={<CuratedSession />} />
             <Route path="/ministrial-sessions" element={<MinisterialSession />} />
             <Route path="/slot-master" element={<SlotMaster />} />
+                <Route path="/passess-registry" element={<PassessRegistry />} />
           </Routes>
           {/* <Footer /> */}
         </div>
