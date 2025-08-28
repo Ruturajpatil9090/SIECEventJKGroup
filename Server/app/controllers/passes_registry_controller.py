@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 import json
+from app.websockets.connection_manager import manager
 
 from ..schemas.passes_registry_schema import (
     PassRegistry, 
@@ -43,7 +44,7 @@ async def create_passes_registry_endpoint(
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        return await create_passes_registry(db, registry_data)
+        return await create_passes_registry(db, registry_data,ws_manager=manager)
     except Exception as e:
         await db.rollback()
         raise HTTPException(
@@ -74,7 +75,8 @@ async def update_passes_registry_endpoint(
         updated_registry = await update_passes_registry(
             db=db, 
             registry_id=registry_id, 
-            registry_data=registry_data
+            registry_data=registry_data,
+            ws_manager=manager
         )
         if updated_registry is None:
             raise HTTPException(
@@ -94,7 +96,7 @@ async def delete_passes_registry_endpoint(
     registry_id: int,
     db: AsyncSession = Depends(get_db),
 ):
-    success = await delete_passes_registry(db=db, registry_id=registry_id)
+    success = await delete_passes_registry(db=db, registry_id=registry_id, ws_manager=manager)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

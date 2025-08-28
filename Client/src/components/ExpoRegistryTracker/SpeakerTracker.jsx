@@ -4,35 +4,37 @@ import { PencilSquareIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react
 import { Trash2 } from 'lucide-react';
 import Select from 'react-select';
 import Modal from '../../common/Modal/Modal';
+import { getCurrentDate } from '../../common/Functions/GetCurrentdate';
 import {
-    useGetAwardRegistryQuery,
-    useGetMaxAwardRegistryIdQuery,
-    useAddAwardRegistryMutation,
-    useUpdateAwardRegistryMutation,
-    useDeleteAwardRegistryMutation
-} from '../../services/awardRegistryApi';
+    useGetSpeakerTrackersQuery,
+    useGetMaxSpeakerTrackerIdQuery,
+    useAddSpeakerTrackerMutation,
+    useUpdateSpeakerTrackerMutation,
+    useDeleteSpeakerTrackerMutation
+} from '../../services/speakerTrackerApi';
 import {
     useGetEventMastersQuery,
 } from '../../services/eventMasterApi';
 import {
     useGetSponsorsQuery,
 } from '../../services/sponsorMasterApi';
-import {
-    useGetAwardMasterAllQuery,
-} from '../../services/awardMasterApi';
 import CreateNewButton from "../../common/Buttons/AddButton";
 
-function AwardRegistryTracker() {
+function SpeakerTracker() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false);
-    const [awardRegistryIdToDelete, setAwardRegistryIdToDelete] = useState(null);
+    const [speakerTrackerIdToDelete, setSpeakerTrackerIdToDelete] = useState(null);
     const [formData, setFormData] = useState({
-        AwardRegistryTrackerId: '',
+        SpeakerTrackerId: '',
         Event_Code: '',
         SponsorMasterId: '',
-        Deliverabled_Code: '',
-        Deliverable_No: '',
-        Award_Code: ''
+        Speaker_Name: '',
+        Designation: '',
+        Mobile_No: '',
+        Email_Address: '',
+        Speaker_Bio: '',
+        Speaking_Date: getCurrentDate(),
+        Track: ''
     });
     const [editId, setEditId] = useState(null);
     const [notification, setNotification] = useState({
@@ -46,13 +48,13 @@ function AwardRegistryTracker() {
         isLoading: isTableLoading,
         isError,
         refetch
-    } = useGetAwardRegistryQuery();
+    } = useGetSpeakerTrackersQuery();
 
     const {
-        data: maxAwardRegistryId = 0,
+        data: maxSpeakerTrackerId = 0,
         isLoading: isMaxIdLoading,
         refetch: refetchMaxId
-    } = useGetMaxAwardRegistryIdQuery();
+    } = useGetMaxSpeakerTrackerIdQuery();
 
     const {
         data: events = [],
@@ -64,14 +66,14 @@ function AwardRegistryTracker() {
         isLoading: isSponsorsLoading
     } = useGetSponsorsQuery();
 
-    const {
-        data: awards = [],
-        isLoading: isAwardsLoading
-    } = useGetAwardMasterAllQuery();
+    const [addSpeakerTracker] = useAddSpeakerTrackerMutation();
+    const [updateSpeakerTracker] = useUpdateSpeakerTrackerMutation();
+    const [deleteSpeakerTracker] = useDeleteSpeakerTrackerMutation();
 
-    const [addAwardRegistry] = useAddAwardRegistryMutation();
-    const [updateAwardRegistry] = useUpdateAwardRegistryMutation();
-    const [deleteAwardRegistry] = useDeleteAwardRegistryMutation();
+    const trackOptions = [
+        { value: 'E', label: 'Ethanol' },
+        { value: 'B', label: 'Bioenergy' }
+    ];
 
     const showNotification = (message, type = 'success') => {
         setNotification({ show: true, message, type });
@@ -82,13 +84,13 @@ function AwardRegistryTracker() {
 
     useEffect(() => {
         if (!editId && !isMaxIdLoading && isModalOpen) {
-            const nextId = maxAwardRegistryId + 1;
+            const nextId = maxSpeakerTrackerId + 1;
             setFormData(prev => ({
                 ...prev,
-                AwardRegistryTrackerId: nextId.toString()
+                SpeakerTrackerId: nextId.toString()
             }));
         }
-    }, [maxAwardRegistryId, isMaxIdLoading, editId, isModalOpen]);
+    }, [maxSpeakerTrackerId, isMaxIdLoading, editId, isModalOpen]);
 
     const handleAddNew = async () => {
         setEditId(null);
@@ -99,8 +101,8 @@ function AwardRegistryTracker() {
 
     const columns = [
         {
-            header: 'Award Registry ID',
-            accessor: 'AwardRegistryTrackerId',
+            header: 'Speaker Tracker ID',
+            accessor: 'SpeakerTrackerId',
         },
         {
             header: 'Event Name',
@@ -111,12 +113,29 @@ function AwardRegistryTracker() {
             accessor: 'Sponsor_Name',
         },
         {
-            header: 'Deliverables',
-            accessor: 'Deliverables',
+            header: 'Speaker Name',
+            accessor: 'Speaker_Name',
         },
         {
-            header: 'Award Type',
-            accessor: 'Award_Name',
+            header: 'Designation',
+            accessor: 'Designation',
+        },
+        {
+            header: 'Track',
+            accessor: 'Track',
+            cellRenderer: (row) => {
+                const trackLabel = trackOptions.find(option => option.value === row.Track)?.label;
+                return trackLabel || row.Track;
+            }
+        },
+        {
+            header: 'Speaking Date',
+            accessor: 'Speaking_Date',
+            cellRenderer: (row) => {
+                if (!row.Speaking_Date) return '-';
+                const date = new Date(row.Speaking_Date);
+                return date.toLocaleDateString();
+            }
         },
         {
             header: 'Action',
@@ -134,7 +153,7 @@ function AwardRegistryTracker() {
                     </button>
                     {/* <button
                         className="p-2 text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors duration-200"
-                        onClick={() => openDeleteConfirmModal(row.AwardRegistryTrackerId)}
+                        onClick={() => openDeleteConfirmModal(row.SpeakerTrackerId)}
                         title="Delete"
                     >
                         <Trash2 className="h-5 w-5" />
@@ -146,13 +165,6 @@ function AwardRegistryTracker() {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
-
-    const handleSelectChange = (name, value) => {
         setFormData(prev => ({
             ...prev,
             [name]: value
@@ -173,10 +185,10 @@ function AwardRegistryTracker() {
         }));
     };
 
-    const handleAwardChange = (selectedOption) => {
+    const handleTrackChange = (selectedOption) => {
         setFormData(prev => ({
             ...prev,
-            Award_Code: selectedOption ? selectedOption.value : ''
+            Track: selectedOption ? selectedOption.value : ''
         }));
     };
 
@@ -186,76 +198,88 @@ function AwardRegistryTracker() {
             const payload = {
                 Event_Code: formData.Event_Code ? Number(formData.Event_Code) : null,
                 SponsorMasterId: formData.SponsorMasterId ? Number(formData.SponsorMasterId) : null,
-                Deliverabled_Code: formData.Deliverabled_Code ? Number(formData.Deliverabled_Code) : null,
-                Deliverable_No: formData.Deliverable_No ? Number(formData.Deliverable_No) : null,
-                Award_Code: formData.Award_Code
+                Speaker_Name: formData.Speaker_Name,
+                Designation: formData.Designation,
+                Mobile_No: formData.Mobile_No,
+                Email_Address: formData.Email_Address,
+                Speaker_Bio: formData.Speaker_Bio,
+                Speaking_Date: formData.Speaking_Date,
+                Track: formData.Track
             };
 
             if (editId) {
-                await updateAwardRegistry({
+                await updateSpeakerTracker({
                     id: Number(editId),
                     ...payload
                 }).unwrap();
-                showNotification('Award Registry updated successfully!');
+                showNotification('Speaker Tracker updated successfully!');
             } else {
-                await addAwardRegistry({
-                    AwardRegistryTrackerId: Number(formData.AwardRegistryTrackerId),
+                await addSpeakerTracker({
+                    SpeakerTrackerId: Number(formData.SpeakerTrackerId),
                     ...payload
                 }).unwrap();
-                showNotification('Award Registry added successfully!');
+                showNotification('Speaker Tracker added successfully!');
             }
 
             resetForm();
             setIsModalOpen(false);
             refetch();
         } catch (error) {
-            console.error('Failed to save award registry:', error);
-            showNotification('Failed to save award registry!', 'error');
+            console.error('Failed to save speaker tracker:', error);
+            showNotification('Failed to save speaker tracker!', 'error');
         }
     };
 
     const handleEdit = (row) => {
         setFormData({
-            AwardRegistryTrackerId: row.AwardRegistryTrackerId,
+            SpeakerTrackerId: row.SpeakerTrackerId,
             Event_Code: row.Event_Code || '',
             SponsorMasterId: row.SponsorMasterId || '',
-            Deliverabled_Code: row.Deliverabled_Code || '',
-            Deliverable_No: row.Deliverable_No || '',
-            Award_Code: row.Award_Code || ''
+            Speaker_Name: row.Speaker_Name || '',
+            Designation: row.Designation || '',
+            Mobile_No: row.Mobile_No || '',
+            Email_Address: row.Email_Address || '',
+            Speaker_Bio: row.Speaker_Bio || '',
+            Speaking_Date: row.Speaking_Date ? new Date(row.Speaking_Date).toISOString().split('T')[0] : getCurrentDate(),
+            Track: row.Track || ''
         });
-        setEditId(row.AwardRegistryTrackerId);
+        setEditId(row.SpeakerTrackerId);
         setIsModalOpen(true);
     };
 
     const openDeleteConfirmModal = (id) => {
-        setAwardRegistryIdToDelete(id);
+        setSpeakerTrackerIdToDelete(id);
         setIsConfirmDeleteModalOpen(true);
     };
 
     const confirmDelete = async () => {
-        if (awardRegistryIdToDelete) {
+        if (speakerTrackerIdToDelete) {
             try {
-                await deleteAwardRegistry(Number(awardRegistryIdToDelete)).unwrap();
-                showNotification('Award Registry deleted successfully!');
+                await deleteSpeakerTracker(Number(speakerTrackerIdToDelete)).unwrap();
+                showNotification('Speaker Tracker deleted successfully!');
                 refetch();
             } catch (error) {
-                console.error('Failed to delete award registry:', error);
-                showNotification('Failed to delete award registry!', 'error');
+                console.error('Failed to delete speaker tracker:', error);
+                showNotification('Failed to delete speaker tracker!', 'error');
             } finally {
                 setIsConfirmDeleteModalOpen(false);
-                setAwardRegistryIdToDelete(null);
+                setSpeakerTrackerIdToDelete(null);
             }
         }
     };
 
     const resetForm = () => {
         setFormData({
-            AwardRegistryTrackerId: '',
+            SpeakerTrackerId: '',
             Event_Code: '',
             SponsorMasterId: '',
-            Deliverabled_Code: '',
-            Deliverable_No: '',
-            Award_Code: ''
+            Speaker_Name: '',
+            Designation: '',
+            Mobile_No: '',
+            Email_Address: '',
+            Speaker_Bio: '',
+            Speaking_Date: getCurrentDate(),
+            Track: ''
         });
         setEditId(null);
     };
@@ -270,11 +294,6 @@ function AwardRegistryTracker() {
         label: `${sponsor.SponsorMasterId} - ${sponsor.Sponsor_Name}`
     }));
 
-    const awardOptions = awards.map(award => ({
-        value: award.AwardId,
-        label: award.Award_Name
-    }));
-
     const selectedEvent = eventOptions.find(option =>
         option.value === formData.Event_Code
     );
@@ -283,12 +302,12 @@ function AwardRegistryTracker() {
         option.value === formData.SponsorMasterId?.toString()
     );
 
-    const selectedAward = awardOptions.find(option =>
-        option.value === formData.Award_Code
+    const selectedTrack = trackOptions.find(option =>
+        option.value === formData.Track
     );
 
-    if (isTableLoading || isEventsLoading || isSponsorsLoading || isAwardsLoading) return <div>Loading...</div>;
-    if (isError) return <div>Error loading award registry</div>;
+    if (isTableLoading || isEventsLoading || isSponsorsLoading) return <div>Loading...</div>;
+    if (isError) return <div>Error loading speaker trackers</div>;
 
     return (
         <>
@@ -307,8 +326,8 @@ function AwardRegistryTracker() {
             )}
 
             <TableUtility
-                // headerContent={<CreateNewButton onClick={handleAddNew} />}
-                title="Award Registry Tracker"
+                headerContent={<CreateNewButton onClick={handleAddNew} />}
+                title="Speaker Tracker"
                 columns={columns}
                 data={tableData}
                 pageSize={10}
@@ -320,24 +339,23 @@ function AwardRegistryTracker() {
                     setIsModalOpen(false);
                     resetForm();
                 }}
-                title={editId ? 'Edit Award Registry' : 'Add New Award Registry'}
+                title={editId ? 'Edit Speaker Tracker' : 'Add New Speaker Tracker'}
                 size="lg"
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Award Registry ID
+                                Speaker Tracker ID
                             </label>
                             <input
                                 type="text"
-                                name="AwardRegistryTrackerId"
-                                value={formData.AwardRegistryTrackerId}
+                                name="SpeakerTrackerId"
+                                value={formData.SpeakerTrackerId}
                                 className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md cursor-not-allowed"
                                 readOnly
                             />
                         </div>
-
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Event Code</label>
@@ -350,7 +368,6 @@ function AwardRegistryTracker() {
                                 required
                                 className="basic-single"
                                 classNamePrefix="select"
-                                isDisabled
                                 styles={{
                                     control: (provided) => ({
                                         ...provided,
@@ -372,30 +389,6 @@ function AwardRegistryTracker() {
                                 }}
                             />
                         </div>
-
-                        {/* <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Deliverable Code</label>
-                            <input
-                                type="number"
-                                name="Deliverabled_Code"
-                                value={formData.Deliverabled_Code}
-                                onChange={handleInputChange}
-                                autoComplete='off'
-                                className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Deliverable No</label>
-                            <input
-                                type="number"
-                                name="Deliverable_No"
-                                value={formData.Deliverable_No}
-                                onChange={handleInputChange}
-                                autoComplete='off'
-                                className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
-                            />
-                        </div> */}
                     </div>
 
                     <div>
@@ -409,7 +402,6 @@ function AwardRegistryTracker() {
                             required
                             className="basic-single"
                             classNamePrefix="select"
-                            isDisabled
                             styles={{
                                 control: (provided) => ({
                                     ...provided,
@@ -432,37 +424,116 @@ function AwardRegistryTracker() {
                         />
                     </div>
 
+                    <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Speaker Name</label>
+                            <input
+                                type="text"
+                                name="Speaker_Name"
+                                value={formData.Speaker_Name}
+                                onChange={handleInputChange}
+                                autoComplete='off'
+                                className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Designation</label>
+                            <input
+                                type="text"
+                                name="Designation"
+                                value={formData.Designation}
+                                onChange={handleInputChange}
+                                autoComplete='off'
+                                className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Mobile No</label>
+                            <input
+                                type="text"
+                                name="Mobile_No"
+                                value={formData.Mobile_No}
+                                onChange={handleInputChange}
+                                autoComplete='off'
+                                className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                            <input
+                                type="email"
+                                name="Email_Address"
+                                value={formData.Email_Address}
+                                onChange={handleInputChange}
+                                autoComplete='off'
+                                className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                            />
+                        </div>
+                    </div>
+
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Award Type</label>
-                        <Select
-                            options={awardOptions}
-                            value={selectedAward}
-                            onChange={handleAwardChange}
-                            placeholder="Select an award type..."
-                            isSearchable
-                            required
-                            className="basic-single"
-                            classNamePrefix="select"
-                            styles={{
-                                control: (provided) => ({
-                                    ...provided,
-                                    minHeight: '42px',
-                                    borderColor: '#d1d5db',
-                                    '&:hover': {
-                                        borderColor: '#d1d5db'
-                                    }
-                                }),
-                                option: (provided, state) => ({
-                                    ...provided,
-                                    backgroundColor: state.isSelected ? '#2563eb' : 'white',
-                                    color: state.isSelected ? 'white' : 'black',
-                                    '&:hover': {
-                                        backgroundColor: '#2563eb',
-                                        color: 'white'
-                                    }
-                                })
-                            }}
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                        <textarea
+                            name="Speaker_Bio"
+                            value={formData.Speaker_Bio}
+                            onChange={handleInputChange}
+                            rows={3}
+                            autoComplete='off'
+                            className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
                         />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Speaking Date</label>
+                            <input
+                                type="date"
+                                name="Speaking_Date"
+                                value={formData.Speaking_Date}
+                                onChange={handleInputChange}
+                                className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Track</label>
+                            <Select
+                                options={trackOptions}
+                                value={selectedTrack}
+                                onChange={handleTrackChange}
+                                placeholder="Select a track..."
+                                isSearchable
+                                required
+                                className="basic-single"
+                                classNamePrefix="select"
+                                styles={{
+                                    control: (provided) => ({
+                                        ...provided,
+                                        minHeight: '42px',
+                                        borderColor: '#d1d5db',
+                                        '&:hover': {
+                                            borderColor: '#d1d5db'
+                                        }
+                                    }),
+                                    option: (provided, state) => ({
+                                        ...provided,
+                                        backgroundColor: state.isSelected ? '#2563eb' : 'white',
+                                        color: state.isSelected ? 'white' : 'black',
+                                        '&:hover': {
+                                            backgroundColor: '#2563eb',
+                                            color: 'white'
+                                        }
+                                    })
+                                }}
+                            />
+                        </div>
                     </div>
 
                     <div className="flex justify-end space-x-3 pt-4">
@@ -493,7 +564,7 @@ function AwardRegistryTracker() {
             >
                 <div className="p-4">
                     <p className="text-gray-700 text-lg mb-4">
-                        Are you sure you want to delete this award registry record?
+                        Are you sure you want to delete this speaker tracker record?
                     </p>
                     <div className="flex justify-end space-x-3">
                         <button
@@ -517,4 +588,4 @@ function AwardRegistryTracker() {
     );
 }
 
-export default AwardRegistryTracker;
+export default SpeakerTracker;

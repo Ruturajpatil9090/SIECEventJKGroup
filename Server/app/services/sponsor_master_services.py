@@ -9,6 +9,8 @@ from ..models.award_registry_tracker_model import AwardRegistryTracker
 from ..models.curated_session_model import EveCuratedSession
 from ..models.ministerial_session_model import EveMinisterialSession
 from ..models.slot_master_model import SlotMaster
+from ..models.passes_registry_models import Eve_PassesRegistry
+from ..models.speaker_tracker_model import EveSpeakerTracker
 from ..utils.file_upload import save_upload_file, delete_upload_file
 import os
 from ..websockets.connection_manager import ConnectionManager
@@ -191,6 +193,57 @@ async def create_sponsor(
                 )
                 db.add(db_ministerial_tracker)
                 should_broadcast = True
+
+
+        # Handle Deliverable_Code 20  (PassesRegistry)
+        elif detail_data.Deliverabled_Code == 20:
+            existing_passes_registry_stmt = select(Eve_PassesRegistry).filter(
+                Eve_PassesRegistry.SponsorMasterId == db_sponsor.SponsorMasterId,
+                Eve_PassesRegistry.Deliverabled_Code == 20
+            )
+            existing_passes_registry_result = await db.execute(existing_passes_registry_stmt)
+            existing_passes_registry = existing_passes_registry_result.scalar_one_or_none()
+            
+            if not existing_passes_registry:
+                db_passes_registry = Eve_PassesRegistry(
+                    Deliverabled_Code=detail_data.Deliverabled_Code,
+                    Deliverable_No=detail_data.Deliverable_No,
+                    SponsorMasterId=db_sponsor.SponsorMasterId,
+                    Event_Code=sponsor_data.Event_Code,
+                    Elite_Passess=0,
+                    Carporate_Passess=0,
+                    Visitor_Passess=0,
+                    Deligate_Name_Recieverd="N"
+                )
+                db.add(db_passes_registry)
+                should_broadcast = True
+
+        # Handle Deliverable_Code 22  (SpeakerTracker)
+        elif detail_data.Deliverabled_Code == 22:
+            existing_speaker_tracker_stmt = select(EveSpeakerTracker).filter(
+                EveSpeakerTracker.SponsorMasterId == db_sponsor.SponsorMasterId,
+                EveSpeakerTracker.Deliverabled_Code == 22
+            )
+            existing_speaker_tracker_result = await db.execute(existing_speaker_tracker_stmt)
+            existing_speaker_tracker = existing_speaker_tracker_result.scalar_one_or_none()
+            
+            if not existing_speaker_tracker:
+                db_speaker_tracker = EveSpeakerTracker(
+                    Deliverabled_Code=detail_data.Deliverabled_Code,
+                    Deliverable_No=detail_data.Deliverable_No,
+                    SponsorMasterId=db_sponsor.SponsorMasterId,
+                    Event_Code=sponsor_data.Event_Code,
+                    Speaker_Name="",
+                    Designation="",
+                    Mobile_No="",
+                    Email_Address="",
+                    Speaker_Bio="",
+                    Speaking_Date=None,
+                    Track=""
+                )
+                db.add(db_speaker_tracker)
+                should_broadcast = True
+
     
     await db.commit()
     await db.refresh(db_sponsor)
@@ -245,7 +298,7 @@ async def update_sponsor(
 
         incoming_detail_codes = {d.Deliverabled_Code for d in sponsor_data.details}
 
-        # Check existing trackers for 31, 39, 43, and 40
+        # Check existing trackers for 31, 39, 43,20 and 40
         expo_tracker_stmt = select(ExpoRegistryTracker).filter(
             ExpoRegistryTracker.SponsorMasterId == sponsor_id,
             ExpoRegistryTracker.Deliverabled_Code == 31
@@ -274,16 +327,47 @@ async def update_sponsor(
         ministerial_tracker_result = await db.execute(ministerial_tracker_stmt)
         ministerial_tracker = ministerial_tracker_result.scalar_one_or_none()
 
+        passes_registry_result = await db.execute(
+            select(Eve_PassesRegistry).filter(
+                Eve_PassesRegistry.SponsorMasterId == sponsor_id,
+                Eve_PassesRegistry.Deliverabled_Code == 20
+            )
+        )
+        passes_registry = passes_registry_result.scalar_one_or_none()
+
+        #Speaker Sponsor Tracker
+        speaker_tracker_result = await db.execute(
+            select(EveSpeakerTracker).filter(
+                EveSpeakerTracker.SponsorMasterId == sponsor_id,
+                EveSpeakerTracker.Deliverabled_Code == 22
+            )
+        )
+        speaker_tracker = speaker_tracker_result.scalar_one_or_none()
+        
+
         expo_booth_assigned = expo_tracker and expo_tracker.Booth_Number_Assigned is not None and expo_tracker.Booth_Number_Assigned != 0
         award_assigned = award_tracker and award_tracker.Award_Code is not None and award_tracker.Award_Code != 0
         curated_speaker_assigned = curated_tracker and curated_tracker.Speaker_Name is not None and curated_tracker.Speaker_Name != ""
         ministerial_speaker_assigned = ministerial_tracker and ministerial_tracker.Speaker_Name is not None and ministerial_tracker.Speaker_Name != ""
+
+        passes_registry_assigned = False
+        if passes_registry:
+            passes_registry_assigned = (
+                (passes_registry.Elite_Passess is not None and passes_registry.Elite_Passess != 0) or
+                (passes_registry.Carporate_Passess is not None and passes_registry.Carporate_Passess != 0) or
+                (passes_registry.Visitor_Passess is not None and passes_registry.Visitor_Passess != 0)
+            )
+
+        speaker_assigned = speaker_tracker and speaker_tracker.Speaker_Name is not None and speaker_tracker.Speaker_Name != ""
+        
         
         details_to_delete = []
         expo_trackers_to_delete = []
         award_trackers_to_delete = []
         curated_trackers_to_delete = []
         ministerial_trackers_to_delete = []
+        passes_registry_to_delete = []
+        speaker_trackers_to_delete = []
 
         should_broadcast = False
         
@@ -317,6 +401,20 @@ async def update_sponsor(
                         should_broadcast = True
                     else:
                         continue
+                elif detail_code == 20 and passes_registry:
+                    if not passes_registry_assigned:
+                        passes_registry_to_delete.append(passes_registry)
+                        details_to_delete.append(detail)
+                        should_broadcast = True
+                    else:
+                        continue
+                elif detail_code == 22 and speaker_tracker:
+                    if not speaker_assigned:
+                        speaker_trackers_to_delete.append(speaker_tracker)
+                        details_to_delete.append(detail)
+                        should_broadcast = True
+                    else:
+                        continue
                 else:
                     details_to_delete.append(detail)
 
@@ -331,9 +429,16 @@ async def update_sponsor(
         
         for ministerial_tracker_to_delete in ministerial_trackers_to_delete:
             await db.delete(ministerial_tracker_to_delete)
+
+        for passes_registry_to_delete_item in passes_registry_to_delete:
+            await db.delete(passes_registry_to_delete_item)
+
+        for speaker_tracker_to_delete in speaker_trackers_to_delete:
+            await db.delete(speaker_tracker_to_delete)
         
         for detail in details_to_delete:
             await db.delete(detail)
+
 
         new_detail_codes = incoming_detail_codes - set(current_detail_dict.keys())
         
@@ -446,6 +551,53 @@ async def update_sponsor(
                         )
                         db.add(db_ministerial_tracker)
                         should_broadcast = True
+                
+                elif detail_code == 20:
+                    existing_passes_registry_stmt = select(Eve_PassesRegistry).filter(
+                        Eve_PassesRegistry.SponsorMasterId == sponsor_id,
+                        Eve_PassesRegistry.Deliverabled_Code == 20
+                    )
+                    existing_passes_registry_result = await db.execute(existing_passes_registry_stmt)
+                    existing_passes_registry = existing_passes_registry_result.scalar_one_or_none()
+                    
+                    if not existing_passes_registry:
+                        db_passes_registry = Eve_PassesRegistry(
+                            Deliverabled_Code=20,
+                            Deliverable_No=new_detail_data.Deliverable_No,
+                            SponsorMasterId=sponsor_id,
+                            Event_Code=db_sponsor.Event_Code,
+                            Elite_Passess= None,
+                            Carporate_Passess= None,
+                            Visitor_Passess=   None,
+                            Deligate_Name_Recieverd="N"
+                        )
+                        db.add(db_passes_registry)
+                        should_broadcast = True
+
+                elif detail_code == 22:
+                    existing_speaker_tracker_stmt = select(EveSpeakerTracker).filter(
+                        EveSpeakerTracker.SponsorMasterId == sponsor_id,
+                        EveSpeakerTracker.Deliverabled_Code == 22
+                    )
+                    existing_speaker_tracker_result = await db.execute(existing_speaker_tracker_stmt)
+                    existing_speaker_tracker = existing_speaker_tracker_result.scalar_one_or_none()
+                    
+                    if not existing_speaker_tracker:
+                        db_speaker_tracker = EveSpeakerTracker(
+                            Deliverabled_Code=22,
+                            Deliverable_No=new_detail_data.Deliverable_No,
+                            SponsorMasterId=sponsor_id,
+                            Event_Code=db_sponsor.Event_Code,
+                            Speaker_Name="",
+                            Designation="",
+                            Mobile_No="",
+                            Email_Address="",
+                            Speaker_Bio="",
+                            Speaking_Date=None,
+                            Track=""
+                        )
+                        db.add(db_speaker_tracker)
+                        should_broadcast = True
 
     await db.commit()
 
@@ -537,6 +689,22 @@ async def delete_sponsor(
             for slot_master in slot_masters.scalars().all():
                 slot_master.SponsorMasterId = None
                 db.add(slot_master)
+
+            # Delete from Eve_PassesRegistry
+            passes_registries = await db.execute(
+                select(Eve_PassesRegistry)
+                .where(Eve_PassesRegistry.SponsorMasterId == sponsor_id)
+            )
+            for passes_registry in passes_registries.scalars().all():
+                await db.delete(passes_registry)
+
+            # Delete from EveSpeakerTracker
+            speaker_trackers = await db.execute(
+                select(EveSpeakerTracker)
+                .where(EveSpeakerTracker.SponsorMasterId == sponsor_id)
+            )
+            for speaker_tracker in speaker_trackers.scalars().all():
+                await db.delete(speaker_tracker)
             
             # Now delete the sponsor itself
             if db_sponsor.Sponsor_logo:

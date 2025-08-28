@@ -28,6 +28,8 @@ class PassRegistryBase(BaseModel):
     Carporate_Passess: Optional[int] = None
     Visitor_Passess: Optional[int] = None
     Deligate_Name_Recieverd: Optional[str] = None
+    SponsorMasterId: Optional[int] = None
+    Deliverable_No: Optional[int] = None
 
 class PassRegistryCreate(PassRegistryBase):
     details: List[PassRegistryDetailCreate] = []
@@ -38,6 +40,8 @@ class PassRegistryUpdate(PassRegistryBase):
 class PassRegistry(PassRegistryBase):
     PassessRegistryId: int
     details: List[PassRegistryDetail] = []
+    EventMaster_Name: Optional[str] = None
+    Deliverables: Optional[str] = None
 
     class Config:
         from_attributes = True

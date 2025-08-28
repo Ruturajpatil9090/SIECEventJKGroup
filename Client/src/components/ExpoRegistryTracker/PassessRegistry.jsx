@@ -20,7 +20,6 @@ import {
 import CreateNewButton from "../../common/Buttons/AddButton";
 
 function PassesRegistry() {
-  // Main form states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
@@ -34,8 +33,8 @@ function PassesRegistry() {
     details: []
   });
   const [editId, setEditId] = useState(null);
-  
-  // Detail modal and form states
+
+
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [detailFormData, setDetailFormData] = useState({
     Pass_type: '',
@@ -46,8 +45,8 @@ function PassesRegistry() {
     Remark: '',
   });
   const [detailEditIndex, setDetailEditIndex] = useState(null);
-  
-  // RTK Query hooks
+
+
   const { data: tableData = [], isLoading: isTableLoading, isError, refetch } = useGetPassesRegistriesQuery();
   const { data: events = [], isLoading: isEventsLoading } = useGetEventMastersQuery();
   const { data: deliverables = [], isLoading: isDeliverablesLoading } = useGetDeliverablesQuery();
@@ -57,7 +56,7 @@ function PassesRegistry() {
   const [updatePassesRegistry] = useUpdatePassesRegistryMutation();
   const [deletePassesRegistry] = useDeletePassesRegistryMutation();
 
-  // Memos for select options
+
   const eventOptions = useMemo(() => events.map(event => ({
     value: event.EventMasterId,
     label: `${event.EventMasterId} - ${event.EventMaster_Name}`
@@ -74,7 +73,7 @@ function PassesRegistry() {
     { value: 'V', label: 'Visitor Pass' }
   ];
 
-  // Effect for new entry ID
+
   useEffect(() => {
     if (!editId && isModalOpen && !isMaxIdLoading) {
       const nextId = (typeof maxPassesRegistryId === 'number' ? maxPassesRegistryId : 0) + 1;
@@ -85,7 +84,7 @@ function PassesRegistry() {
     }
   }, [maxPassesRegistryId, isMaxIdLoading, editId, isModalOpen]);
 
-  // Main table columns
+
   const columns = [
     { header: 'ID', accessor: 'PassessRegistryId' },
     {
@@ -94,7 +93,7 @@ function PassesRegistry() {
       cellRenderer: (value, row) => `${row.Event_Code} - ${value}`
     },
     {
-      header: 'Deliverable',
+      header: 'Deliverable Name',
       accessor: 'Deliverables',
       cellRenderer: (value, row) => `${row.Deliverabled_Code} - ${value}`
     },
@@ -102,11 +101,6 @@ function PassesRegistry() {
     { header: 'Corporate Passes', accessor: 'Carporate_Passess' },
     { header: 'Visitor Passes', accessor: 'Visitor_Passess' },
     { header: 'Delegate Name Received', accessor: 'Deligate_Name_Recieverd' },
-    {
-      header: 'Details Count',
-      accessor: 'detailsCount',
-      cellRenderer: (value, row) => Array.isArray(row.details) ? row.details.length : 0
-    },
     {
       header: 'Action',
       accessor: 'action',
@@ -121,19 +115,19 @@ function PassesRegistry() {
           >
             <PencilSquareIcon className="h-5 w-5" />
           </button>
-          <button
+          {/* <button
             className="p-2 text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors duration-200"
             onClick={() => openDeleteConfirm(row.PassessRegistryId)}
             title="Delete"
           >
             <Trash2 className="h-5 w-5" />
-          </button>
+          </button> */}
         </div>
       )
     }
   ];
-  
-  // Detail table columns for the main modal
+
+
   const detailColumns = [
     { header: 'Pass Type', accessor: 'Pass_type', cellRenderer: (value) => passTypeOptions.find(opt => opt.value === value)?.label || value },
     { header: 'Assigned Name', accessor: 'Assigen_Name' },
@@ -169,7 +163,7 @@ function PassesRegistry() {
     }
   ];
 
-  // Helper functions
+
   const resetMainForm = () => {
     setFormData({
       Deliverabled_Code: '',
@@ -182,7 +176,7 @@ function PassesRegistry() {
     });
     setEditId(null);
   };
-  
+
   const resetDetailForm = () => {
     setDetailFormData({
       Pass_type: '',
@@ -195,19 +189,16 @@ function PassesRegistry() {
     setDetailEditIndex(null);
   };
 
-  /**
-   * Prevents the main modal from closing if the detail modal is currently open.
-   * This is a critical fix to ensure the user can manage details without losing their progress.
-   */
+
   const handleMainModalClose = () => {
     if (isDetailModalOpen) {
-      return; // Do not close the main modal if the detail modal is open
+      return;
     }
     setIsModalOpen(false);
     resetMainForm();
   };
 
-  // Main CRUD operations
+
   const handleAddNew = async () => {
     setEditId(null);
     resetMainForm();
@@ -230,6 +221,38 @@ function PassesRegistry() {
     setIsModalOpen(true);
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const finalDetails = formData.details.map(detail => {
+  //       if (!detail.rowaction) {
+  //         return {
+  //           ...detail,
+  //           rowaction: detail.PassessRegistryDetailId ? 'update' : 'add'
+  //         };
+  //       }
+  //       return detail;
+  //     });
+
+  //     const payload = {
+  //       ...formData,
+  //       details: finalDetails,
+  //     };
+
+  //     if (editId) {
+  //       await updatePassesRegistry({ id: editId, ...payload }).unwrap();
+  //     } else {
+  //       await addPassesRegistry(payload).unwrap();
+  //     }
+  //     resetMainForm();
+  //     setIsModalOpen(false);
+  //     refetch();
+  //   } catch (error) {
+  //     console.error('Failed to save passes registry:', error);
+  //   }
+  // };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -242,6 +265,15 @@ function PassesRegistry() {
         }
         return detail;
       });
+
+      if (!editId) {
+        const hasAddAction = finalDetails.some(detail => detail.rowaction === 'add');
+
+        if (!hasAddAction) {
+          alert('Error: At least one detail entry must be added. Please add at least one pass detail.');
+          return;
+        }
+      }
 
       const payload = {
         ...formData,
@@ -258,6 +290,11 @@ function PassesRegistry() {
       refetch();
     } catch (error) {
       console.error('Failed to save passes registry:', error);
+      if (error.data?.detail) {
+        alert(`Error: ${error.data.detail}`);
+      } else {
+        alert('Failed to save passes registry. Please try again.');
+      }
     }
   };
 
@@ -280,7 +317,7 @@ function PassesRegistry() {
     }
   };
 
-  // Detail modal operations
+
   const openDetailModal = () => {
     setDetailEditIndex(null);
     resetDetailForm();
@@ -289,22 +326,22 @@ function PassesRegistry() {
 
   const handleDetailEdit = (detailToEdit) => {
     const originalIndex = formData.details.findIndex(d => d.PassessRegistryDetailId === detailToEdit.PassessRegistryDetailId);
-    
+
     setDetailFormData({ ...detailToEdit });
     setDetailEditIndex(originalIndex);
     setIsDetailModalOpen(true);
   };
-  
+
   const handleDetailDelete = (detailToDelete) => {
     setFormData(prev => {
       const updatedDetails = [...prev.details];
       const indexToDelete = updatedDetails.findIndex(d => d.PassessRegistryDetailId === detailToDelete.PassessRegistryDetailId);
-      
+
       if (indexToDelete === -1) {
         console.error("Detail to delete not found in the array.");
         return prev;
       }
-      
+
       if (updatedDetails[indexToDelete].PassessRegistryDetailId) {
         updatedDetails[indexToDelete] = { ...updatedDetails[indexToDelete], rowaction: 'delete' };
       } else {
@@ -328,8 +365,8 @@ function PassesRegistry() {
     setIsDetailModalOpen(false);
     resetDetailForm();
   };
-  
-  // Data transformation for TableUtility
+
+
   const transformedTableData = tableData.map(item => ({
     ...item,
     details: Array.isArray(item.details) ? item.details : [],
@@ -352,41 +389,37 @@ function PassesRegistry() {
   return (
     <>
       <TableUtility
-        headerContent={<CreateNewButton onClick={handleAddNew} />}
+        // headerContent={<CreateNewButton onClick={handleAddNew} />}
         title="Passes Registry"
         columns={columns}
         data={transformedTableData}
         pageSize={10}
       />
 
-      {/* Main Form Modal */}
       <Modal
         isOpen={isModalOpen}
-        // CORRECTED: Use the new handler to prevent accidental closure
         onClose={handleMainModalClose}
         title={editId ? 'Edit Passes Registry' : 'Add New Passes Registry'}
         size="2xl"
-        width="1200px"
+        width="1500px"
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {editId && (
-              <div>
-                <label htmlFor="PassessRegistryId" className="block text-sm font-medium text-gray-700 mb-1">
-                  Passes Registry ID
-                </label>
-                <input
-                  id="PassessRegistryId"
-                  type="number"
-                  value={formData.PassessRegistryId}
-                  className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md cursor-not-allowed"
-                  readOnly
-                />
-              </div>
-            )}
-            
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+            <div >
+              <label htmlFor="PassessRegistryId" className="block text-sm font-medium text-gray-700 mb-1">
+                Passes Registry ID
+              </label>
+              <input
+                id="PassessRegistryId"
+                type="number"
+                value={formData.PassessRegistryId}
+                className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md cursor-not-allowed"
+                readOnly
+              />
+            </div>
+
             <div>
-              <label htmlFor="event_code" className="block text-sm font-medium text-gray-700 mb-1">Event</label>
+              <label htmlFor="event_code" className="block text-sm font-medium text-gray-700 mb-1">Event Code</label>
               <Select
                 id="event_code"
                 options={eventOptions}
@@ -399,9 +432,9 @@ function PassesRegistry() {
                 required
               />
             </div>
-            
+
             <div>
-              <label htmlFor="deliverable_code" className="block text-sm font-medium text-gray-700 mb-1">Deliverable</label>
+              <label htmlFor="deliverable_code" className="block text-sm font-medium text-gray-700 mb-1">Deliverables</label>
               <Select
                 id="deliverable_code"
                 options={deliverableOptions}
@@ -414,7 +447,12 @@ function PassesRegistry() {
                 required
               />
             </div>
-            
+
+
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-6">
+
             <div>
               <label htmlFor="elite_passess" className="block text-sm font-medium text-gray-700 mb-1">Elite Passes</label>
               <input
@@ -426,7 +464,7 @@ function PassesRegistry() {
                 min="0"
               />
             </div>
-            
+
             <div>
               <label htmlFor="corporate_passess" className="block text-sm font-medium text-gray-700 mb-1">Corporate Passes</label>
               <input
@@ -438,7 +476,7 @@ function PassesRegistry() {
                 min="0"
               />
             </div>
-            
+
             <div>
               <label htmlFor="visitor_passess" className="block text-sm font-medium text-gray-700 mb-1">Visitor Passes</label>
               <input
@@ -450,7 +488,7 @@ function PassesRegistry() {
                 min="0"
               />
             </div>
-            
+
             <div>
               <label htmlFor="delegate_received" className="block text-sm font-medium text-gray-700 mb-1">Delegate Name Received</label>
               <select
@@ -463,12 +501,25 @@ function PassesRegistry() {
                 <option value="N">No</option>
               </select>
             </div>
+
           </div>
 
-          <div className="border-t pt-4 mt-4">
+
+          <hr className="my-3 " />
+
+          <div className="pt-4 " style={{ marginTop: "-80px" }}>
             <TableUtility
-              headerContent={<button type="button" onClick={openDetailModal} className="flex items-center px-3 py-1 bg-blue-600 text-white rounded-md text-sm"><Plus className="h-4 w-4 mr-1" /> Add Detail</button>}
-              title="Pass Details"
+              headerContent={<button
+                type="button"
+                onClick={openDetailModal}
+                className="relative flex items-center justify-center gap-2 w-20 h-12 rounded-md font-semibold text-white transition-all cursor-pointer bg-gradient-to-r from-teal-500 via-green-600 to-green-800 shadow-md hover:scale-105 hover:shadow-lg hover:shadow-green-500/40"
+              >
+                <Plus className="h-5 w-5 transition-all group-hover:rotate-180" />
+                <span className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                  Add Detail
+                </span>
+              </button>}
+              // title="Pass Details"
               columns={detailColumns}
               data={detailsToDisplay}
               pageSize={5}
@@ -492,8 +543,7 @@ function PassesRegistry() {
           </div>
         </form>
       </Modal>
-      
-      {/* Detail Form Modal */}
+
       <Modal
         isOpen={isDetailModalOpen}
         onClose={() => {
@@ -582,7 +632,6 @@ function PassesRegistry() {
         </form>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
       <Modal
         isOpen={showDeleteConfirmModal}
         onClose={() => setShowDeleteConfirmModal(false)}

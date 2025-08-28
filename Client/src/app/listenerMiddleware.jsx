@@ -13,6 +13,8 @@ import { categoryMasterApi } from '../services/categoryMasterApi';
 import { categorySubMasterApi } from '../services/categorySubMasterApi';
 import { awardMasterApi } from "../services/awardMasterApi";
 import { slotMasterApi } from '../services/slotMasterApi';
+import { passesRegistryApi } from '../services/passesRegistryApi';
+import { speakerTrackerApi } from '../services/speakerTrackerApi';
 
 export const listenerMiddleware = createListenerMiddleware();
 
@@ -37,8 +39,14 @@ listenerMiddleware.startListening({
             listenerApi.dispatch(
                 ministerialSessionApi.util.invalidateTags(['MinisterialSession'])
             );
-              listenerApi.dispatch(
+            listenerApi.dispatch(
                 slotMasterApi.util.invalidateTags(['SlotMaster'])
+            );
+            listenerApi.dispatch(
+                passesRegistryApi.util.invalidateTags(['PassesRegistry'])
+            );
+            listenerApi.dispatch(
+                speakerTrackerApi.util.invalidateTags(['SpeakerTracker'])
             );
         }
         else if (action.payload === "refresh_ministerial_sessions") {
@@ -107,13 +115,25 @@ listenerMiddleware.startListening({
                 awardRegistryApi.util.invalidateTags(['AwardRegistry'])
             );
         }
-               else if (action.payload === "refresh_slot_master") {
+        else if (action.payload === "refresh_slot_master") {
             console.log("Received refresh signal. Invalidating Award Registry cache.");
             listenerApi.dispatch(
                 slotMasterApi.util.invalidateTags(['SlotMaster'])
             );
         }
-        
+        else if (action.payload === "refresh_passes_registries") {
+            console.log("Received refresh signal. Invalidating Passes Registries cache.");
+            listenerApi.dispatch(
+                passesRegistryApi.util.invalidateTags(['PassesRegistry'])
+            );
+        }
+        else if (action.payload === "refresh_speaker_trackers") {
+            console.log("Received refresh signal. Invalidating Speaker Trackers cache.");
+            listenerApi.dispatch(
+                speakerTrackerApi.util.invalidateTags(['SpeakerTracker'])
+            );
+        }
+
     },
 
 });

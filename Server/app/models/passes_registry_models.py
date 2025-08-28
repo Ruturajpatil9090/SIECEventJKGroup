@@ -12,6 +12,8 @@ class Eve_PassesRegistry(Base):
     Carporate_Passess = Column(Integer)
     Visitor_Passess = Column(Integer)
     Deligate_Name_Recieverd = Column(String(2))
+    SponsorMasterId = Column(Integer, nullable=True)
+    Deliverable_No = Column(Integer, nullable=True)
 
     details = relationship(
         "Eve_PassessRegistryDetail", 

@@ -151,13 +151,13 @@ function CuratedSessionTracker() {
                     >
                         <PencilSquareIcon className="h-5 w-5" />
                     </button>
-                    <button
+                    {/* <button
                         className="p-2 text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors duration-200"
                         onClick={() => openDeleteConfirmModal(row.CuratedSessionId)}
                         title="Delete"
                     >
                         <Trash2 className="h-5 w-5" />
-                    </button>
+                    </button> */}
                 </div>
             )
         }

@@ -1,11 +1,27 @@
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, User, LogOut, UserCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import CryptoJS from 'crypto-js';
 
+// const ENCRYPTION_KEY = 'sdfsdfsdfsdfsdfsdf54sd5f465sdf4sd4f654sdf46s4d6f6sdf645sd';
+const ENCRYPTION_KEY = import.meta.env.VITE_REACT_APP_API_ENCRYPTION_KEY;
+
+const decryptData = (encryptedData) => {
+  try {
+    const bytes = CryptoJS.AES.decrypt(encryptedData, ENCRYPTION_KEY);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    return JSON.parse(decrypted);
+  } catch (error) {
+    console.error('Decryption error:', error);
+    return null;
+  }
+};
 
 const ProfileDropdown = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [userName, setUserName] = useState('User');
     const dropdownRef = useRef(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -20,6 +36,27 @@ const ProfileDropdown = () => {
         };
     }, []);
 
+    useEffect(() => {
+        const encryptedUserData = sessionStorage.getItem('user_data');
+        if (encryptedUserData) {
+            try {
+                const userData = decryptData(encryptedUserData);
+                if (userData && userData.user_name) {
+                    setUserName(userData.user_name);
+                }
+            } catch (error) {
+                console.error('Error decrypting user data:', error);
+            }
+        }
+    }, []);
+
+    const handleLogout = () => {
+        sessionStorage.removeItem('access_token');
+        sessionStorage.removeItem('user_data');
+        setIsOpen(false);
+        navigate("/");
+    };
+
     return (
         <div className="fixed top-4 right-4 z-50" ref={dropdownRef}>
             <div className="relative">
@@ -29,7 +66,7 @@ const ProfileDropdown = () => {
                 >
                     <UserCircle size={24} className="text-[#D92300]" />
                     <span className="text-[#D92300] font-medium hidden sm:inline-block">
-                        ABC (1)
+                        {userName}
                     </span>
                     <ChevronDown
                         size={18}
@@ -47,13 +84,13 @@ const ProfileDropdown = () => {
                             <User size={16} className="mr-2" />
                             Edit Profile
                         </Link>
-                        <a
-                            href=""
-                            className="flex items-center px-4 py-2 text-sm text-[#D92300] hover:bg-[#F5EBEB]"
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center w-full px-4 py-2 text-sm text-[#D92300] hover:bg-[#F5EBEB]"
                         >
                             <LogOut size={16} className="mr-2" />
                             Sign Out
-                        </a>
+                        </button>
                     </div>
                 )}
             </div>
