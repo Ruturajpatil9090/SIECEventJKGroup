@@ -64,7 +64,7 @@ function CuratedSessionTracker() {
     const {
         data: sponsors = [],
         isLoading: isSponsorsLoading
-    } = useGetSponsorsQuery();
+    } = useGetSponsorsQuery({ event_code: sessionStorage.getItem("Event_Code")});
 
     const [addCuratedSession] = useAddCuratedSessionMutation();
     const [updateCuratedSession] = useUpdateCuratedSessionMutation();

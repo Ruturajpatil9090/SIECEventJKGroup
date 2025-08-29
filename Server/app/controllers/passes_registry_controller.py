@@ -27,11 +27,12 @@ router = APIRouter(
 
 @router.get("/", response_model=List[PassRegistry])
 async def read_passes_registries(
+    event_code: int,
     skip: int = 0,
     limit: int = 100,
     db: AsyncSession = Depends(get_db),
 ):
-    registries = await get_passes_registries(db, skip=skip, limit=limit)
+    registries = await get_passes_registries(db,event_code=event_code, skip=skip, limit=limit)
     return registries
 
 @router.get("/max-id", response_model=int)

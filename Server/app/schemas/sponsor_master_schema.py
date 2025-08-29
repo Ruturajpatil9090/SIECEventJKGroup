@@ -234,6 +234,7 @@ class SponsorMasterWithDetails(SponsorMasterBase):
     EventMaster_Name: Optional[str] = None
     CategorySub_Name: Optional[str] = None
     User_Name: Optional[str] = None
+    Pending_Amount: Optional[Decimal] = None
     details: List[SponsorDetail] = []
 
     class Config:

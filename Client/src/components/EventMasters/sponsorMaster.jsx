@@ -933,6 +933,8 @@ import { useLazyGetFilteredCategoryWiseDeliverablesQuery } from "../../services/
 import { useGetUserMastersQuery } from '../../services/userMasterApi';
 import CreateNewButton from "../../common/Buttons/AddButton";
 
+const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL
+
 function SponsorMaster() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
@@ -979,7 +981,7 @@ function SponsorMaster() {
     const [logoFile, setLogoFile] = useState(null);
     const [logoPreviewUrl, setLogoPreviewUrl] = useState(null);
 
-    const { data: tableData = [], isLoading: isTableLoading, isError, refetch } = useGetSponsorsQuery();
+    const { data: tableData = [], isLoading: isTableLoading, isError, refetch } = useGetSponsorsQuery({ event_code: sessionStorage.getItem("Event_Code")});
     const { data: events = [], isLoading: isEventsLoading } = useGetEventMastersQuery();
     const { data: categories = [], isLoading: isCategoriesLoading } = useGetCategoryMasterQuery();
     const { data: subCategories = [], refetch: refetchSubCategories, isLoading: isSubCategoriesLoading } = useGetCategorySubMasterQuery();
@@ -1045,7 +1047,7 @@ function SponsorMaster() {
                 setSelectedDeliverablesInModal(existingDeliverableCodes);
                 setLogoFile(null);
                 if (selectedRow.Sponsor_logo) {
-                    setLogoPreviewUrl(`http://localhost:8000/sponsors/logo/${getFileName(selectedRow.Sponsor_logo)}`);
+                    setLogoPreviewUrl(`${API_BASE_URL}/sponsors/logo/${getFileName(selectedRow.Sponsor_logo)}`);
                 } else {
                     setLogoPreviewUrl(null);
                 }
@@ -1152,6 +1154,8 @@ function SponsorMaster() {
         { header: 'Contact Person', accessor: 'Contact_Person' },
         { header: 'Contact Email', accessor: 'Contact_Email' },
         { header: 'Sponsorship Amount', accessor: 'Sponsorship_Amount' },
+        { header: 'Received Amount', accessor: 'Sponsorship_Amount_Advance' },
+        { header: 'Pending Amount', accessor: 'Pending_Amount' },
         { header: 'Payment Status', accessor: 'Payment_Status' },
         {
             header: 'Action',
@@ -1560,10 +1564,11 @@ function SponsorMaster() {
                                 id="Contact_Person"
                                 type="text"
                                 name="Contact_Person"
+                                autoComplete='off'
                                 value={formData.Contact_Person}
                                 onChange={(e) => setFormData(prev => ({ ...prev, Contact_Person: e.target.value }))}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                autoComplete='off'
+
                             />
                         </div>
 

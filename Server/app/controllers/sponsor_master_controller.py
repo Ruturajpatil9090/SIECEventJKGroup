@@ -37,11 +37,13 @@ router = APIRouter(
 
 @router.get("/")
 async def get_sponsormaster_with_details(
+    event_code: int,
     skip: int = 0, 
     limit: int = 100,
     db: AsyncSession = Depends(get_db)
 ):
-    results = await get_all_sponsor_with_details(db, skip, limit)
+    results = await get_all_sponsor_with_details(db,event_code, skip, limit)
+    print("Results:", results)  # Debugging line to check the raw results
     grouped_results = {}
     for row in results:
         cat_deliverable_id = row['SponsorMasterId']
@@ -86,6 +88,7 @@ async def get_sponsormaster_with_details(
                 "EventMaster_Name": row['EventMaster_Name'],
                 "CategorySub_Name": row['CategorySub_Name'],
                 "User_Name": row['User_Name'],
+                "Pending_Amount": row['Pending_Amount'],
                 "details": []
             }
         

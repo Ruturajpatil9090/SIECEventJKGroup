@@ -64,7 +64,7 @@ function SpeakerTracker() {
     const {
         data: sponsors = [],
         isLoading: isSponsorsLoading
-    } = useGetSponsorsQuery();
+    } = useGetSponsorsQuery({ event_code: sessionStorage.getItem("Event_Code")});
 
     const [addSpeakerTracker] = useAddSpeakerTrackerMutation();
     const [updateSpeakerTracker] = useUpdateSpeakerTrackerMutation();

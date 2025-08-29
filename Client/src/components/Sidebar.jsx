@@ -375,12 +375,12 @@ export default function Sidebar() {
         <SidebarContext.Provider value={{ expanded }}>
           <ul className="flex-1 px-3">
             {/* Dashboard Item */}
-            <SidebarItem 
-              icon={<Home size={20} />} 
-              text="Dashboard" 
-              path='/dashboard' 
+            <SidebarItem
+              icon={<Home size={20} />}
+              text="Dashboard"
+              path='/dashboard'
             />
-            
+
             <li
               className="relative"
               ref={subMenuRef}
@@ -434,7 +434,7 @@ export default function Sidebar() {
                   <SidebarItem icon={<Grid size={16} />} text="Category Master" path='/category-master' />
                   <SidebarItem icon={<Layers size={16} />} text="Category Sub Master" path='/categorysub-master' />
                   <SidebarItem icon={<Trophy size={16} />} text="Award Master" path='/award-master' />
-                  <SidebarItem icon={<MapPin size={16} />} text="Slot Master" path='/slot-master' />
+                  {/* <SidebarItem icon={<MapPin size={16} />} text="Slot Master" path='/slot-master' /> */}
                 </ul>
               )}
 
@@ -491,12 +491,12 @@ export default function Sidebar() {
                     path='/award-master'
                     forceExpand={true}
                   />
-                  <SidebarItem
+                  {/* <SidebarItem
                     icon={<MapPin size={16} />}
                     text="Slot Master"
                     path='/slot-master'
                     forceExpand={true}
-                  />
+                  /> */}
                 </div>
               )}
             </li>

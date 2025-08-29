@@ -36,8 +36,9 @@ function PassesRegistry() {
 
 
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
   const [detailFormData, setDetailFormData] = useState({
-    Pass_type: '',
+    Pass_type: 'E',
     Assigen_Name: '',
     Mobile_No: '',
     Email_Address: '',
@@ -47,7 +48,7 @@ function PassesRegistry() {
   const [detailEditIndex, setDetailEditIndex] = useState(null);
 
 
-  const { data: tableData = [], isLoading: isTableLoading, isError, refetch } = useGetPassesRegistriesQuery();
+  const { data: tableData = [], isLoading: isTableLoading, isError, refetch } = useGetPassesRegistriesQuery({ event_code: sessionStorage.getItem("Event_Code") });
   const { data: events = [], isLoading: isEventsLoading } = useGetEventMastersQuery();
   const { data: deliverables = [], isLoading: isDeliverablesLoading } = useGetDeliverablesQuery();
   const { data: maxPassesRegistryId = 0, isLoading: isMaxIdLoading, refetch: refetchMaxId } = useGetMaxPassesRegistryIdQuery();
@@ -179,7 +180,7 @@ function PassesRegistry() {
 
   const resetDetailForm = () => {
     setDetailFormData({
-      Pass_type: '',
+      Pass_type: 'E',
       Assigen_Name: '',
       Mobile_No: '',
       Email_Address: '',
@@ -252,7 +253,6 @@ function PassesRegistry() {
   //   }
   // };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -273,6 +273,11 @@ function PassesRegistry() {
           alert('Error: At least one detail entry must be added. Please add at least one pass detail.');
           return;
         }
+      }
+
+      if (editId && finalDetails.length === 0) {
+        alert('Error: At least one detail entry must be present. Please add at least one pass detail.');
+        return;
       }
 
       const payload = {
@@ -351,8 +356,49 @@ function PassesRegistry() {
     });
   };
 
+
+  const validatePassCounts = (newDetail, isEdit = false, editIndex = null) => {
+    const { Pass_type } = newDetail;
+    const currentDetails = [...formData.details];
+
+    const counts = {
+      E: currentDetails.filter(d => d.Pass_type === 'E' && d.rowaction !== 'delete').length,
+      C: currentDetails.filter(d => d.Pass_type === 'C' && d.rowaction !== 'delete').length,
+      V: currentDetails.filter(d => d.Pass_type === 'V' && d.rowaction !== 'delete').length
+    };
+
+    if (isEdit && editIndex !== null) {
+      const oldPassType = currentDetails[editIndex].Pass_type;
+      counts[oldPassType] = Math.max(0, counts[oldPassType] - 1);
+    }
+
+    if (Pass_type === 'E' && counts.E >= formData.Elite_Passess) {
+      return `Cannot add more than ${formData.Elite_Passess} Elite passes`;
+    }
+
+    if (Pass_type === 'C' && counts.C >= formData.Carporate_Passess) {
+      return `Cannot add more than ${formData.Carporate_Passess} Corporate passes`;
+    }
+
+    if (Pass_type === 'V' && counts.V >= formData.Visitor_Passess) {
+      return `Cannot add more than ${formData.Visitor_Passess} Visitor passes`;
+    }
+
+    return null;
+  };
+
+
   const handleDetailSubmit = (e) => {
     e.preventDefault();
+
+    const error = validatePassCounts(detailFormData, detailEditIndex !== null, detailEditIndex);
+
+    if (error) {
+      setValidationErrors({ detail: error });
+      return;
+    }
+    setValidationErrors({});
+
     setFormData(prev => {
       const updatedDetails = [...prev.details];
       if (detailEditIndex !== null) {
@@ -365,7 +411,6 @@ function PassesRegistry() {
     setIsDetailModalOpen(false);
     resetDetailForm();
   };
-
 
   const transformedTableData = tableData.map(item => ({
     ...item,
@@ -430,6 +475,7 @@ function PassesRegistry() {
                 placeholder="Select an event..."
                 isSearchable
                 required
+                isDisabled
               />
             </div>
 
@@ -445,6 +491,7 @@ function PassesRegistry() {
                 placeholder="Select a deliverable..."
                 isSearchable
                 required
+                isDisabled
               />
             </div>
 
@@ -452,7 +499,6 @@ function PassesRegistry() {
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-6">
-
             <div>
               <label htmlFor="elite_passess" className="block text-sm font-medium text-gray-700 mb-1">Elite Passes</label>
               <input
@@ -462,6 +508,7 @@ function PassesRegistry() {
                 onChange={(e) => setFormData(prev => ({ ...prev, Elite_Passess: parseInt(e.target.value) || 0 }))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 min="0"
+                autoComplete='off'
               />
             </div>
 
@@ -474,6 +521,7 @@ function PassesRegistry() {
                 onChange={(e) => setFormData(prev => ({ ...prev, Carporate_Passess: parseInt(e.target.value) || 0 }))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 min="0"
+                autoComplete='off'
               />
             </div>
 
@@ -486,6 +534,7 @@ function PassesRegistry() {
                 onChange={(e) => setFormData(prev => ({ ...prev, Visitor_Passess: parseInt(e.target.value) || 0 }))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 min="0"
+                autoComplete='off'
               />
             </div>
 
@@ -549,16 +598,26 @@ function PassesRegistry() {
         onClose={() => {
           setIsDetailModalOpen(false);
           resetDetailForm();
+          setValidationErrors({});
         }}
         title={detailEditIndex !== null ? 'Edit Pass Detail' : 'Add New Pass Detail'}
       >
         <form onSubmit={handleDetailSubmit} className="space-y-4">
+          {validationErrors.detail && (
+            <div className="p-2 text-red-700 bg-red-100 rounded-md">
+              {validationErrors.detail}
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Pass Type</label>
             <Select
               options={passTypeOptions}
               value={passTypeOptions.find(option => option.value === detailFormData.Pass_type) || null}
-              onChange={(option) => setDetailFormData(prev => ({ ...prev, Pass_type: option ? option.value : '' }))}
+              // onChange={(option) => setDetailFormData(prev => ({ ...prev, Pass_type: option ? option.value : '' }))}
+              onChange={(option) => {
+                setDetailFormData(prev => ({ ...prev, Pass_type: option ? option.value : '' }));
+                setValidationErrors({}); 
+              }}
               placeholder="Select pass type..."
               isSearchable
               required
@@ -573,16 +632,18 @@ function PassesRegistry() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               maxLength={50}
               required
+              autoComplete='off'
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Mobile No</label>
             <input
-              type="text"
+              type="number"
               value={detailFormData.Mobile_No}
               onChange={(e) => setDetailFormData(prev => ({ ...prev, Mobile_No: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               maxLength={50}
+              autoComplete='off'
             />
           </div>
           <div>
@@ -593,6 +654,7 @@ function PassesRegistry() {
               onChange={(e) => setDetailFormData(prev => ({ ...prev, Email_Address: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               maxLength={50}
+              autoComplete='off'
             />
           </div>
           <div>
@@ -603,6 +665,7 @@ function PassesRegistry() {
               onChange={(e) => setDetailFormData(prev => ({ ...prev, Designation: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               maxLength={50}
+              autoComplete='off'
             />
           </div>
           <div>
@@ -612,6 +675,7 @@ function PassesRegistry() {
               onChange={(e) => setDetailFormData(prev => ({ ...prev, Remark: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               rows={2}
+              autoComplete='off'
             />
           </div>
           <div className="flex justify-end space-x-3 pt-4">
@@ -642,7 +706,11 @@ function PassesRegistry() {
           <div className="flex justify-center space-x-4">
             <button
               type="button"
-              onClick={() => setShowDeleteConfirmModal(false)}
+              onClick={() => {
+                setIsDetailModalOpen(false);
+                resetDetailForm();
+                setValidationErrors({}); 
+              }}
               className="px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
             >
               Cancel

@@ -133,12 +133,10 @@ import React, { useState } from 'react';
 import logo from '../../assets/jkIndia.png';
 import { useNavigate } from "react-router-dom";
 import { useLoginMutation } from '../../services/userMasterApi';
-import CryptoJS from 'crypto-js'; // Import the crypto-js library
+import CryptoJS from 'crypto-js'; 
 
-// const ENCRYPTION_KEY = 'sdfsdfsdfsdfsdfsdf54sd5f465sdf4sd4f654sdf46s4d6f6sdf645sd';
 const ENCRYPTION_KEY = import.meta.env.VITE_REACT_APP_API_ENCRYPTION_KEY;
 
-// Helper function to encrypt data
 const encryptData = (data) => {
     const jsonString = JSON.stringify(data);
     const encrypted = CryptoJS.AES.encrypt(jsonString, ENCRYPTION_KEY).toString();
@@ -168,22 +166,18 @@ function LoginPage() {
 
             console.log('Login successful:', response);
 
-            // Create a data object to store
             const userData = {
                 user_type: response.user_type,
-                user_name: response.user_name
+                user_name: response.user_name,
+                uid: response.uid,
+                user_id: response.user_id,
             };
 
-            // Encrypt the sensitive user data
             const encryptedData = encryptData(userData);
-
-            // Store the encrypted data and access token in sessionStorage
             sessionStorage.setItem('user_data', encryptedData);
             sessionStorage.setItem('access_token', encryptData(response.access_token));
             
-            // Note: The refresh token should also be encrypted if stored here.
-            
-            navigate('/eventmaster');
+            navigate('/event-list');
 
         } catch (err) {
             console.error('Login failed:', err);

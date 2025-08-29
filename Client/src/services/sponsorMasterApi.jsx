@@ -1,14 +1,16 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL
 
 export const sponsorMasterApi = createApi({
     reducerPath: "sponsorMasterApi",
-    baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8000" }),
+    baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
     tagTypes: ['SponsorMaster'],
     endpoints: (builder) => ({
         getSponsors: builder.query({
             query: (params) => {
-                const { skip = 0, limit = 100 } = params || {};
-                return `/sponsors?skip=${skip}&limit=${limit}`;
+                const event_code = params.event_code ?? sessionStorage.getItem("Event_Code");
+                const {skip = 0, limit = 100 } = params || {};
+                return `/sponsors?event_code=${event_code}&skip=${skip}&limit=${limit}`;
             },
             providesTags: (result) =>
                 result

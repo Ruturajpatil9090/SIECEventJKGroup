@@ -28,7 +28,7 @@ from ..websockets.connection_manager import ConnectionManager
 #     result = await db.execute(query)
 #     return result.mappings().all()
 
-async def get_passes_registries(db: AsyncSession, skip: int = 0, limit: int = 100):
+async def get_passes_registries(db: AsyncSession, event_code: int, skip: int = 0, limit: int = 100):
     query = text("""
     SELECT        
         dm.Deliverables, 
@@ -50,6 +50,7 @@ async def get_passes_registries(db: AsyncSession, skip: int = 0, limit: int = 10
         ON pr.Event_Code = em.EventMasterId 
     LEFT JOIN dbo.Eve_PassessRegistryDetail prd
         ON pr.PassessRegistryId = prd.PassessRegistryId
+                 WHERE        pr.Event_Code = :event_code
     ORDER BY 
         pr.PassessRegistryId DESC,
         prd.PassessRegistryDetailId ASC
@@ -57,7 +58,7 @@ async def get_passes_registries(db: AsyncSession, skip: int = 0, limit: int = 10
     """)
     
     try:
-        result = await db.execute(query, {"skip": skip, "limit": limit})
+        result = await db.execute(query, {"event_code": event_code,"skip": skip, "limit": limit})
         rows = result.mappings().all()
         
         # Group the results by PassessRegistryId

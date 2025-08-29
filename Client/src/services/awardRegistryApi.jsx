@@ -6,10 +6,18 @@ export const awardRegistryApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
     tagTypes: ['AwardRegistry'],
     endpoints: (builder) => ({
-        getAwardRegistry: builder.query({
-            query: () => '/award-registry',
-            providesTags: ['AwardRegistry']
-        }),
+        // getAwardRegistry: builder.query({
+        //     query: () => '/award-registry',
+        //     providesTags: ['AwardRegistry']
+        // }),
+                getAwardRegistry: builder.query({
+    query: (params = {}) => {
+        const event_code = params.event_code ?? sessionStorage.getItem("Event_Code");
+        return `/award-registry?event_code=${event_code}`;
+    },
+    providesTags: ['AwardRegistry']
+}),
+
         getAwardRegistryById: builder.query({
             query: (id) => `/award-registry/${id}`,
             providesTags: ['AwardRegistry']

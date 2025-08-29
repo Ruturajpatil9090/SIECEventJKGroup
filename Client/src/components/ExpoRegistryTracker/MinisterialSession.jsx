@@ -68,7 +68,7 @@ function MinisterialSessionTracker() {
     const {
         data: sponsors = [],
         isLoading: isSponsorsLoading
-    } = useGetSponsorsQuery();
+    } = useGetSponsorsQuery({ event_code: sessionStorage.getItem("Event_Code")});
 
     const [addMinisterialSession] = useAddMinisterialSessionMutation();
     const [updateMinisterialSession] = useUpdateMinisterialSessionMutation();

@@ -46,7 +46,7 @@ function AwardRegistryTracker() {
         isLoading: isTableLoading,
         isError,
         refetch
-    } = useGetAwardRegistryQuery();
+    } = useGetAwardRegistryQuery({event_code: sessionStorage.getItem("Event_Code")});
 
     const {
         data: maxAwardRegistryId = 0,
@@ -62,7 +62,7 @@ function AwardRegistryTracker() {
     const {
         data: sponsors = [],
         isLoading: isSponsorsLoading
-    } = useGetSponsorsQuery();
+    } = useGetSponsorsQuery({ event_code: sessionStorage.getItem("Event_Code")});
 
     const {
         data: awards = [],

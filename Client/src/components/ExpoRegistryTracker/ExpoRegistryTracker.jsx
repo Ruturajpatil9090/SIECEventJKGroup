@@ -53,7 +53,7 @@ function ExpoRegistryTracker() {
         isLoading: isTableLoading,
         isError,
         refetch
-    } = useGetExpoRegistryQuery();
+    } = useGetExpoRegistryQuery({ event_code: sessionStorage.getItem("Event_Code") });
 
     const {
         data: maxExpoRegistryId = 0,
@@ -69,7 +69,7 @@ function ExpoRegistryTracker() {
     const {
         data: sponsors = [],
         isLoading: isSponsorsLoading
-    } = useGetSponsorsQuery();
+    } = useGetSponsorsQuery({ event_code: sessionStorage.getItem("Event_Code")});
 
     const {
         data: slots = [],
@@ -385,7 +385,7 @@ function ExpoRegistryTracker() {
         );
 
         return (
-            <div className="grid grid-cols-12 gap-3 p-4 border rounded-lg bg-gray-50 max-h-80 overflow-y-auto">
+            <div className="grid grid-cols-12 gap-2 p-4 border rounded-lg bg-gray-50 max-h-80 overflow-y-auto">
                 {sortedSlots.map((slot) => {
                     const slotIdStr = slot.SlotMasterId?.toString();
                     const isOccupied = slot.SponsorMasterId !== null && slot.SponsorMasterId !== '';
@@ -427,7 +427,7 @@ function ExpoRegistryTracker() {
     ];
 
     const eventOptions = events.map(event => ({
-        value: event.EventMasterId,
+        value: event.EventMasterId.toString(),
         label: `${event.EventMasterId} - ${event.EventMaster_Name}`
     }));
 
@@ -437,7 +437,7 @@ function ExpoRegistryTracker() {
     }));
 
     const selectedEvent = eventOptions.find(option =>
-        option.value === formData.Event_Code
+        option.value === formData.Event_Code?.toString()
     );
 
     const selectedSponsor = sponsorOptions.find(option =>
@@ -490,10 +490,10 @@ function ExpoRegistryTracker() {
                 }}
                 title={editId ? 'Edit Expo Registry' : 'Add New Expo Registry'}
                 size="lg"
-                width="1000px"
+                width="1200px"
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Expo Registry ID
@@ -518,7 +518,7 @@ function ExpoRegistryTracker() {
                                 required
                                 className="basic-single cursor-not-allowed" 
                                 classNamePrefix="select"
-                                 isDisabled 
+                             
                                  styles={{ control: (provided) => ({ ...provided, minHeight: '42px', borderColor: '#d1d5db', cursor: 'not-allowed', '&:hover': { borderColor: '#d1d5db' } }), option: (provided, state) => ({ ...provided, backgroundColor: state.isSelected ? '#2563eb' : 'white', color: state.isSelected ? 'white' : 'black', '&:hover': { backgroundColor: '#2563eb', color: 'white' } }) }}
                             />
                         </div>

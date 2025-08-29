@@ -110,12 +110,14 @@ import Login from "./Pages/Login/Login";
 import ProtectedRoute from "./common/ProtectedRoutes/ProtectedRoute";
 import NotFound from "./components/PageNotFound/PageNotFound";
 import SpeakerTracker from "./components/ExpoRegistryTracker/SpeakerTracker";
+import Dashboard from "./Pages/Dashboard/Dashboard";
+import EventList from "./Pages/Login/EventList";
 
 const Layout = () => {
   const location = useLocation();
 
-  const hideLayoutRoutes = ["/", "/verifyotp"];
-  const noSidebarRoutes = ["/", "/verifyotp"]; 
+  const hideLayoutRoutes = ["/", "/verifyotp","/event-list"];
+  const noSidebarRoutes = ["/", "/verifyotp","/event-list"]; 
 
   // Check if user is authenticated
   const isAuthenticated = () => {
@@ -131,6 +133,7 @@ const Layout = () => {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="*" element={<Navigate to="/" replace />} />
+         <Route path="/event-list" element={<EventList />} />
       </Routes>
     );
   }
@@ -158,7 +161,9 @@ const Layout = () => {
     "/ministrial-sessions",
     "/slot-master",
     "/passess-registry",
-    "/speaker-tracker"
+    "/speaker-tracker",
+    "/dashboard",
+    "/event-list"
   ].includes(location.pathname);
 
   if (!isValidRoute) {
@@ -254,6 +259,17 @@ const Layout = () => {
                 <Route path="/speaker-tracker" element={
               <ProtectedRoute>
                 <SpeakerTracker />
+              </ProtectedRoute>
+            } />
+                <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+
+              <Route path="/event-list" element={
+              <ProtectedRoute>
+                <EventList />
               </ProtectedRoute>
             } />
           </Routes>

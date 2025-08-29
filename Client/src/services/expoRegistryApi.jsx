@@ -6,10 +6,18 @@ export const expoRegistryApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }), 
     tagTypes: ['ExpoRegistry'],
     endpoints: (builder) => ({
+        // getExpoRegistry: builder.query({
+        //     query: () => '/expo-registry',
+        //     providesTags: ['ExpoRegistry']
+        // }),
         getExpoRegistry: builder.query({
-            query: () => '/expo-registry',
-            providesTags: ['ExpoRegistry']
-        }),
+    query: (params = {}) => {
+        const event_code = params.event_code ?? sessionStorage.getItem("Event_Code");
+        return `/expo-registry?event_code=${event_code}`;
+    },
+    providesTags: ['ExpoRegistry']
+}),
+
         getExpoRegistryById: builder.query({
             query: (id) => `/expo-registry/${id}`,
             providesTags: ['ExpoRegistry']

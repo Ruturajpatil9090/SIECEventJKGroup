@@ -164,6 +164,34 @@ def process_booth_numbers_response(tracker_data: Dict[str, Any]) -> Dict[str, An
             tracker_data['Booth_Number_Assigned'] = [booth_value]
     return tracker_data
 
+# @router.get("/", response_model=List[ExpoRegistryTracker])
+# async def get_all_Categories_data(
+#     event_code: Optional[str] = Query(None),
+#     sponsor_id: Optional[int] = Query(None),
+#     db: AsyncSession = Depends(get_db)
+# ):
+#     if event_code:
+#         results = await get_trackers_by_event_code(db, event_code)
+#     elif sponsor_id:
+#         results = await get_trackers_by_sponsor(db, sponsor_id)
+#     else:
+#         results = await get_expo_registry_trackers(db)
+    
+#     processed_results = []
+#     for result in results:
+#         if hasattr(result, '__dict__'):
+#             result_dict = result.__dict__
+#         else:
+#             result_dict = dict(result)
+        
+#         result_dict = process_booth_numbers_response(result_dict)
+#         processed_results.append(result_dict)
+    
+#     return processed_results
+
+
+
+
 @router.get("/", response_model=List[ExpoRegistryTracker])
 async def get_all_Categories_data(
     event_code: Optional[str] = Query(None),
@@ -171,20 +199,16 @@ async def get_all_Categories_data(
     db: AsyncSession = Depends(get_db)
 ):
     if event_code:
-        results = await get_trackers_by_event_code(db, event_code)
+        results = await get_expo_registry_trackers(db, int(event_code))  # Convert to int
     elif sponsor_id:
         results = await get_trackers_by_sponsor(db, sponsor_id)
     else:
-        results = await get_expo_registry_trackers(db)
+        results = await get_expo_registry_trackers(db, 0)  # Provide default or handle differently
     
     processed_results = []
     for result in results:
-        if hasattr(result, '__dict__'):
-            result_dict = result.__dict__
-        else:
-            result_dict = dict(result)
-        
-        result_dict = process_booth_numbers_response(result_dict)
+        # No need for hasattr check since we're returning dicts
+        result_dict = process_booth_numbers_response(result)
         processed_results.append(result_dict)
     
     return processed_results

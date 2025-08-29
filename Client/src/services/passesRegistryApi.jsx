@@ -7,10 +7,18 @@ export const passesRegistryApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }), 
     tagTypes: ['PassesRegistry'],
     endpoints: (builder) => ({
+        // getPassesRegistries: builder.query({
+        //     query: () => '/passes-registry',
+        //     providesTags: ['PassesRegistry']
+        // }),
+
         getPassesRegistries: builder.query({
-            query: () => '/passes-registry',
-            providesTags: ['PassesRegistry']
-        }),
+    query: (params = {}) => {
+        const event_code = params.event_code ?? sessionStorage.getItem("Event_Code");
+        return `/passes-registry?event_code=${event_code}`;
+    },
+    providesTags: ['PassesRegistry']
+}),
         
         getPassesRegistryById: builder.query({
             query: (id) => `/passes-registry/${id}`,

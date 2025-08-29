@@ -125,18 +125,40 @@ async def get_max_tracker_id(db: AsyncSession):
     max_id = result.scalar()
     return max_id if max_id is not None else 0
 
-async def get_expo_registry_trackers(db: AsyncSession):
-    query = text("""
-SELECT        dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_EventMaster.EventMaster_Name, dbo.Eve_DeliverablesMaster.Deliverables, dbo.Eve_ExpoRegistryTracker.*
-FROM            dbo.Eve_ExpoRegistryTracker INNER JOIN
-                         dbo.Eve_SponsorMaster ON dbo.Eve_ExpoRegistryTracker.SponsorMasterId = dbo.Eve_SponsorMaster.SponsorMasterId INNER JOIN
-                         dbo.Eve_EventMaster ON dbo.Eve_ExpoRegistryTracker.Event_Code = dbo.Eve_EventMaster.EventMasterId INNER JOIN
-                         dbo.Eve_DeliverablesMaster ON dbo.Eve_ExpoRegistryTracker.Deliverabled_Code = dbo.Eve_DeliverablesMaster.id
-                 order by dbo.Eve_ExpoRegistryTracker.ExpoRegistryTrackerId desc
-    """)
+# async def get_expo_registry_trackers(db: AsyncSession,event_code: int):
+#     query = text("""
+# SELECT   dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_EventMaster.EventMaster_Name, dbo.Eve_DeliverablesMaster.Deliverables, dbo.Eve_ExpoRegistryTracker.*
+# FROM            dbo.Eve_ExpoRegistryTracker INNER JOIN
+#                          dbo.Eve_SponsorMaster ON dbo.Eve_ExpoRegistryTracker.SponsorMasterId = dbo.Eve_SponsorMaster.SponsorMasterId INNER JOIN
+#                          dbo.Eve_EventMaster ON dbo.Eve_ExpoRegistryTracker.Event_Code = dbo.Eve_EventMaster.EventMasterId INNER JOIN
+#                          dbo.Eve_DeliverablesMaster ON dbo.Eve_ExpoRegistryTracker.Deliverabled_Code = dbo.Eve_DeliverablesMaster.id
+#                  	where dbo.Eve_ExpoRegistryTracker.Event_Code = :event_code
+#                  order by dbo.Eve_ExpoRegistryTracker.ExpoRegistryTrackerId desc
+#     """)
     
-    result = await db.execute(query)
-    return result.mappings().all()
+#     result = await db.execute(query,{"event_code": event_code})
+#     print("aaaa",result.mappings().all())
+#     return result.mappings().all()
+
+
+
+async def get_expo_registry_trackers(db: AsyncSession, event_code: int):
+    query = text("""
+SELECT   dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_EventMaster.EventMaster_Name, 
+         dbo.Eve_DeliverablesMaster.Deliverables, dbo.Eve_ExpoRegistryTracker.*
+FROM     dbo.Eve_ExpoRegistryTracker 
+INNER JOIN dbo.Eve_SponsorMaster ON dbo.Eve_ExpoRegistryTracker.SponsorMasterId = dbo.Eve_SponsorMaster.SponsorMasterId 
+INNER JOIN dbo.Eve_EventMaster ON dbo.Eve_ExpoRegistryTracker.Event_Code = dbo.Eve_EventMaster.EventMasterId 
+INNER JOIN dbo.Eve_DeliverablesMaster ON dbo.Eve_ExpoRegistryTracker.Deliverabled_Code = dbo.Eve_DeliverablesMaster.id
+WHERE    dbo.Eve_ExpoRegistryTracker.Event_Code = :event_code
+ORDER BY dbo.Eve_ExpoRegistryTracker.ExpoRegistryTrackerId DESC
+""")
+    
+    result = await db.execute(query, {"event_code": event_code})
+    rows = result.fetchall()
+    columns = result.keys()
+    return [dict(zip(columns, row)) for row in rows]
+
 
 async def create_expo_registry_tracker(db: AsyncSession, tracker: ExpoRegistryTrackerCreate, ws_manager: Optional[ConnectionManager] = None):
     tracker_data = tracker.model_dump()
