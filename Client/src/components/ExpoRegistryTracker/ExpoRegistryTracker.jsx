@@ -476,7 +476,7 @@ function ExpoRegistryTracker() {
             )}
 
             <TableUtility
-                title="Expo Registry Tracker"
+                title="Expo Registry & Tracker - Sponsors"
                 columns={columns}
                 data={tableData}
                 pageSize={10}

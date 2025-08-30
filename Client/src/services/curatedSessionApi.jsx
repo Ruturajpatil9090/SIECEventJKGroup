@@ -7,7 +7,10 @@ export const curatedSessionApi = createApi({
     tagTypes: ['CuratedSession'],
     endpoints: (builder) => ({
         getCuratedSessions: builder.query({
-            query: () => '/curated-sessions',
+            query: (params = {}) => {
+                const event_code = params.event_code ?? sessionStorage.getItem("Event_Code");
+                return `/curated-sessions?event_code=${event_code}`;
+            },
             providesTags: ['CuratedSession']
         }),
         getCuratedSessionById: builder.query({

@@ -9,13 +9,10 @@ export const sponsorMasterApi = createApi({
         getSponsors: builder.query({
             query: (params) => {
                 const event_code = params.event_code ?? sessionStorage.getItem("Event_Code");
-                const {skip = 0, limit = 100 } = params || {};
+                const { skip = 0, limit = 100 } = params || {};
                 return `/sponsors?event_code=${event_code}&skip=${skip}&limit=${limit}`;
             },
-            providesTags: (result) =>
-                result
-                    ? [...result.map(({ SponsorMasterId }) => ({ type: 'SponsorMaster', id: SponsorMasterId })), { type: 'SponsorMaster', id: 'LIST' }]
-                    : [{ type: 'SponsorMaster', id: 'LIST' }],
+            providesTags: ['SponsorMaster']
         }),
         getSponsorById: builder.query({
             query: (id) => `/sponsors/${id}`,
@@ -28,8 +25,24 @@ export const sponsorMasterApi = createApi({
             },
             providesTags: ['SponsorMaster']
         }),
+        getSponsorCompleteDetails: builder.query({
+            query: (params) => {
+                const { sponsor_master_id } = params || {};
+                const eventCode = sessionStorage.getItem("Event_Code");
+                return `/sponsors/sponsor-details?sponsor_master_id=${sponsor_master_id}&event_code=${eventCode}`;
+            },
+            providesTags: (result, error, params) =>
+                result ? [{ type: 'SponsorMaster', id: params?.sponsor_master_id }] : [],
+        }),
         getMaxSponsorId: builder.query({
             query: () => '/sponsors/getlastSponsorId',
+            providesTags: ['SponsorMaster']
+        }),
+        getDashboardStats: builder.query({
+            query: (params) => {
+                const event_code = params?.event_code ?? sessionStorage.getItem("Event_Code");
+                return `/sponsors/dashboard-stats/?event_code=${event_code}`;
+            },
             providesTags: ['SponsorMaster']
         }),
         addSponsor: builder.mutation({
@@ -52,7 +65,7 @@ export const sponsorMasterApi = createApi({
         }),
 
         updateSponsor: builder.mutation({
-            queryFn: async ({ id, sponsorData, logoFile}, _queryApi, _extraOptions, baseQuery) => {
+            queryFn: async ({ id, sponsorData, logoFile }, _queryApi, _extraOptions, baseQuery) => {
                 const formData = new FormData();
                 formData.append("sponsor_data", JSON.stringify(sponsorData));
                 if (logoFile) {
@@ -68,7 +81,6 @@ export const sponsorMasterApi = createApi({
                 return result;
             },
             invalidatesTags: (result, error, id) => [{ type: 'SponsorMaster', id }],
-            // invalidatesTags: (result, error, { id }) => [{ type: 'SponsorMaster', id }],
         }),
         deleteSponsor: builder.mutation({
             query: (id) => ({
@@ -85,74 +97,9 @@ export const {
     useGetSponsorByIdQuery,
     useGetSponsorsWithDetailsQuery,
     useGetMaxSponsorIdQuery,
+    useGetSponsorCompleteDetailsQuery,
+    useGetDashboardStatsQuery,
     useAddSponsorMutation,
     useUpdateSponsorMutation,
     useDeleteSponsorMutation
 } = sponsorMasterApi;
-
-
-
-
-
-// import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-
-// export const sponsorMasterApi = createApi({
-//     reducerPath: "sponsorMasterApi",
-//     baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8000" }), 
-//     tagTypes: ['SponsorMaster'],
-//     endpoints: (builder) => ({
-//         getSponsors: builder.query({
-//             query: () => '/sponsors',
-//             providesTags: ['SponsorMaster']
-//         }),
-//         getSponsorById: builder.query({
-//             query: (id) => `/sponsors/${id}`,
-//             providesTags: ['SponsorMaster']
-//         }),
-//         getSponsorsWithDetails: builder.query({
-//             query: () => '/sponsors/getSponsorsById',
-//             providesTags: ['SponsorMaster']
-//         }),
-//         getMaxSponsorId: builder.query({
-//             query: () => '/sponsors/getlastSponsorId',
-//             providesTags: ['SponsorMaster']
-//         }),
-//         addSponsor: builder.mutation({
-//             query: (sponsor) => ({
-//                 url: '/sponsors',
-//                 method: "POST",
-//                 body: sponsor
-//             }),
-//             invalidatesTags: ['SponsorMaster']
-//         }),
-//         updateSponsor: builder.mutation({
-//             query: ({ id, ...sponsor }) => ({
-//                 url: `/sponsors/${id}`,
-//                 method: "PUT",
-//                 body: sponsor
-//             }),
-//             invalidatesTags: ['SponsorMaster']
-//         }),
-//         deleteSponsor: builder.mutation({
-//             query: (id) => ({
-//                 url: `/sponsors/${id}`,
-//                 method: "DELETE",
-//             }),
-//             invalidatesTags: ['SponsorMaster']
-//         })
-//     })
-// })
-
-// export const { 
-//     useGetSponsorsQuery, 
-//     useGetSponsorByIdQuery,
-//     useGetSponsorsWithDetailsQuery,
-//     useGetMaxSponsorIdQuery,
-//     useAddSponsorMutation, 
-//     useUpdateSponsorMutation, 
-//     useDeleteSponsorMutation 
-// } = sponsorMasterApi;
-
-
-
-

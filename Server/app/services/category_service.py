@@ -1,4 +1,4 @@
-from sqlalchemy import select, update, asc
+from sqlalchemy import select, update, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..models.category_model import Category
 from ..models.category_sub_model import CategorySubMaster
@@ -24,7 +24,7 @@ async def get_category_by_name(db: AsyncSession, category_name: str):
 async def get_categories(db: AsyncSession, skip: int = 0, limit: int = 100):
     result = await db.execute(
         select(Category)
-        .order_by(asc(Category.CategoryId))
+        .order_by(desc(Category.CategoryId))
         .offset(skip)
         .limit(limit)
     )

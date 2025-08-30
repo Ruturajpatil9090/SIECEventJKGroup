@@ -1,21 +1,79 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetEventMastersQuery } from '../../services/eventMasterApi';
-import { Calendar, ArrowRight, Loader } from 'lucide-react';
+import { Calendar, ArrowRight, Loader, ChevronDown, ChevronRight, Folder, FolderOpen } from 'lucide-react';
 
 function EventList() {
   const { data: events = [], isLoading, isError } = useGetEventMastersQuery();
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [expandedSuperEvents, setExpandedSuperEvents] = useState({});
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (events.length > 0) {
+      const initialExpandedState = {};
+
+      events.forEach(event => {
+        const hasSuperEvent = event.EventSuperId && event.EventSuperId !== 0;
+        if (hasSuperEvent) {
+          initialExpandedState[event.EventSuperId] = true;
+        }
+      });
+
+      // Also expand the ungrouped section if it exists
+      const hasUngrouped = events.some(event => !event.EventSuperId || event.EventSuperId === 0);
+      if (hasUngrouped) {
+        initialExpandedState['ungrouped'] = true;
+      }
+
+      setExpandedSuperEvents(initialExpandedState);
+    }
+  }, [events]);
+
+  const groupedEvents = events.reduce((acc, event) => {
+    const hasSuperEvent = event.EventSuperId && event.EventSuperId !== 0;
+
+    if (hasSuperEvent) {
+      const superEventId = event.EventSuperId;
+      const superEventName = event.EventSuper_Name || `Super Event ${event.EventSuperId}`;
+
+      if (!acc[superEventId]) {
+        acc[superEventId] = {
+          superEventName: superEventName,
+          events: []
+        };
+      }
+      acc[superEventId].events.push(event);
+    } else {
+      if (!acc.ungrouped) {
+        acc.ungrouped = {
+          superEventName: 'Ungrouped Events',
+          events: []
+        };
+      }
+      acc.ungrouped.events.push(event);
+    }
+    return acc;
+  }, {});
 
   const handleEventSelect = (event) => {
     setSelectedEvent(event);
-    
-     sessionStorage.setItem("Event_Code", event.EventMasterId);
-    
-    // Navigate to dashboard
+    sessionStorage.setItem("Event_Code", event.EventMasterId);
     navigate('/dashboard');
   };
+
+  const toggleSuperEvent = (superEventId) => {
+    setExpandedSuperEvents(prev => ({
+      ...prev,
+      [superEventId]: !prev[superEventId]
+    }));
+  };
+
+  const sortedSuperEvents = Object.entries(groupedEvents).sort(([idA, groupA], [idB, groupB]) => {
+    if (idA === 'ungrouped') return 1;
+    if (idB === 'ungrouped') return -1;
+    return groupA.superEventName.localeCompare(groupB.superEventName);
+  });
 
   if (isLoading) {
     return (
@@ -49,16 +107,13 @@ function EventList() {
             <Calendar className="h-10 w-10 text-blue-600 mr-3" />
             <h1 className="text-3xl font-bold text-gray-900">Select an Event</h1>
           </div>
-          {/* <p className="text-lg text-gray-600">
-            Choose an event to access its dashboard and management tools
-          </p> */}
         </div>
 
         <div className="bg-white shadow-lg rounded-xl overflow-hidden">
           <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4">
             <h2 className="text-xl font-semibold text-white">Available Events</h2>
           </div>
-          
+
           <div className="divide-y divide-gray-200">
             {events.length === 0 ? (
               <div className="p-8 text-center">
@@ -66,39 +121,66 @@ function EventList() {
                 <p className="text-gray-400 mt-2">Please check back later or contact your administrator.</p>
               </div>
             ) : (
-              events.map((event) => (
-                <div 
-                  key={event.EventMasterId} 
-                  className="p-6 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
-                  onClick={() => handleEventSelect(event)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {event.EventMasterId} - {event.EventMaster_Name}
-                      </h3>
-                      
-                      <div className="mt-2 flex flex-wrap gap-4">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Calendar className="h-4 w-4 mr-1 text-blue-500" />
-                          <span>
-                            {new Date(event.Start_Date).toLocaleDateString()} 
-                            {event.End_Date && ` - ${new Date(event.End_Date).toLocaleDateString()}`}
-                          </span>
+              sortedSuperEvents.map(([superEventId, group]) => (
+                <div key={superEventId}>
+                  <div
+                    className="p-4 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 cursor-pointer border-b border-gray-300"
+                    onClick={() => toggleSuperEvent(superEventId)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="flex items-center">
+                          {expandedSuperEvents[superEventId] ? (
+                            <>
+                              <FolderOpen className="h-5 w-5 text-blue-600 mr-2" />
+                              <ChevronDown className="h-5 w-5 text-gray-600 mr-2" />
+                            </>
+                          ) : (
+                            <>
+                              <Folder className="h-5 w-5 text-blue-600 mr-2" />
+                              <ChevronRight className="h-5 w-5 text-gray-600 mr-2" />
+                            </>
+                          )}
                         </div>
-                        
-                        {/* {event.EventSuperId && (
-                          <div className="text-sm text-gray-600">
-                            Super Event ID: {event.EventSuperId}
-                          </div>
-                        )} */}
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {group.superEventName}
+                        </h3>
+                        <span className="ml-3 text-sm text-gray-500 bg-gray-200 px-2 py-1 rounded-full">
+                          {group.events.length} event{group.events.length !== 1 ? 's' : ''}
+                        </span>
                       </div>
                     </div>
-                    
-                    <div className="ml-4 flex-shrink-0">
-                      <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
-                    </div>
                   </div>
+
+                  {expandedSuperEvents[superEventId] && group.events.map((event) => (
+                    <div
+                      key={event.EventMasterId}
+                      className="p-6 hover:bg-gray-50 transition-colors duration-200 cursor-pointer pl-14"
+                      onClick={() => handleEventSelect(event)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h4 className="text-md font-semibold text-gray-900">
+                            {event.EventMasterId} - {event.EventMaster_Name}
+                          </h4>
+
+                          <div className="mt-2 flex flex-wrap gap-4">
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Calendar className="h-4 w-4 mr-1 text-blue-500" />
+                              <span>
+                                {new Date(event.Start_Date).toLocaleDateString()}
+                                {event.End_Date && ` - ${new Date(event.End_Date).toLocaleDateString()}`}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="ml-4 flex-shrink-0">
+                          <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ))
             )}

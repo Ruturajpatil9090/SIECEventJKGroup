@@ -3,7 +3,7 @@ const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL
 
 export const categoryMasterApi = createApi({
     reducerPath: "categoryMasterApi",
-    baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }), 
+    baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
     tagTypes: ['CategoryMaster'],
     endpoints: (builder) => ({
         getCategoryMaster: builder.query({
@@ -44,11 +44,11 @@ export const categoryMasterApi = createApi({
     })
 })
 
-export const { 
-    useGetCategoryMasterQuery, 
+export const {
+    useGetCategoryMasterQuery,
     useGetCategoryMasterByIdQuery,
     useGetMaxCategoryIdQuery,
-    useAddCategoryMasterMutation, 
-    useUpdateCategoryMasterMutation, 
-    useDeleteCategoryMasterMutation 
+    useAddCategoryMasterMutation,
+    useUpdateCategoryMasterMutation,
+    useDeleteCategoryMasterMutation
 } = categoryMasterApi;

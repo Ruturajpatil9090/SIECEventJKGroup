@@ -119,7 +119,6 @@ const Layout = () => {
   const hideLayoutRoutes = ["/", "/verifyotp","/event-list"];
   const noSidebarRoutes = ["/", "/verifyotp","/event-list"]; 
 
-  // Check if user is authenticated
   const isAuthenticated = () => {
     const encryptedToken = sessionStorage.getItem('access_token');
     return !!encryptedToken;

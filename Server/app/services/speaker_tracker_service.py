@@ -17,7 +17,7 @@ async def get_max_speaker_tracker_id(db: AsyncSession):
     max_id = result.scalar()
     return max_id if max_id is not None else 0
 
-async def get_speaker_trackers(db: AsyncSession):
+async def get_speaker_trackers(db: AsyncSession,event_code: Optional[int] = None):
     query = text("""
         SELECT 
             st.SpeakerTrackerId, 
@@ -35,10 +35,11 @@ async def get_speaker_trackers(db: AsyncSession):
         FROM Eve_SpeakerTracker st
         LEFT JOIN Eve_EventMaster em ON st.Event_Code = em.EventMasterId
         LEFT JOIN Eve_SponsorMaster sm ON st.SponsorMasterId = sm.SponsorMasterId
+        WHERE st.Event_Code = :event_code
         ORDER BY st.SpeakerTrackerId DESC
     """)
     
-    result = await db.execute(query)
+    result = await db.execute(query, {'event_code': event_code})
     return result.mappings().all()
 
 async def create_speaker_tracker(db: AsyncSession, tracker: SpeakerTrackerCreate, ws_manager: Optional[ConnectionManager] = None):

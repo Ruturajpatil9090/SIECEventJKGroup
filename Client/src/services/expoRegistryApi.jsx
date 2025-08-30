@@ -3,21 +3,16 @@ const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL
 
 export const expoRegistryApi = createApi({
     reducerPath: "expoRegistryApi",
-    baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }), 
+    baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
     tagTypes: ['ExpoRegistry'],
     endpoints: (builder) => ({
-        // getExpoRegistry: builder.query({
-        //     query: () => '/expo-registry',
-        //     providesTags: ['ExpoRegistry']
-        // }),
         getExpoRegistry: builder.query({
-    query: (params = {}) => {
-        const event_code = params.event_code ?? sessionStorage.getItem("Event_Code");
-        return `/expo-registry?event_code=${event_code}`;
-    },
-    providesTags: ['ExpoRegistry']
-}),
-
+            query: (params = {}) => {
+                const event_code = params.event_code ?? sessionStorage.getItem("Event_Code");
+                return `/expo-registry?event_code=${event_code}`;
+            },
+            providesTags: ['ExpoRegistry']
+        }),
         getExpoRegistryById: builder.query({
             query: (id) => `/expo-registry/${id}`,
             providesTags: ['ExpoRegistry']
@@ -60,13 +55,13 @@ export const expoRegistryApi = createApi({
     })
 })
 
-export const { 
-    useGetExpoRegistryQuery, 
+export const {
+    useGetExpoRegistryQuery,
     useGetExpoRegistryByIdQuery,
     useGetMaxExpoRegistryIdQuery,
     useGetExpoRegistryByEventCodeQuery,
     useGetExpoRegistryBySponsorQuery,
-    useAddExpoRegistryMutation, 
-    useUpdateExpoRegistryMutation, 
-    useDeleteExpoRegistryMutation 
+    useAddExpoRegistryMutation,
+    useUpdateExpoRegistryMutation,
+    useDeleteExpoRegistryMutation
 } = expoRegistryApi;

@@ -137,7 +137,6 @@ async def get_max_tracker_id(db: AsyncSession):
 #     """)
     
 #     result = await db.execute(query,{"event_code": event_code})
-#     print("aaaa",result.mappings().all())
 #     return result.mappings().all()
 
 

@@ -6,8 +6,12 @@ export const ministerialSessionApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
     tagTypes: ['MinisterialSession'],
     endpoints: (builder) => ({
+
         getMinisterialSessions: builder.query({
-            query: () => '/ministerial-sessions',
+            query: (params = {}) => {
+                const event_code = params.event_code ?? sessionStorage.getItem("Event_Code");
+                return `/ministerial-sessions?event_code=${event_code}`;
+            },
             providesTags: ['MinisterialSession']
         }),
         getMinisterialSessionById: builder.query({

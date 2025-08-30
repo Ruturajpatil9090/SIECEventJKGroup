@@ -3,7 +3,7 @@ const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL
 
 export const deliverableApi = createApi({
     reducerPath: "deliverableApi",
-    baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }), 
+    baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
     tagTypes: ['Deliverable'],
     endpoints: (builder) => ({
         getDeliverables: builder.query({
@@ -44,11 +44,11 @@ export const deliverableApi = createApi({
     })
 })
 
-export const { 
-    useGetDeliverablesQuery, 
+export const {
+    useGetDeliverablesQuery,
     useGetDeliverableByIdQuery,
     useGetLastDeliverableNumbersQuery,
-    useAddDeliverableMutation, 
-    useUpdateDeliverableMutation, 
-    useDeleteDeliverableMutation 
+    useAddDeliverableMutation,
+    useUpdateDeliverableMutation,
+    useDeleteDeliverableMutation
 } = deliverableApi;

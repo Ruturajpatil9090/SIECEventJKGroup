@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import func, update,text
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from ..models.sponsor_master_model import Eve_SponsorMaster, Eve_SponsorMasterDetail
 from ..schemas.sponsor_master_schema import SponsorMasterCreate, SponsorMasterUpdate
 from ..models.expo_registry_tracker_model import ExpoRegistryTracker
@@ -48,6 +48,111 @@ ORDER BY dbo.Eve_SponsorMaster.SponsorMasterId DESC
     
     result = await db.execute(query, {"event_code": event_code,"skip": skip, "limit": limit})
     return result.mappings().all()
+
+
+
+
+
+
+async def get_sponsor_complete_details(db: AsyncSession, event_code: int, sponsor_master_id: int):
+    query = text("""
+SELECT        dbo.Eve_PassesRegistry.Elite_Passess, dbo.Eve_PassesRegistry.Visitor_Passess, dbo.Eve_PassesRegistry.Carporate_Passess, dbo.Eve_MinisterialSessions.Speaker_Name AS MinistrialSpeakername, 
+                         dbo.Eve_CuratedSession.Speaker_Name AS CuratedSpeakername, dbo.Eve_SpeakerTracker.Speaker_Name AS SpeakerTrackerSpeakerName, dbo.Eve_AwardMaster.Award_Name, dbo.Eve_SponsorMaster.Contact_Person, 
+                         dbo.Eve_SponsorMaster.Contact_Email, dbo.Eve_SponsorMaster.Contact_Phone, dbo.Eve_SponsorMaster.Sponsorship_Amount, 
+                         dbo.Eve_SponsorMaster.Sponsorship_Amount - ISNULL(dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance, 0) AS Pending_Amount, dbo.Eve_EventMaster.EventMaster_Name, dbo.Eve_SponsorMaster.SponsorMasterId, 
+                         dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_SponsorMaster.Event_Code, dbo.Eve_SponsorMaster.Approval_Received, dbo.Eve_ExpoRegistryTracker.Booth_Number_Assigned
+FROM            dbo.Eve_SponsorMaster INNER JOIN
+                         dbo.Eve_PassesRegistry ON dbo.Eve_SponsorMaster.SponsorMasterId = dbo.Eve_PassesRegistry.SponsorMasterId INNER JOIN
+                         dbo.Eve_MinisterialSessions ON dbo.Eve_SponsorMaster.SponsorMasterId = dbo.Eve_MinisterialSessions.SponsorMasterId INNER JOIN
+                         dbo.Eve_ExpoRegistryTracker ON dbo.Eve_SponsorMaster.SponsorMasterId = dbo.Eve_ExpoRegistryTracker.SponsorMasterId INNER JOIN
+                         dbo.Eve_CuratedSession ON dbo.Eve_SponsorMaster.SponsorMasterId = dbo.Eve_CuratedSession.SponsorMasterId INNER JOIN
+                         dbo.Eve_AwardRegistryTracker ON dbo.Eve_SponsorMaster.SponsorMasterId = dbo.Eve_AwardRegistryTracker.SponsorMasterId INNER JOIN
+                         dbo.Eve_SpeakerTracker ON dbo.Eve_SponsorMaster.SponsorMasterId = dbo.Eve_SpeakerTracker.SponsorMasterId INNER JOIN
+                         dbo.Eve_EventMaster ON dbo.Eve_SponsorMaster.Event_Code = dbo.Eve_EventMaster.EventMasterId LEFT OUTER JOIN
+                         dbo.Eve_AwardMaster ON dbo.Eve_AwardRegistryTracker.Award_Code = dbo.Eve_AwardMaster.AwardId
+WHERE 
+    dbo.Eve_SponsorMaster.Event_Code = :event_code 
+    AND dbo.Eve_SponsorMaster.SponsorMasterId = :sponsor_master_id
+""")
+    
+    result = await db.execute(query, {
+        "event_code": event_code,
+        "sponsor_master_id": sponsor_master_id
+    })
+    return result.mappings().all()
+
+
+
+
+async def get_event_dashboard_stats(db: AsyncSession, event_code: int) -> Dict[str, Any]:
+    queries = {
+        "sponsor_count": text("""
+            SELECT COUNT(*) AS count 
+            FROM dbo.Eve_SponsorMaster 
+            WHERE Event_Code = :event_code
+        """),
+        "award_record_count": text("""
+            SELECT COUNT(*) AS count 
+            FROM dbo.Eve_AwardRegistryTracker 
+            WHERE Award_Code > 0 AND Event_Code = :event_code
+        """),
+        "ministerial_speakers_count": text("""
+            SELECT COUNT(*) AS count 
+            FROM dbo.Eve_MinisterialSessions 
+            WHERE Event_Code = :event_code AND Speaker_Name IS NOT NULL AND Speaker_Name <> ''
+        """),
+        "curated_speakers_count": text("""
+            SELECT COUNT(*) AS count 
+            FROM dbo.Eve_CuratedSession 
+            WHERE Event_Code = :event_code AND Speaker_Name IS NOT NULL AND Speaker_Name <> ''
+        """),
+        "speaker_tracker_count": text("""
+            SELECT COUNT(*) AS count 
+            FROM dbo.Eve_SpeakerTracker 
+            WHERE Event_Code = :event_code AND Speaker_Name IS NOT NULL AND Speaker_Name <> ''
+        """),
+        "booth_assigned_count": text("""
+            SELECT COUNT(*) AS count 
+            FROM dbo.Eve_ExpoRegistryTracker 
+            WHERE Event_Code = :event_code 
+            AND (Booth_Number_Assigned IS NOT NULL AND Booth_Number_Assigned <> '')
+        """),
+        "sponsor_details": text("""
+           SELECT        dbo.tbluser.User_Name, dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_SponsorMaster.Sponsorship_Amount, dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance, 
+                         dbo.Eve_SponsorMaster.Sponsorship_Amount - ISNULL(dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance, 0) AS Pending_Amount, dbo.Eve_CategorySubMaster.CategorySub_Name, 
+                         dbo.Eve_SponsorMaster.Proposal_Sent, dbo.Eve_SponsorMaster.Approval_Received, dbo.Eve_SponsorMaster.Contact_Phone, dbo.Eve_SponsorMaster.Contact_Email, dbo.Eve_SponsorMaster.Contact_Person
+FROM            dbo.Eve_SponsorMaster INNER JOIN
+                         dbo.tbluser ON dbo.Eve_SponsorMaster.User_Id = dbo.tbluser.User_Id INNER JOIN
+                         dbo.Eve_CategorySubMaster ON dbo.Eve_SponsorMaster.CategorySubMaster_Code = dbo.Eve_CategorySubMaster.CategorySubMasterId
+            WHERE dbo.Eve_SponsorMaster.Event_Code = :event_code
+        """)
+    }
+    
+    results = {}
+    
+    for key, query in queries.items():
+        try:
+            if key == "sponsor_details":
+                result = await db.execute(query, {"event_code": event_code})
+                results[key] = result.mappings().all()
+            else:
+                result = await db.execute(query, {"event_code": event_code})
+                results[key] = result.scalar()
+        except Exception as e:
+            results[key] = f"Error: {str(e)}"
+    
+    return {
+        "event_code": event_code,
+        "stats": {
+            "total_sponsors": results.get("sponsor_count", 0),
+            "award_records": results.get("award_record_count", 0),
+            "ministerial_speakers": results.get("ministerial_speakers_count", 0),
+            "curated_speakers": results.get("curated_speakers_count", 0),
+            "speaker_tracker": results.get("speaker_tracker_count", 0),
+            "booths_assigned": results.get("booth_assigned_count", 0)
+        },
+        "sponsor_details": results.get("sponsor_details", [])
+    }
 
 
 async def get_sponsor(db: AsyncSession, sponsor_id: int):
@@ -284,12 +389,15 @@ async def update_sponsor(
     if logo_path:
         update_data['Sponsor_logo'] = logo_path
     
+    should_broadcast = False
+
     if update_data:
         await db.execute(
             update(Eve_SponsorMaster)
             .where(Eve_SponsorMaster.SponsorMasterId == sponsor_id)
             .values(**update_data)
         )
+        should_broadcast = True
     
     if sponsor_data.details is not None:
         current_details_stmt = select(Eve_SponsorMasterDetail).filter(
@@ -373,7 +481,7 @@ async def update_sponsor(
         passes_registry_to_delete = []
         speaker_trackers_to_delete = []
 
-        should_broadcast = False
+
         
         for detail_code, detail in current_detail_dict.items():
             if detail_code not in incoming_detail_codes:
@@ -605,7 +713,6 @@ async def update_sponsor(
 
     await db.commit()
 
-    # Broadcast updates for both trackers if needed
     if ws_manager:
         if should_broadcast:
             await ws_manager.broadcast("refresh_expo_registry")

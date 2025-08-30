@@ -222,37 +222,6 @@ function PassesRegistry() {
     setIsModalOpen(true);
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const finalDetails = formData.details.map(detail => {
-  //       if (!detail.rowaction) {
-  //         return {
-  //           ...detail,
-  //           rowaction: detail.PassessRegistryDetailId ? 'update' : 'add'
-  //         };
-  //       }
-  //       return detail;
-  //     });
-
-  //     const payload = {
-  //       ...formData,
-  //       details: finalDetails,
-  //     };
-
-  //     if (editId) {
-  //       await updatePassesRegistry({ id: editId, ...payload }).unwrap();
-  //     } else {
-  //       await addPassesRegistry(payload).unwrap();
-  //     }
-  //     resetMainForm();
-  //     setIsModalOpen(false);
-  //     refetch();
-  //   } catch (error) {
-  //     console.error('Failed to save passes registry:', error);
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -435,7 +404,7 @@ function PassesRegistry() {
     <>
       <TableUtility
         // headerContent={<CreateNewButton onClick={handleAddNew} />}
-        title="Passes Registry"
+        title="Passes Registry & Tracker - Sponsors"
         columns={columns}
         data={transformedTableData}
         pageSize={10}

@@ -3,7 +3,7 @@ const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL
 
 export const eventMasterApi = createApi({
     reducerPath: "eventMasterApi",
-    baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }), 
+    baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
     tagTypes: ['EventMaster'],
     endpoints: (builder) => ({
         getEventMasters: builder.query({
@@ -48,12 +48,12 @@ export const eventMasterApi = createApi({
     })
 })
 
-export const { 
-    useGetEventMastersQuery, 
+export const {
+    useGetEventMastersQuery,
     useGetEventMastersBySuperIdQuery,
     useGetEventMasterByIdQuery,
     useGetMaxEventMasterIdQuery,
-    useAddEventMasterMutation, 
-    useUpdateEventMasterMutation, 
-    useDeleteEventMasterMutation 
+    useAddEventMasterMutation,
+    useUpdateEventMasterMutation,
+    useDeleteEventMasterMutation
 } = eventMasterApi;

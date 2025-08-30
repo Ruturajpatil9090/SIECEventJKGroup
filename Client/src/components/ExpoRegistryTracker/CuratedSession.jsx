@@ -48,7 +48,7 @@ function CuratedSessionTracker() {
         isLoading: isTableLoading,
         isError,
         refetch
-    } = useGetCuratedSessionsQuery();
+    } = useGetCuratedSessionsQuery({event_code: sessionStorage.getItem("Event_Code")});
 
     const {
         data: maxCuratedSessionId = 0,
@@ -327,7 +327,7 @@ function CuratedSessionTracker() {
 
             <TableUtility
                 // headerContent={<CreateNewButton onClick={handleAddNew} />}
-                title="Curated Session Tracker"
+                title="Curated Sessions - Sponsors"
                 columns={columns}
                 data={tableData}
                 pageSize={10}

@@ -308,7 +308,7 @@ function AwardRegistryTracker() {
 
             <TableUtility
                 // headerContent={<CreateNewButton onClick={handleAddNew} />}
-                title="Award Registry Tracker"
+                title="Awards Registry & Tracker - Sponsors"
                 columns={columns}
                 data={tableData}
                 pageSize={10}

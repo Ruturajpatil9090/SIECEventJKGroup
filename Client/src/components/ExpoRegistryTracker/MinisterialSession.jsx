@@ -52,7 +52,7 @@ function MinisterialSessionTracker() {
         isLoading: isTableLoading,
         isError,
         refetch
-    } = useGetMinisterialSessionsQuery();
+    } = useGetMinisterialSessionsQuery({event_code: sessionStorage.getItem("Event_Code")});
 
     const {
         data: maxMinisterialSessionId = 0,
@@ -311,7 +311,7 @@ function MinisterialSessionTracker() {
 
             <TableUtility
                 // headerContent={<CreateNewButton onClick={handleAddNew} />}
-                title="Ministerial Session Tracker"
+                title="Ministerial RounTable Sessions"
                 columns={columns}
                 data={tableData}
                 pageSize={10}

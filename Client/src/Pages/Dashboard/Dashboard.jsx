@@ -1,212 +1,72 @@
 import React, { useMemo, useState } from 'react';
-import TableUtility from "../../common/TableUtility/TableUtility";
-import { 
-  Users, 
-  Building2, 
-  Award, 
-  Calendar,
-  TrendingUp,
-  FileText,
+import {
+  Users,
+  Building2,
+  Award,
   ChevronDown,
   ChevronUp,
   Search,
-  Filter
+  Mic,
+  Mic2,
+  Presentation,
+  Store
 } from 'lucide-react';
+import { useGetDashboardStatsQuery } from '../../services/sponsorMasterApi';
+import { formatReadableAmount } from '../../common/Functions/FormatAmount';
 
 function Dashboard() {
-  // Dummy sponsor data
-  const sponsors = [
-    {
-      SponsorMasterId: 1,
-      Sponsor_Name: 'TechCorp',
-      Address: '123 Tech Park, San Francisco',
-      Expo_Registry: 'Y',
-      User_Id: 101,
-      Category: 'Technology',
-      Sponsorship_Amount: 50000,
-      Status: 'Confirmed'
-    },
-    {
-      SponsorMasterId: 2,
-      Sponsor_Name: 'HealthPlus',
-      Address: '456 Wellness St, Boston',
-      Expo_Registry: 'N',
-      User_Id: 101,
-      Category: 'Healthcare',
-      Sponsorship_Amount: 35000,
-      Status: 'Pending'
-    },
-    {
-      SponsorMasterId: 3,
-      Sponsor_Name: 'EduWorld',
-      Address: '789 Learning Ave, Austin',
-      Expo_Registry: 'Y',
-      User_Id: 102,
-      Category: 'Education',
-      Sponsorship_Amount: 25000,
-      Status: 'Confirmed'
-    },
-    {
-      SponsorMasterId: 4,
-      Sponsor_Name: 'GreenEnergy',
-      Address: '101 Solar Blvd, Denver',
-      Expo_Registry: 'Y',
-      User_Id: 103,
-      Category: 'Energy',
-      Sponsorship_Amount: 75000,
-      Status: 'Confirmed'
-    },
-    {
-      SponsorMasterId: 5,
-      Sponsor_Name: 'FinSecure',
-      Address: '202 Finance Rd, New York',
-      Expo_Registry: 'N',
-      User_Id: 102,
-      Category: 'Finance',
-      Sponsorship_Amount: 60000,
-      Status: 'Pending'
-    },
-        {
-      SponsorMasterId: 5,
-      Sponsor_Name: 'FinSecure',
-      Address: '202 Finance Rd, New York',
-      Expo_Registry: 'N',
-      User_Id: 102,
-      Category: 'Finance',
-      Sponsorship_Amount: 60000,
-      Status: 'Pending'
-    },
-        {
-      SponsorMasterId: 5,
-      Sponsor_Name: 'FinSecure',
-      Address: '202 Finance Rd, New York',
-      Expo_Registry: 'N',
-      User_Id: 102,
-      Category: 'Finance',
-      Sponsorship_Amount: 60000,
-      Status: 'Pending'
-    },
-        {
-      SponsorMasterId: 5,
-      Sponsor_Name: 'FinSecure',
-      Address: '202 Finance Rd, New York',
-      Expo_Registry: 'N',
-      User_Id: 102,
-      Category: 'Finance',
-      Sponsorship_Amount: 60000,
-      Status: 'Pending'
-    },
-        {
-      SponsorMasterId: 5,
-      Sponsor_Name: 'FinSecure',
-      Address: '202 Finance Rd, New York',
-      Expo_Registry: 'N',
-      User_Id: 102,
-      Category: 'Finance',
-      Sponsorship_Amount: 60000,
-      Status: 'Pending'
-    },
-        {
-      SponsorMasterId: 5,
-      Sponsor_Name: 'FinSecure',
-      Address: '202 Finance Rd, New York',
-      Expo_Registry: 'N',
-      User_Id: 102,
-      Category: 'Finance',
-      Sponsorship_Amount: 60000,
-      Status: 'Pending'
-    },
-        {
-      SponsorMasterId: 5,
-      Sponsor_Name: 'FinSecure',
-      Address: '202 Finance Rd, New York',
-      Expo_Registry: 'N',
-      User_Id: 102,
-      Category: 'Finance',
-      Sponsorship_Amount: 60000,
-      Status: 'Pending'
-    },
-        {
-      SponsorMasterId: 5,
-      Sponsor_Name: 'FinSecure',
-      Address: '202 Finance Rd, New York',
-      Expo_Registry: 'N',
-      User_Id: 102,
-      Category: 'Finance',
-      Sponsorship_Amount: 60000,
-      Status: 'Pending'
-    }
-  ];
+  const { data: dashboardData, error, isLoading } = useGetDashboardStatsQuery({ event_code: sessionStorage.getItem("Event_Code") });
 
-  // Dummy user data
-  const users = [
-    {
-      User_Id: 101,
-      userfullname: 'Alice Johnson',
-      email: 'alice@example.com',
-      role: 'Account Manager'
-    },
-    {
-      User_Id: 102,
-      userfullname: 'Bob Smith',
-      email: 'bob@example.com',
-      role: 'Sponsorship Director'
-    },
-    {
-      User_Id: 103,
-      userfullname: 'Carol Williams',
-      email: 'carol@example.com',
-      role: 'Partnership Manager'
-    }
-  ];
-
-  // Additional metrics data
-  const metricsData = {
-    curatedSessions: 12,
-    ministerialSessions: 5,
-    awards: 8,
-    totalRevenue: sponsors.reduce((sum, sponsor) => sum + sponsor.Sponsorship_Amount, 0)
-  };
-
-  // Calculate counts
-  const allSponsorsCount = sponsors.length;
-  const expoRegistryCount = useMemo(() => sponsors.filter(s => s.Expo_Registry === 'Y').length, [sponsors]);
-  const confirmedSponsors = useMemo(() => sponsors.filter(s => s.Status === 'Confirmed').length, [sponsors]);
-
-  // State for filters and search
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
-  // Prepare data for the user/sponsor table
-  const userSponsorTableData = useMemo(() => {
-    return users.map(user => {
-      const assignedSponsors = sponsors.filter(sponsor => sponsor.User_Id === user.User_Id);
-      const sponsorNames = assignedSponsors.map(s => s.Sponsor_Name).join(', ');
-      const companyNames = assignedSponsors.map(s => s.Address || 'N/A').join(', ');
-      const totalValue = assignedSponsors.reduce((sum, sponsor) => sum + sponsor.Sponsorship_Amount, 0);
+  const stats = dashboardData?.data?.stats || {};
+  const sponsorDetails = dashboardData?.data?.sponsor_details || [];
 
-      return {
-        User_Id: user.User_Id,
-        UserName: user.userfullname,
-        UserRole: user.role,
-        AssignedSponsors: assignedSponsors.length,
-        SponsorNames: sponsorNames,
-        CompanyNames: companyNames,
-        TotalValue: totalValue
-      };
-    });
-  }, [users, sponsors]);
+  const metricsData = useMemo(() => {
+    const totalRevenue = sponsorDetails.reduce((sum, sponsor) => sum + (sponsor.Sponsorship_Amount || 0), 0);
+    const confirmedSponsors = sponsorDetails.filter(sponsor => sponsor.Approval_Received === 'Y').length;
+    const pendingSponsors = sponsorDetails.filter(sponsor => sponsor.Approval_Received === 'N').length;
+    const totalAdvance = sponsorDetails.reduce((sum, sponsor) => sum + (sponsor.Sponsorship_Amount_Advance || 0), 0);
 
-  // Filter and sort sponsors
+    return {
+      totalRevenue,
+      confirmedSponsors,
+      pendingSponsors,
+      totalAdvance,
+      averageSponsorship: sponsorDetails.length > 0 ? totalRevenue / sponsorDetails.length : 0
+    };
+  }, [sponsorDetails]);
+
+
+  const sponsors = useMemo(() => {
+    return sponsorDetails.map(sponsor => ({
+      SponsorMasterId: sponsor.SponsorMasterId || Math.random(),
+      Sponsor_Name: sponsor.Sponsor_Name,
+      Address: sponsor.Address || '',
+      Category: sponsor.CategorySub_Name,
+      Sponsorship_Amount: sponsor.Sponsorship_Amount || 0,
+      Sponsorship_Amount_Advance: sponsor.Sponsorship_Amount_Advance || 0,
+      Pending_Amount: sponsor.Pending_Amount || 0,
+      Status: sponsor.Approval_Received === 'Y' ? 'Confirmed' : 'Pending',
+      Contact_Person: sponsor.Contact_Person,
+      Contact_Email: sponsor.Contact_Email,
+      Contact_Phone: sponsor.Contact_Phone,
+      Proposal_Sent: sponsor.Proposal_Sent,
+      User_Name: sponsor.User_Name
+    }));
+  }, [sponsorDetails]);
+
   const filteredSponsors = useMemo(() => {
     let filtered = sponsors.filter(sponsor => {
       const matchesSearch = sponsor.Sponsor_Name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           sponsor.Address.toLowerCase().includes(searchTerm.toLowerCase());
+        (sponsor.Address && sponsor.Address.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        sponsor.Contact_Person.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'All' || sponsor.Status === statusFilter;
       const matchesCategory = categoryFilter === 'All' || sponsor.Category === categoryFilter;
-      
+
       return matchesSearch && matchesStatus && matchesCategory;
     });
 
@@ -233,50 +93,34 @@ function Dashboard() {
     setSortConfig({ key, direction });
   };
 
-  const userSponsorTableColumns = [
-    { 
-      header: 'User Name', 
-      accessor: 'UserName',
-      cellRenderer: (value, row) => (
-        <div>
-          <div className="font-semibold">{value}</div>
-          <div className="text-sm text-gray-500">{row.UserRole}</div>
-        </div>
-      )
-    },
-    { 
-      header: 'Assigned Sponsors', 
-      accessor: 'AssignedSponsors',
-      cellRenderer: (value) => (
-        <div className="text-center font-bold text-blue-600">{value}</div>
-      )
-    },
-    { 
-      header: 'Total Value', 
-      accessor: 'TotalValue',
-      cellRenderer: (value) => (
-        <div className="font-semibold">${value.toLocaleString()}</div>
-      )
-    },
-    { 
-      header: 'Sponsor Names', 
-      accessor: 'SponsorNames',
-      cellRenderer: (value) => (
-        <div className="text-sm">{value}</div>
-      )
-    },
-  ];
-
   const statusOptions = ['All', 'Confirmed', 'Pending'];
-  const categoryOptions = ['All', 'Technology', 'Healthcare', 'Education', 'Energy', 'Finance'];
+  const categoryOptions = ['All', ...new Set(sponsors.map(s => s.Category).filter(Boolean))];
+
+  if (isLoading) {
+    return (
+      <div className="p-6 bg-gray-50 min-h-screen mt-10 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading dashboard data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 bg-gray-50 min-h-screen mt-10 flex items-center justify-center">
+        <div className="text-center text-red-600">
+          <p>Error loading dashboard data</p>
+          <p className="text-sm">{error.message}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      {/* <h1 className="text-3xl font-bold text-gray-800 mb-2">Sponsor Dashboard</h1>
-      <p className="text-gray-600 mb-6">Overview of all sponsorship activities and metrics</p> */}
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div className="p-6 bg-gray-50 min-h-screen mt-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-700">All Sponsors</h2>
@@ -284,100 +128,107 @@ function Dashboard() {
               <Building2 className="h-5 w-5 text-blue-600" />
             </div>
           </div>
-          <p className="text-3xl font-bold text-gray-800">{allSponsorsCount}</p>
-          <div className="flex items-center mt-2">
-            <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-            <span className="text-sm text-green-500">+12% from last month</span>
-          </div>
+          <p className="text-3xl font-bold text-gray-800">{stats.total_sponsors || 0}</p>
         </div>
+
 
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-700">Expo Registry</h2>
-            <div className="p-2 bg-green-100 rounded-lg">
-              <FileText className="h-5 w-5 text-green-600" />
-            </div>
-          </div>
-          <p className="text-3xl font-bold text-gray-800">{expoRegistryCount}</p>
-          <div className="text-sm text-gray-500 mt-2">
-            {((expoRegistryCount / allSponsorsCount) * 100).toFixed(0)}% of all sponsors
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-700">Curated Sessions</h2>
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Calendar className="h-5 w-5 text-purple-600" />
-            </div>
-          </div>
-          <p className="text-3xl font-bold text-gray-800">{metricsData.curatedSessions}</p>
-          <div className="text-sm text-gray-500 mt-2">Scheduled for next month</div>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-700">Awards</h2>
+            <h2 className="text-lg font-semibold text-gray-700">Award Records</h2>
             <div className="p-2 bg-amber-100 rounded-lg">
               <Award className="h-5 w-5 text-amber-600" />
             </div>
           </div>
-          <p className="text-3xl font-bold text-gray-800">{metricsData.awards}</p>
-          <div className="text-sm text-gray-500 mt-2">To be presented</div>
+          <p className="text-3xl font-bold text-gray-800">{stats.award_records || 0}</p>
+        </div>
+
+
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-700">Ministerial Speakers</h2>
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <Mic className="h-5 w-5 text-purple-600" />
+            </div>
+          </div>
+          <p className="text-3xl font-bold text-gray-800">{stats.ministerial_speakers || 0}</p>
+        </div>
+
+
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-700">Curated Speakers</h2>
+            <div className="p-2 bg-green-100 rounded-lg">
+              <Mic2 className="h-5 w-5 text-green-600" />
+            </div>
+          </div>
+          <p className="text-3xl font-bold text-gray-800">{stats.curated_speakers || 0}</p>
+        </div>
+
+
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-700">Speaker Tracker</h2>
+            <div className="p-2 bg-red-100 rounded-lg">
+              <Presentation className="h-5 w-5 text-red-600" />
+            </div>
+          </div>
+          <p className="text-3xl font-bold text-gray-800">{stats.speaker_tracker || 0}</p>
+        </div>
+
+
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-700">Booths Assigned</h2>
+            <div className="p-2 bg-indigo-100 rounded-lg">
+              <Store className="h-5 w-5 text-indigo-600" />
+            </div>
+          </div>
+          <p className="text-3xl font-bold text-gray-800">{stats.booths_assigned || 0}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* Revenue Summary Card */}
-        {/* <div className="lg:col-span-2 bg-gradient-to-r from-blue-500 to-indigo-600 p-6 rounded-xl text-white">
+        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 rounded-xl text-white">
           <h2 className="text-xl font-semibold mb-2">Total Sponsorship Revenue</h2>
-          <p className="text-4xl font-bold mb-4">${metricsData.totalRevenue.toLocaleString()}</p>
-          <div className="flex justify-between">
-            <div>
-              <p className="text-sm opacity-80">Confirmed</p>
-              <p className="text-xl font-semibold">
-                ${sponsors.filter(s => s.Status === 'Confirmed')
-                  .reduce((sum, sponsor) => sum + sponsor.Sponsorship_Amount, 0)
-                  .toLocaleString()}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm opacity-80">Pending</p>
-              <p className="text-xl font-semibold">
-                ${sponsors.filter(s => s.Status === 'Pending')
-                  .reduce((sum, sponsor) => sum + sponsor.Sponsorship_Amount, 0)
-                  .toLocaleString()}
-              </p>
-            </div>
-          </div>
-        </div> */}
+          <p className="text-4xl font-bold mb-4">₹{metricsData.totalRevenue.toLocaleString()}</p>
+        </div>
 
-        {/* Mini Stats Card */}
-        {/* <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-700 mb-4">Event Metrics</h2>
+
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h2 className="text-lg font-semibold text-gray-700 mb-4">Sponsorship Status</h2>
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-gray-500">Ministerial Sessions</p>
-              <p className="text-2xl font-bold text-gray-800">{metricsData.ministerialSessions}</p>
+              <p className="text-sm text-gray-500">Confirmed Sponsors</p>
+              <p className="text-2xl font-bold text-green-600">{metricsData.confirmedSponsors}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Confirmed Sponsors</p>
-              <p className="text-2xl font-bold text-gray-800">{confirmedSponsors}</p>
+              <p className="text-sm text-gray-500">Pending Sponsors</p>
+              <p className="text-2xl font-bold text-yellow-600">{metricsData.pendingSponsors}</p>
+            </div>
+          </div>
+        </div>
+
+
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h2 className="text-lg font-semibold text-gray-700 mb-4">Advance Payments</h2>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm text-gray-500">Total Advance Received</p>
+              <p className="text-2xl font-bold text-blue-600">₹{metricsData.totalAdvance.toLocaleString()}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Avg. Sponsorship</p>
               <p className="text-2xl font-bold text-gray-800">
-                ${(metricsData.totalRevenue / allSponsorsCount).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                ₹{metricsData.averageSponsorship.toLocaleString(undefined, { maximumFractionDigits: 0 })}
               </p>
             </div>
           </div>
-        </div> */}
+        </div>
       </div>
 
-      {/* Sponsors Table with Filters */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4 md:mb-0">Sponsors</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4 md:mb-0">Sponsors ({sponsors.length})</h2>
           <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -414,7 +265,8 @@ function Dashboard() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th 
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
+                <th
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                   onClick={() => handleSort('Sponsor_Name')}
                 >
@@ -425,31 +277,58 @@ function Dashboard() {
                     )}
                   </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Person</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                <th 
+                <th
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                   onClick={() => handleSort('Sponsorship_Amount')}
                 >
                   <div className="flex items-center">
-                    Amount
+                    Sponsorship Amount
                     {sortConfig.key === 'Sponsorship_Amount' && (
                       sortConfig.direction === 'asc' ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />
                     )}
                   </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expo Registry</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  onClick={() => handleSort('Sponsorship_Amount')}
+                >
+                  <div className="flex items-center">
+                    Received Amount
+                    {sortConfig.key === 'Sponsorship_Amount' && (
+                      sortConfig.direction === 'asc' ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />
+                    )}
+                  </div>
+                </th>
+                <th
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  onClick={() => handleSort('Sponsorship_Amount')}
+                >
+                  <div className="flex items-center">
+                    Pending Amount
+                    {sortConfig.key === 'Sponsorship_Amount' && (
+                      sortConfig.direction === 'asc' ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />
+                    )}
+                  </div>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proposal Confirmed/Pending</th>
+
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredSponsors.map((sponsor) => (
                 <tr key={sponsor.SponsorMasterId} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="font-medium text-gray-900">{sponsor.Sponsor_Name}</div>
+                    <div className="font-medium text-blue-600">{sponsor.User_Name}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">{sponsor.Address}</div>
+                    <div className="font-medium text-gray-900">{sponsor.Sponsor_Name}</div>
+                    <div className="text-sm text-gray-500">{sponsor.Contact_Email}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{sponsor.Contact_Person}</div>
+                    <div className="text-sm text-gray-500">{sponsor.Contact_Phone}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
@@ -457,18 +336,20 @@ function Dashboard() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-semibold text-gray-900">${sponsor.Sponsorship_Amount.toLocaleString()}</div>
+                    <div className="text-sm font-semibold text-gray-900">₹ {formatReadableAmount(sponsor.Sponsorship_Amount)}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${sponsor.Expo_Registry === 'Y' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                      {sponsor.Expo_Registry === 'Y' ? 'Yes' : 'No'}
-                    </span>
+                    <div className="text-sm font-semibold text-gray-900">₹ {formatReadableAmount(sponsor.Sponsorship_Amount_Advance)}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-semibold text-gray-900">₹ {formatReadableAmount(sponsor.Pending_Amount)}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${sponsor.Status === 'Confirmed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
                       {sponsor.Status}
                     </span>
                   </td>
+
                 </tr>
               ))}
             </tbody>
@@ -480,15 +361,6 @@ function Dashboard() {
           </div>
         )}
       </div>
-
-      {/* User and Assigned Sponsors Table */}
-      {/* <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Team Performance</h2>
-        <TableUtility
-          columns={userSponsorTableColumns}
-          data={userSponsorTableData}
-        />
-      </div> */}
     </div>
   );
 }

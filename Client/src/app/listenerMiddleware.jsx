@@ -54,11 +54,17 @@ listenerMiddleware.startListening({
             listenerApi.dispatch(
                 ministerialSessionApi.util.invalidateTags(['MinisterialSession'])
             );
+            listenerApi.dispatch(
+                sponsorMasterApi.util.invalidateTags(['SponsorMaster'])
+            );
         }
         else if (action.payload === "refresh_curated_sessions") {
             console.log("Received refresh signal. Invalidating Curated Sessions cache.");
             listenerApi.dispatch(
                 curatedSessionApi.util.invalidateTags(['CuratedSession'])
+            );
+            listenerApi.dispatch(
+                sponsorMasterApi.util.invalidateTags(['SponsorMaster'])
             );
         }
         else if (action.payload === "refresh_category_wise_deliverables") {
@@ -108,11 +114,17 @@ listenerMiddleware.startListening({
             listenerApi.dispatch(
                 expoRegistryApi.util.invalidateTags(['ExpoRegistry'])
             );
+            listenerApi.dispatch(
+                sponsorMasterApi.util.invalidateTags(['SponsorMaster'])
+            );
         }
         else if (action.payload === "refresh_award_registry_trackers") {
             console.log("Received refresh signal. Invalidating Award Registry cache.");
             listenerApi.dispatch(
                 awardRegistryApi.util.invalidateTags(['AwardRegistry'])
+            );
+            listenerApi.dispatch(
+                sponsorMasterApi.util.invalidateTags(['SponsorMaster'])
             );
         }
         else if (action.payload === "refresh_slot_master") {
@@ -126,11 +138,17 @@ listenerMiddleware.startListening({
             listenerApi.dispatch(
                 passesRegistryApi.util.invalidateTags(['PassesRegistry'])
             );
+            listenerApi.dispatch(
+                sponsorMasterApi.util.invalidateTags(['SponsorMaster'])
+            );
         }
         else if (action.payload === "refresh_speaker_trackers") {
             console.log("Received refresh signal. Invalidating Speaker Trackers cache.");
             listenerApi.dispatch(
                 speakerTrackerApi.util.invalidateTags(['SpeakerTracker'])
+            );
+            listenerApi.dispatch(
+                sponsorMasterApi.util.invalidateTags(['SponsorMaster'])
             );
         }
 

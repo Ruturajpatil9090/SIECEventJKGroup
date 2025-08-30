@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, Query, status, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from ..schemas.sponsor_master_schema import (
     SponsorMaster,
     SponsorMasterCreate,
     SponsorMasterUpdate,
-    SponsorMasterWithDetails
+    SponsorMasterWithDetails,
+    SponsorCompleteDetails
 )
 from ..services.sponsor_master_services import (
     get_sponsors,
@@ -14,7 +15,9 @@ from ..services.sponsor_master_services import (
     update_sponsor,
     delete_sponsor,
     get_max_sponsor_id,
-    get_all_sponsor_with_details
+    get_all_sponsor_with_details,
+    get_sponsor_complete_details,
+    get_event_dashboard_stats
 )
 from ..models.database import get_db
 import json
@@ -43,7 +46,6 @@ async def get_sponsormaster_with_details(
     db: AsyncSession = Depends(get_db)
 ):
     results = await get_all_sponsor_with_details(db,event_code, skip, limit)
-    print("Results:", results)  # Debugging line to check the raw results
     grouped_results = {}
     for row in results:
         cat_deliverable_id = row['SponsorMasterId']
@@ -104,6 +106,38 @@ async def get_sponsormaster_with_details(
     return list(grouped_results.values())
 
 
+@router.get("/dashboard-stats")
+async def get_event_dashboard_stats_endpoint(
+    event_code: int,
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        stats = await get_event_dashboard_stats(db, event_code)
+        return {
+            "success": True,
+            "data": stats
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching dashboard stats: {str(e)}")
+
+
+# @router.get("/sponsor-details", response_model=List[SponsorCompleteDetails])
+# async def get_sponsor_complete_details_endpoint(
+#     sponsor_master_id: int,
+#     event_code: int = Query(...), 
+#     db: AsyncSession = Depends(get_db)
+# ):
+#     results = await get_sponsor_complete_details(db, event_code, sponsor_master_id)
+#     return results
+
+@router.get("/sponsor-details", response_model=List[SponsorCompleteDetails])
+async def get_sponsor_complete_details_endpoint(
+    sponsor_master_id: int,
+    event_code: int , 
+    db: AsyncSession = Depends(get_db)
+):
+    results = await get_sponsor_complete_details(db, event_code, sponsor_master_id)
+    return results
 
 @router.get("/getlastSponsorId", response_model=int)
 async def get_max_sponsor_id_endpoint(

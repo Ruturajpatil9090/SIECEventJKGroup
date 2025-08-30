@@ -1,85 +1,3 @@
-// import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-
-// export const userMasterApi = createApi({
-//     reducerPath: "userMasterApi",
-//     baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8000" }),
-//     tagTypes: ['UserMaster'],
-//     endpoints: (builder) => ({
-//         getUserMasters: builder.query({
-//             query: () => '/users-master',
-//             providesTags: ['UserMaster']
-//         }),
-//     })
-// })
-
-// export const {
-//     useGetUserMastersQuery,
-// } = userMasterApi;
-
-
-
-
-// import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-// const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL
-
-// export const userMasterApi = createApi({
-//     reducerPath: "userMasterApi",
-//     baseQuery: fetchBaseQuery({ 
-//         baseUrl: API_BASE_URL,
-//         credentials: 'include'
-//     }),
-//     tagTypes: ['UserMaster'],
-//     endpoints: (builder) => ({
-//         login: builder.mutation({
-//             query: (credentials) => ({
-//                 url: '/users-master/login',
-//                 method: 'POST',
-//                 body: credentials,
-//             }),
-//             invalidatesTags: ['UserMaster']
-//         }),
-//         refreshToken: builder.mutation({
-//             query: (refreshToken) => ({
-//                 url: '/users-master/refresh',
-//                 method: 'POST',
-//                 body: { refresh_token: refreshToken },
-//             }),
-//         }),
-//         getUserMasters: builder.query({
-//             query: () => '/users-master',
-//             providesTags: ['UserMaster']
-//         }),
-//         getCurrentUser: builder.query({
-//             query: () => ({
-//                 url: '/users-master/me',
-//                 method: 'GET',
-//             }),
-//             providesTags: ['UserMaster']
-//         }),
-//     })
-// })
-
-// export const {
-//     useGetUserMastersQuery,
-//     useLoginMutation,
-//     useRefreshTokenMutation,
-//     useGetCurrentUserQuery,
-// } = userMasterApi;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL;
 
@@ -107,7 +25,6 @@ export const userMasterApi = createApi({
             }),
         }),
 
-        // User data endpoints
         getUserMasters: builder.query({
             query: ({ skip = 0, limit = 100 } = {}) => `/users-master?skip=${skip}&limit=${limit}`,
             providesTags: ['UserMaster']
@@ -121,7 +38,6 @@ export const userMasterApi = createApi({
             providesTags: ['UserMaster']
         }),
 
-        // Update endpoints
         updateUserProfile: builder.mutation({
             query: ({ uid, ...profileData }) => ({
                 url: `/users-master/profile/${uid}`,

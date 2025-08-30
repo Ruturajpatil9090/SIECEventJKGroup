@@ -7,7 +7,10 @@ export const speakerTrackerApi = createApi({
     tagTypes: ['SpeakerTracker'],
     endpoints: (builder) => ({
         getSpeakerTrackers: builder.query({
-            query: () => '/speaker-trackers',
+            query: (params = {}) => {
+                const event_code = params.event_code ?? sessionStorage.getItem("Event_Code");
+                return `/speaker-trackers?event_code=${event_code}`;
+            },
             providesTags: ['SpeakerTracker']
         }),
         getSpeakerTrackerById: builder.query({

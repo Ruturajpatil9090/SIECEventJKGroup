@@ -48,7 +48,7 @@ function SpeakerTracker() {
         isLoading: isTableLoading,
         isError,
         refetch
-    } = useGetSpeakerTrackersQuery();
+    } = useGetSpeakerTrackersQuery({event_code: sessionStorage.getItem("Event_Code")});
 
     const {
         data: maxSpeakerTrackerId = 0,
@@ -326,8 +326,8 @@ function SpeakerTracker() {
             )}
 
             <TableUtility
-                headerContent={<CreateNewButton onClick={handleAddNew} />}
-                title="Speaker Tracker"
+                // headerContent={<CreateNewButton onClick={handleAddNew} />}
+                title="Speaker - Sponsor"
                 columns={columns}
                 data={tableData}
                 pageSize={10}

@@ -237,5 +237,27 @@ class SponsorMasterWithDetails(SponsorMasterBase):
     Pending_Amount: Optional[Decimal] = None
     details: List[SponsorDetail] = []
 
+
+
+class SponsorCompleteDetails(BaseModel):
+    SponsorMasterId: int
+    Sponsor_Name: str
+    Event_Code: int
+    Contact_Person: Optional[str] = None
+    Contact_Email: Optional[str] = None
+    Contact_Phone: Optional[str] = None
+    Sponsorship_Amount: Optional[float] = None 
+    Pending_Amount: Optional[float] = None
+    EventMaster_Name: Optional[str] = None
+    MinistrialSpeakername: Optional[str] = None
+    CuratedSpeakername: Optional[str] = None
+    SpeakerTrackerSpeakerName: Optional[str] = None
+    Award_Name: Optional[str] = None
+    Elite_Passess: Optional[int] = None
+    Corporate_Passess: Optional[int] = None
+    Visitor_Passess: Optional[int] = None
+    Booth_Number_Assigned: Optional[str] = None
+
+
     class Config:
         from_attributes = True

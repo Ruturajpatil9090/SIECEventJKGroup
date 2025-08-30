@@ -17,7 +17,7 @@ async def get_max_curated_session_id(db: AsyncSession):
     max_id = result.scalar()
     return max_id if max_id is not None else 0
 
-async def get_curated_sessions(db: AsyncSession):
+async def get_curated_sessions(db: AsyncSession,event_code: Optional[int] = None):
     query = text("""
         SELECT 
             cs.CuratedSessionId, 
@@ -35,10 +35,11 @@ async def get_curated_sessions(db: AsyncSession):
         FROM Eve_CuratedSession cs
         LEFT JOIN Eve_EventMaster em ON cs.Event_Code = em.EventMasterId
         LEFT JOIN Eve_SponsorMaster sm ON cs.SponsorMasterId = sm.SponsorMasterId
+        where cs.Event_Code = :event_code
         ORDER BY cs.CuratedSessionId DESC
     """)
     
-    result = await db.execute(query)
+    result = await db.execute(query, {'event_code': event_code})
     return result.mappings().all()
 
 async def create_curated_session(db: AsyncSession, session: CuratedSessionCreate,ws_manager: Optional[ConnectionManager] = None):

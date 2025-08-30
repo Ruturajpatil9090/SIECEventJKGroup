@@ -1,4 +1,4 @@
-from sqlalchemy import select, update, asc
+from sqlalchemy import select, update, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..models.event_super_model import EventSuper
 from ..models.event_model import EventMaster
@@ -23,7 +23,7 @@ async def get_event_super_by_name(db: AsyncSession, event_super_name: str):
 async def get_event_supers(db: AsyncSession, skip: int = 0, limit: int = 100):
     result = await db.execute(
         select(EventSuper)
-        .order_by(asc(EventSuper.EventSuperId))
+        .order_by(desc(EventSuper.EventSuperId))
         .offset(skip)
         .limit(limit)
     )

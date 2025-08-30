@@ -17,7 +17,7 @@ async def get_max_ministerial_session_id(db: AsyncSession):
     max_id = result.scalar()
     return max_id if max_id is not None else 0
 
-async def get_ministerial_sessions(db: AsyncSession):
+async def get_ministerial_sessions(db: AsyncSession,event_code: Optional[int] = None):
     query = text("""
         SELECT 
             ms.MinisterialSessionId, 
@@ -35,10 +35,11 @@ async def get_ministerial_sessions(db: AsyncSession):
         FROM Eve_MinisterialSessions ms
         LEFT JOIN Eve_EventMaster em ON ms.Event_Code = em.EventMasterId
         LEFT JOIN Eve_SponsorMaster sm ON ms.SponsorMasterId = sm.SponsorMasterId
+        where ms.Event_Code = :event_code
         ORDER BY ms.MinisterialSessionId DESC
     """)
     
-    result = await db.execute(query)
+    result = await db.execute(query, {'event_code': event_code})
     return result.mappings().all()
 
 async def create_ministerial_session(db: AsyncSession, session: MinisterialSessionCreate, ws_manager: Optional[ConnectionManager] = None):

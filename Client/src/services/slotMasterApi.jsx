@@ -3,7 +3,7 @@ const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL
 
 export const slotMasterApi = createApi({
     reducerPath: "slotMasterApi",
-    baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }), 
+    baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
     tagTypes: ['SlotMaster'],
     endpoints: (builder) => ({
         getSlotMasters: builder.query({
@@ -48,12 +48,12 @@ export const slotMasterApi = createApi({
     })
 })
 
-export const { 
-    useGetSlotMastersQuery, 
+export const {
+    useGetSlotMastersQuery,
     useGetSlotMastersBySponsorIdQuery,
     useGetSlotMasterByIdQuery,
     useGetMaxSlotMasterIdQuery,
-    useAddSlotMasterMutation, 
-    useUpdateSlotMasterMutation, 
-    useDeleteSlotMasterMutation 
+    useAddSlotMasterMutation,
+    useUpdateSlotMasterMutation,
+    useDeleteSlotMasterMutation
 } = slotMasterApi;
