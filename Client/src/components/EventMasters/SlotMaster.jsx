@@ -44,11 +44,8 @@ function SlotMaster() {
     };
 
     useEffect(() => {
-        // Only show next ID for new entries, not for edits
         if (!editId && !isMaxIdLoading && isModalOpen) {
             const nextId = (typeof maxSlotMasterId === 'number' ? maxSlotMasterId : 0) + 1;
-            // We don't set SlotMasterId in formData since it's optional for creation
-            // But we can display it as a reference
         }
     }, [maxSlotMasterId, isMaxIdLoading, editId, isModalOpen]);
 

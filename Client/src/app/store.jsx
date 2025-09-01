@@ -17,7 +17,7 @@ import { ministerialSessionApi } from '../services/ministerialSessionApi';
 import { slotMasterApi } from '../services/slotMasterApi';
 import { passesRegistryApi } from '../services/passesRegistryApi';
 import { speakerTrackerApi } from '../services/speakerTrackerApi';
-
+import { accountMasterApi } from '../services/accountMasterApi';
 // WebSocket URL
 const WS_URL = "ws://localhost:8000/ws";
 
@@ -39,6 +39,7 @@ export const store = configureStore({
     [slotMasterApi.reducerPath]: slotMasterApi.reducer,
     [passesRegistryApi.reducerPath]: passesRegistryApi.reducer,
     [speakerTrackerApi.reducerPath]: speakerTrackerApi.reducer,
+    [accountMasterApi.reducerPath]: accountMasterApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -60,4 +61,5 @@ export const store = configureStore({
       .concat(slotMasterApi.middleware)
       .concat(passesRegistryApi.middleware)
       .concat(speakerTrackerApi.middleware)
+      .concat(accountMasterApi.middleware)
 });

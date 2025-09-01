@@ -5,7 +5,7 @@ export const userMasterApi = createApi({
     reducerPath: "userMasterApi",
     baseQuery: fetchBaseQuery({
         baseUrl: API_BASE_URL,
-        credentials: 'include'
+        // credentials: 'include'
     }),
     tagTypes: ['UserMaster'],
     endpoints: (builder) => ({

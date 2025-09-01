@@ -28,6 +28,8 @@ import { useLazyGetFilteredCategoryWiseDeliverablesQuery } from "../../services/
 import { useGetUserMastersQuery } from '../../services/userMasterApi';
 import CreateNewButton from "../../common/Buttons/AddButton";
 import SponsorDetailsPopup from './SponsorDetailsPopup';
+import CryptoJS from 'crypto-js';
+import { decryptData } from "../../common/Functions/DecryptData"
 
 const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL
 
@@ -35,13 +37,13 @@ function SponsorMaster() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
-    const [showViewPopup, setShowViewPopup] = useState(false); // ADD THIS
-    const [selectedSponsorId, setSelectedSponsorId] = useState(null); // ADD THIS
+    const [showViewPopup, setShowViewPopup] = useState(false); 
+    const [selectedSponsorId, setSelectedSponsorId] = useState(null); 
     const initialFormdata = {
         SponsorMasterId: '',
         Sponsor_Name: '',
         Doc_Date: '',
-        Event_Code: '',
+        Event_Code: sessionStorage.getItem("Event_Code") || '',
         CategoryMaster_Code: '',
         CategorySubMaster_Code: '',
         Proposal_Sent: 'N',
@@ -73,6 +75,7 @@ function SponsorMaster() {
         User_Id: '',
         details: []
     }
+
     const [formData, setFormData] = useState(initialFormdata);
     const [editId, setEditId] = useState(null);
     const [selectedDeliverablesInModal, setSelectedDeliverablesInModal] = useState([]);
@@ -115,14 +118,48 @@ function SponsorMaster() {
     }, [maxSponsorId, isMaxIdLoading, editId, isModalOpen]);
 
 
+    // useEffect(() => {
+    //     const fetchAndCheckDeliverables = async () => {
+    //         if (editId === null && formData.Event_Code && formData.CategoryMaster_Code && formData.CategorySubMaster_Code) {
+    //             try {
+    //                 const result = await triggerGetFilteredDeliverables({
+    //                     event_code: formData.Event_Code,
+    //                     category_master_code: formData.CategoryMaster_Code,
+    //                     category_sub_master_code: formData.CategorySubMaster_Code
+    //                 }).unwrap();
+
+    //                 const allDeliverableCodes = result.flatMap(master =>
+    //                     master.details.map(detail => detail.Deliverabled_Code)
+    //                 );
+
+    //                 setSelectedDeliverablesInModal(allDeliverableCodes);
+    //             } catch (error) {
+    //                 console.error('Error fetching filtered deliverables:', error);
+    //                 setSelectedDeliverablesInModal([]);
+    //             }
+    //         } else if (editId === null) {
+    //             setSelectedDeliverablesInModal([]);
+    //         }
+    //     };
+
+    //     const timeoutId = setTimeout(fetchAndCheckDeliverables, 300);
+    //     return () => clearTimeout(timeoutId);
+    // }, [formData.Event_Code, formData.CategoryMaster_Code, formData.CategorySubMaster_Code, editId, triggerGetFilteredDeliverables]);
+
+
     useEffect(() => {
         const fetchAndCheckDeliverables = async () => {
-            if (editId === null && formData.Event_Code && formData.CategoryMaster_Code && formData.CategorySubMaster_Code) {
+            const hasValidCategorySub = formData.CategorySubMaster_Code !== null &&
+                formData.CategorySubMaster_Code !== undefined;
+
+            if (editId === null && formData.Event_Code && formData.CategoryMaster_Code && hasValidCategorySub) {
                 try {
+                    const categorySubMasterCode = formData.CategorySubMaster_Code === "" ? 0 : formData.CategorySubMaster_Code;
+
                     const result = await triggerGetFilteredDeliverables({
                         event_code: formData.Event_Code,
                         category_master_code: formData.CategoryMaster_Code,
-                        category_sub_master_code: formData.CategorySubMaster_Code
+                        category_sub_master_code: categorySubMasterCode
                     }).unwrap();
 
                     const allDeliverableCodes = result.flatMap(master =>
@@ -142,6 +179,8 @@ function SponsorMaster() {
         const timeoutId = setTimeout(fetchAndCheckDeliverables, 300);
         return () => clearTimeout(timeoutId);
     }, [formData.Event_Code, formData.CategoryMaster_Code, formData.CategorySubMaster_Code, editId, triggerGetFilteredDeliverables]);
+
+
 
     useEffect(() => {
         if (editId && isModalOpen) {
@@ -313,6 +352,23 @@ function SponsorMaster() {
         setSelectedDeliverablesInModal([]);
         setLogoFile(null);
         setLogoPreviewUrl(null);
+
+        const eventCodeFromStorage = sessionStorage.getItem("Event_Code");
+        const eventCodeNumber = eventCodeFromStorage ? parseInt(eventCodeFromStorage) : null;
+
+        setFormData(prev => ({
+            ...prev,
+            Event_Code: eventCodeNumber || ''
+        }));
+
+        if (eventCodeNumber) {
+            const eventOption = eventOptions.find(o => o.value === eventCodeNumber);
+            setSelectedOptions(prev => ({
+                ...prev,
+                event: eventOption || null
+            }));
+        }
+
         setIsModalOpen(true);
     };
 
@@ -379,6 +435,19 @@ function SponsorMaster() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+
+        let currentUser = null;
+        try {
+            const encryptedUserData = sessionStorage.getItem('user_data');
+            if (encryptedUserData) {
+                currentUser = decryptData(encryptedUserData);
+                console.log("currentUser", currentUser.user_name)
+            }
+        } catch (error) {
+            console.error('Failed to decrypt user data:', error);
+        }
+
         const payloadData = {
             ...formData,
             CategorySubMaster_Code: formData.CategorySubMaster_Code === '' ? 0 : parseInt(formData.CategorySubMaster_Code),
@@ -386,6 +455,13 @@ function SponsorMaster() {
             Sponsorship_Amount: formData.Sponsorship_Amount ? parseFloat(formData.Sponsorship_Amount) : 0,
             Sponsorship_Amount_Advance: formData.Sponsorship_Amount_Advance ? parseFloat(formData.Sponsorship_Amount_Advance) : 0
         };
+
+
+        if (editId) {
+            payloadData.Modified_By = currentUser?.username || currentUser?.user_name || '';
+        } else {
+            payloadData.Created_By = currentUser?.username || currentUser?.user_name || '';
+        }
 
         const finalDetails = selectedDeliverablesInModal.map(selectedId => {
             const deliverable = allDeliverables.find(d => d.id === selectedId);
@@ -517,6 +593,9 @@ function SponsorMaster() {
                 title={editId ? 'Edit Sponsor' : 'Add New Sponsor'}
                 size="2xl"
                 width="1500px"
+                createdBy={formData.Created_By}
+                modifiedBy={formData.Modified_By}
+                
             >
                 <form onSubmit={handleSubmit} className="space-y-2">
                     <div className="grid grid-cols-1 gap-1 sm:grid-cols-4">
@@ -587,7 +666,7 @@ function SponsorMaster() {
                         </div>
 
                         <div>
-                            <label htmlFor="subcategory_code" className="block text-sm font-medium text-gray-700 mb-1">Sub Category  <span className="text-red-500">*</span></label>
+                            <label htmlFor="subcategory_code" className="block text-sm font-medium text-gray-700 mb-1">Sub Category</label>
                             <Select
                                 id="subcategory_code"
                                 options={subCategoryOptions}
@@ -599,7 +678,6 @@ function SponsorMaster() {
                                 autoComplete='off'
                                 placeholder="Select a sub category..."
                                 isSearchable
-                                required
                             />
                         </div>
 

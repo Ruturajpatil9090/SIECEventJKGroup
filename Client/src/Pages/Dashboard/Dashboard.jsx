@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useGetDashboardStatsQuery } from '../../services/sponsorMasterApi';
 import { formatReadableAmount } from '../../common/Functions/FormatAmount';
+import {useNavigate,Link } from "react-router-dom"
 
 function Dashboard() {
   const { data: dashboardData, error, isLoading } = useGetDashboardStatsQuery({ event_code: sessionStorage.getItem("Event_Code") });
@@ -21,6 +22,7 @@ function Dashboard() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const navigate = useNavigate()
 
   const stats = dashboardData?.data?.stats || {};
   const sponsorDetails = dashboardData?.data?.sponsor_details || [];
@@ -119,20 +121,20 @@ function Dashboard() {
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen mt-10">
+ <div className="p-6 bg-gray-50 min-h-screen mt-10 cursor-pointer">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
-          <div className="flex items-center justify-between mb-4">
+        <Link className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col" to="/sponsor-master"> 
+          <div className="flex items-center justify-between mb-4" >
             <h2 className="text-lg font-semibold text-gray-700">All Sponsors</h2>
             <div className="p-2 bg-blue-100 rounded-lg">
               <Building2 className="h-5 w-5 text-blue-600" />
             </div>
           </div>
           <p className="text-3xl font-bold text-gray-800">{stats.total_sponsors || 0}</p>
-        </div>
+        </Link>
 
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+        <Link className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col" to="/award-registry">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-700">Award Records</h2>
             <div className="p-2 bg-amber-100 rounded-lg">
@@ -140,10 +142,10 @@ function Dashboard() {
             </div>
           </div>
           <p className="text-3xl font-bold text-gray-800">{stats.award_records || 0}</p>
-        </div>
+        </Link>
 
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+        <Link className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col"  to="/ministrial-sessions">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-700">Ministerial Speakers</h2>
             <div className="p-2 bg-purple-100 rounded-lg">
@@ -151,10 +153,10 @@ function Dashboard() {
             </div>
           </div>
           <p className="text-3xl font-bold text-gray-800">{stats.ministerial_speakers || 0}</p>
-        </div>
+        </Link>
 
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+        <Link className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col" to="/curated-sessions">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-700">Curated Speakers</h2>
             <div className="p-2 bg-green-100 rounded-lg">
@@ -162,10 +164,10 @@ function Dashboard() {
             </div>
           </div>
           <p className="text-3xl font-bold text-gray-800">{stats.curated_speakers || 0}</p>
-        </div>
+        </Link>
 
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+        <Link className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col" to="/speaker-tracker">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-700">Speaker Tracker</h2>
             <div className="p-2 bg-red-100 rounded-lg">
@@ -173,10 +175,10 @@ function Dashboard() {
             </div>
           </div>
           <p className="text-3xl font-bold text-gray-800">{stats.speaker_tracker || 0}</p>
-        </div>
+        </Link>
 
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+        <Link className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col" to="/exporegistry-tracker">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-700">Booths Assigned</h2>
             <div className="p-2 bg-indigo-100 rounded-lg">
@@ -184,7 +186,7 @@ function Dashboard() {
             </div>
           </div>
           <p className="text-3xl font-bold text-gray-800">{stats.booths_assigned || 0}</p>
-        </div>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
