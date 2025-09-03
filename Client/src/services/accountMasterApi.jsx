@@ -7,15 +7,9 @@ export const accountMasterApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
     tagTypes: ['AccountMaster'],
     endpoints: (builder) => ({
+
         getAccountMasters: builder.query({
-            query: (params = {}) => {
-                const { skip = 0, limit = 100, search } = params;
-                let url = `/account-masters`;
-                if (search) {
-                    url = `/account-masters/search?name=${encodeURIComponent(search)}`;
-                }
-                return url;
-            },
+            query: () => `/account-masters`,
             providesTags: ['AccountMaster']
         }),
 

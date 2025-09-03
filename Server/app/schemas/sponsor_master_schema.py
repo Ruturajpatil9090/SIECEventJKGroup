@@ -254,10 +254,37 @@ class SponsorCompleteDetails(BaseModel):
     SpeakerTrackerSpeakerName: Optional[str] = None
     Award_Name: Optional[str] = None
     Elite_Passess: Optional[int] = None
-    Corporate_Passess: Optional[int] = None
+    Carporate_Passess: Optional[int] = None
     Visitor_Passess: Optional[int] = None
     Booth_Number_Assigned: Optional[str] = None
+    SpeakerTrackerDesignation: Optional[str] = None
+    SpeakerTrackerMobile_No: Optional[str] = None
+    SpeakerTrackerEmailId: Optional[str] = None
+    SpeakerTrackerTrack: Optional[str] = None
+    MinistrialTrackerDesignation: Optional[str] = None
+    MinistrialMobileNo: Optional[str] = None
+    MinistrialEmailId: Optional[str] = None
+    MinistrilaTrack: Optional[str] = None
+    CuratedDesignation: Optional[str] = None
+    CuratedMobileNo: Optional[str] = None
+    CuratedEmailId: Optional[str] = None
+    # CuratedSpeakingdate: Optional[date] = None
+    CuratedTrack: Optional[str] = None
 
+
+class SponsorUserDetails(BaseModel):
+    User_Name: str
+    Sponsor_Name: str
+    Approval_Received: Optional[bool] = None
+    Sponsorship_Amount: Optional[float] = None
+    Sponsorship_Amount_Advance: Optional[float] = None
+    Contact_Person: Optional[str] = None
+    Contact_Email: Optional[str] = None
+    Contact_Phone: Optional[str] = None
+    GST: Optional[str] = None
+    Designation: Optional[str] = None
+
+    
 
     class Config:
         from_attributes = True

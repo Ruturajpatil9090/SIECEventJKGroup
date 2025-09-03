@@ -10,7 +10,7 @@ function PageNotFound() {
           The page you are looking for doesn't exist or has been moved.
         </p>
         <Link
-          to="/eventmaster"
+          to="/dashboard"
           className="mt-6 inline-block px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
         >
           Go to Dashboard

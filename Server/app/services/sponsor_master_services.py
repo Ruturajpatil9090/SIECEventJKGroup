@@ -72,7 +72,6 @@ LEFT JOIN dbo.Eve_CategorySubMaster ON dbo.Eve_SponsorMaster.CategorySubMaster_C
 INNER JOIN dbo.tbluser ON dbo.Eve_SponsorMaster.User_Id = dbo.tbluser.User_Id
 WHERE dbo.Eve_SponsorMaster.Event_Code = :event_code
 ORDER BY dbo.Eve_SponsorMaster.SponsorMasterId DESC
-OFFSET :skip ROWS FETCH NEXT :limit ROWS ONLY
     """)
     
     result = await db.execute(query, {"event_code": event_code, "skip": skip, "limit": limit})
@@ -86,7 +85,12 @@ SELECT        dbo.Eve_PassesRegistry.Elite_Passess, dbo.Eve_PassesRegistry.Visit
                          dbo.Eve_CuratedSession.Speaker_Name AS CuratedSpeakername, dbo.Eve_SpeakerTracker.Speaker_Name AS SpeakerTrackerSpeakerName, dbo.Eve_AwardMaster.Award_Name, dbo.Eve_SponsorMaster.Contact_Person, 
                          dbo.Eve_SponsorMaster.Contact_Email, dbo.Eve_SponsorMaster.Contact_Phone, dbo.Eve_SponsorMaster.Sponsorship_Amount, 
                          dbo.Eve_SponsorMaster.Sponsorship_Amount - ISNULL(dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance, 0) AS Pending_Amount, dbo.Eve_EventMaster.EventMaster_Name, dbo.Eve_SponsorMaster.SponsorMasterId, 
-                         dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_SponsorMaster.Event_Code, dbo.Eve_SponsorMaster.Approval_Received, dbo.Eve_ExpoRegistryTracker.Booth_Number_Assigned
+                         dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_SponsorMaster.Event_Code, dbo.Eve_SponsorMaster.Approval_Received, dbo.Eve_ExpoRegistryTracker.Booth_Number_Assigned, 
+                         dbo.Eve_SpeakerTracker.Designation AS SpeakerTrackerDesignation, dbo.Eve_SpeakerTracker.Mobile_No AS SpeakerTrackerMobile_No, dbo.Eve_SpeakerTracker.Email_Address AS SpeakerTrackerEmailId, 
+                         dbo.Eve_SpeakerTracker.Track AS SpeakerTrackerTrack, dbo.Eve_MinisterialSessions.designation AS MinistrialTrackerDesignation, dbo.Eve_MinisterialSessions.Mobile_No AS MinistrialMobileNo, 
+                         dbo.Eve_MinisterialSessions.Email_Address AS MinistrialEmailId, dbo.Eve_MinisterialSessions.Track AS MinistrilaTrack, dbo.Eve_CuratedSession.designation AS CuratedDesignation, 
+                         dbo.Eve_CuratedSession.Mobile_No AS CuratedMobileNo, dbo.Eve_CuratedSession.Email_Address AS CuratedEmailId, dbo.Eve_CuratedSession.Speaking_Date AS CuratedSpeakingdate, 
+                         dbo.Eve_CuratedSession.Track AS CuratedTrack
 FROM            dbo.Eve_SponsorMaster INNER JOIN
                          dbo.Eve_PassesRegistry ON dbo.Eve_SponsorMaster.SponsorMasterId = dbo.Eve_PassesRegistry.SponsorMasterId INNER JOIN
                          dbo.Eve_MinisterialSessions ON dbo.Eve_SponsorMaster.SponsorMasterId = dbo.Eve_MinisterialSessions.SponsorMasterId INNER JOIN
@@ -148,7 +152,7 @@ async def get_event_dashboard_stats(db: AsyncSession, event_code: int) -> Dict[s
                  dbo.Eve_SponsorMaster.Sponsorship_Amount - ISNULL(dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance, 0) AS Pending_Amount, 
                  COALESCE(dbo.Eve_CategorySubMaster.CategorySub_Name, 'No Subcategory') AS CategorySub_Name, 
                  dbo.Eve_SponsorMaster.Proposal_Sent, dbo.Eve_SponsorMaster.Approval_Received, dbo.Eve_SponsorMaster.Contact_Phone, 
-                 dbo.Eve_SponsorMaster.Contact_Email, dbo.Eve_SponsorMaster.Contact_Person
+                 dbo.Eve_SponsorMaster.Contact_Email, dbo.Eve_SponsorMaster.Contact_Person, dbo.Eve_SponsorMaster.User_Id
                 FROM            dbo.Eve_SponsorMaster 
                 INNER JOIN dbo.tbluser ON dbo.Eve_SponsorMaster.User_Id = dbo.tbluser.User_Id 
                 LEFT JOIN dbo.Eve_CategorySubMaster ON dbo.Eve_SponsorMaster.CategorySubMaster_Code = dbo.Eve_CategorySubMaster.CategorySubMasterId
@@ -181,6 +185,31 @@ async def get_event_dashboard_stats(db: AsyncSession, event_code: int) -> Dict[s
         },
         "sponsor_details": results.get("sponsor_details", [])
     }
+
+
+async def get_sponsor_details_by_user_id(db: AsyncSession, user_id: int):
+    query = text("""
+    SELECT        
+        dbo.tbluser.User_Name, 
+        dbo.Eve_SponsorMaster.Sponsor_Name, 
+        dbo.Eve_SponsorMaster.Approval_Received, 
+        dbo.Eve_SponsorMaster.Sponsorship_Amount, 
+        dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance, 
+        dbo.Eve_SponsorMaster.Contact_Person, 
+        dbo.Eve_SponsorMaster.Contact_Email, 
+        dbo.Eve_SponsorMaster.Contact_Phone, 
+        dbo.Eve_SponsorMaster.GST, 
+        dbo.Eve_SponsorMaster.Designation
+    FROM            
+        dbo.Eve_SponsorMaster 
+    INNER JOIN
+        dbo.tbluser ON dbo.Eve_SponsorMaster.User_Id = dbo.tbluser.User_Id
+    WHERE        
+        dbo.Eve_SponsorMaster.User_Id = :user_id
+    """)
+    
+    result = await db.execute(query, {"user_id": user_id})
+    return result.mappings().all()
 
 
 async def get_sponsor(db: AsyncSession, sponsor_id: int):

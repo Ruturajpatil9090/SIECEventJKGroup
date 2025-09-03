@@ -45,6 +45,13 @@ export const sponsorMasterApi = createApi({
             },
             providesTags: ['SponsorMaster']
         }),
+
+        getDataByUserId: builder.query({
+            query: (user_id) => {
+                return `/sponsors/getDataByUserId/${user_id}`;
+            },
+            providesTags: ['SponsorMaster']
+        }),
         addSponsor: builder.mutation({
             queryFn: async ({ sponsorData, logoFile }, _queryApi, _extraOptions, baseQuery) => {
                 const formData = new FormData();
@@ -101,5 +108,6 @@ export const {
     useGetDashboardStatsQuery,
     useAddSponsorMutation,
     useUpdateSponsorMutation,
-    useDeleteSponsorMutation
+    useDeleteSponsorMutation,
+    useGetDataByUserIdQuery
 } = sponsorMasterApi;

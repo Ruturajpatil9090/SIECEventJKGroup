@@ -6,7 +6,8 @@ from ..schemas.sponsor_master_schema import (
     SponsorMasterCreate,
     SponsorMasterUpdate,
     SponsorMasterWithDetails,
-    SponsorCompleteDetails
+    SponsorCompleteDetails,
+    SponsorUserDetails
 )
 from ..services.sponsor_master_services import (
     get_sponsors,
@@ -17,7 +18,8 @@ from ..services.sponsor_master_services import (
     get_max_sponsor_id,
     get_all_sponsor_with_details,
     get_sponsor_complete_details,
-    get_event_dashboard_stats
+    get_event_dashboard_stats,
+    get_sponsor_details_by_user_id
 )
 from ..models.database import get_db
 import json
@@ -129,6 +131,16 @@ async def get_event_dashboard_stats_endpoint(
 # ):
 #     results = await get_sponsor_complete_details(db, event_code, sponsor_master_id)
 #     return results
+
+
+@router.get("/getDataByUserId/{user_id}", response_model=List[SponsorUserDetails])
+async def get_sponsor_details_by_user_id_endpoint(
+    user_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+
+    results = await get_sponsor_details_by_user_id(db, user_id)
+    return results
 
 @router.get("/sponsor-details", response_model=List[SponsorCompleteDetails])
 async def get_sponsor_complete_details_endpoint(

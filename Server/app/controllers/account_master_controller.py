@@ -19,7 +19,6 @@ router = APIRouter(
 async def get_all_accounts(
     db: AsyncSession = Depends(get_db)
 ):
-
     accounts = await get_all_account_masters(db)
     return accounts
 
@@ -28,9 +27,6 @@ async def get_account_by_ac_code(
     ac_code: int,
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    Get account master by Ac_Code
-    """
     account = await get_account_master_by_ac_code(db, ac_code)
     if account is None:
         raise HTTPException(
@@ -44,8 +40,5 @@ async def search_accounts_by_name(
     name: str = Query(..., min_length=1, description="Name to search for"),
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    Search account masters by name (English or Regional)
-    """
     accounts = await search_account_masters_by_name(db, name)
     return accounts

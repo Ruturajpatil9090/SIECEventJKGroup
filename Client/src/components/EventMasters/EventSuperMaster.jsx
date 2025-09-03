@@ -136,20 +136,6 @@ function EventSuperMaster() {
         setShowDeleteConfirmModal(true);
     };
 
-    // const confirmDelete = async () => {
-    //     try {
-    //         await deleteEventSuper(deleteIdToConfirm).unwrap();
-    //         showNotification('Event Super deleted successfully!');
-    //         refetch();
-    //     } catch (error) {
-    //         console.error('Failed to delete event super:', error);
-    //         showNotification('Failed to delete event super!', 'error');
-    //     } finally {
-    //         setShowDeleteConfirmModal(false);
-    //         setDeleteIdToConfirm(null);
-    //     }
-    // };
-
 
   const confirmDelete = async () => {
         try {
@@ -191,7 +177,16 @@ function EventSuperMaster() {
         setEditId(null);
     };
 
-    if (isTableLoading) return <div className="text-center py-8">Loading event supers...</div>;
+    if (isTableLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+            <div className="text-center space-y-4">
+                <div className="w-12 h-12 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin mx-auto" />
+
+                <p className="text-gray-700 text-lg font-medium">
+                    Loading
+                    <span className="inline-block animate-pulse ml-1 text-blue-600">...</span>
+                </p>
+            </div>
+        </div>;
     if (isError) return <div className="text-center py-8 text-red-600">Error loading event supers. Please try again.</div>;
 
     return (

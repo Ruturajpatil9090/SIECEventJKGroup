@@ -14,6 +14,7 @@ import {
     BuildingStorefrontIcon
 } from '@heroicons/react/24/outline';
 
+
 const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
 
     useEffect(() => {
@@ -32,14 +33,14 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
 
     return (
         <div
-            className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm transition-opacity duration-300"
+            className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm transition-opacity duration-300 cursor-pointer"
             onClick={onClose}
         >
             <div
-                className="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto transform transition-transform duration-300 scale-100 opacity-100"
+                className="bg-white rounded-xl shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-y-auto transform transition-transform duration-300 scale-100 opacity-100"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 rounded-t-xl flex items-center justify-between">
+                <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-4 rounded-t-xl flex items-center justify-between">
                     <div>
                         <h2 className="text-2xl font-bold">Sponsor Details</h2>
                     </div>
@@ -180,7 +181,7 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                             <TicketIcon className="h-6 w-6 text-purple-600" />
                                         </div>
                                         <label className="text-sm font-medium text-purple-700">Corporate Passes</label>
-                                        <p className="text-2xl font-bold text-purple-900 mt-1">{detail.Corporate_Passess || 0}</p>
+                                        <p className="text-2xl font-bold text-purple-900 mt-1">{detail.Carporate_Passess || 0}</p>
                                     </div>
                                     <div className="bg-gradient-to-br from-green-50 to-green-100 p-5 rounded-xl border border-green-200 text-center transition-transform hover:scale-105">
                                         <div className="bg-green-100 p-2 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
@@ -205,7 +206,34 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                             </div>
                                             <label className="text-sm font-medium text-blue-700">Ministerial Speaker</label>
                                         </div>
-                                        <p className="text-gray-900 font-medium">{detail.MinistrialSpeakername || ''}</p>
+
+
+                                        <div>
+                                            <div className="flex items-center space-x-2">
+                                                <UserIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.MinistrialSpeakername || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <TicketIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.MinistrialTrackerDesignation || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <PhoneIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.MinistrialMobileNo || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <EnvelopeIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.MinistrialEmailId || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <HashtagIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.MinistrilaTrack || ''}</p>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div className="bg-gradient-to-br from-green-50 to-green-100 p-5 rounded-xl border border-green-200">
                                         <div className="flex items-center mb-3">
@@ -214,7 +242,34 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                             </div>
                                             <label className="text-sm font-medium text-green-700">Curated Speaker</label>
                                         </div>
-                                        <p className="text-gray-900 font-medium">{detail.CuratedSpeakername || ''}</p>
+
+
+                                        <div>
+                                            <div className="flex items-center space-x-2">
+                                                <UserIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.CuratedSpeakername || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <TicketIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.CuratedDesignation || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <PhoneIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.CuratedMobileNo || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <EnvelopeIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.CuratedEmailId || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <HashtagIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.CuratedTrack === 'E' ? "Ethanol" : "Bioenergy" || ''}</p>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-5 rounded-xl border border-purple-200">
                                         <div className="flex items-center mb-3">
@@ -223,7 +278,36 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                             </div>
                                             <label className="text-sm font-medium text-purple-700">Speaker Tracker</label>
                                         </div>
-                                        <p className="text-gray-900 font-medium">{detail.SpeakerTrackerSpeakerName || ''}</p>
+
+
+
+                                        <div>
+                                            <div className="flex items-center space-x-2">
+                                                <UserIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.SpeakerTrackerSpeakerName || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <TicketIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.SpeakerTrackerDesignation || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <PhoneIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.SpeakerTrackerMobile_No || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <EnvelopeIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.SpeakerTrackerEmailId || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <HashtagIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.SpeakerTrackerTrack === 'E' ? "Ethanol" : "Bioenergy" || ''}</p>
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>

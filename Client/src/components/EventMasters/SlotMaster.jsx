@@ -112,8 +112,8 @@ function SlotMaster() {
         try {
             if (editId) {
                 // For update, we need to send the ID in the URL and the data in body
-                await updateSlot({ 
-                    id: editId, 
+                await updateSlot({
+                    id: editId,
                     SlotMaster_Name: formData.SlotMaster_Name,
                     SponsorMasterId: parseInt(formData.SponsorMasterId)
                 }).unwrap();
@@ -188,7 +188,16 @@ function SlotMaster() {
         setEditId(null);
     };
 
-    if (isTableLoading) return <div className="text-center py-8">Loading slots...</div>;
+    if (isTableLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="text-center space-y-4">
+            <div className="w-12 h-12 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin mx-auto" />
+
+            <p className="text-gray-700 text-lg font-medium">
+                Loading
+                <span className="inline-block animate-pulse ml-1 text-blue-600">...</span>
+            </p>
+        </div>
+    </div>;
     if (isError) return <div className="text-center py-8 text-red-600">Error loading slots. Please try again.</div>;
 
     return (

@@ -19,6 +19,7 @@ import { passesRegistryApi } from '../services/passesRegistryApi';
 import { speakerTrackerApi } from '../services/speakerTrackerApi';
 import { accountMasterApi } from '../services/accountMasterApi';
 // WebSocket URL
+// const WS_URL = "wss://events-api.chinimandi.com/wss";
 const WS_URL = "ws://localhost:8000/ws";
 
 export const store = configureStore({

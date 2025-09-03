@@ -1,5 +1,564 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import Select from 'react-select';
+// import React, { useState, useEffect, useMemo } from 'react';
+// import Select from 'react-select';
+// import TableUtility from "../../common/TableUtility/TableUtility";
+// import { PencilSquareIcon, EyeIcon } from '@heroicons/react/24/outline';
+// import { Trash2 } from 'lucide-react';
+// import Modal from '../../common/Modal/Modal';
+// import {
+//     useGetSponsorsQuery,
+//     useAddSponsorMutation,
+//     useUpdateSponsorMutation,
+//     useDeleteSponsorMutation,
+//     useGetMaxSponsorIdQuery,
+//     useGetSponsorCompleteDetailsQuery
+// } from '../../services/sponsorMasterApi';
+// import {
+//     useGetEventMastersQuery,
+// } from '../../services/eventMasterApi';
+// import {
+//     useGetCategoryMasterQuery,
+// } from '../../services/categoryMasterApi';
+// import {
+//     useGetCategorySubMasterQuery,
+// } from '../../services/categorySubMasterApi';
+// import {
+//     useGetDeliverablesQuery,
+// } from '../../services/deliverablesApi';
+// import { useLazyGetFilteredCategoryWiseDeliverablesQuery } from "../../services/categoryWiseDeliverableMasterApi"
+// import { useGetUserMastersQuery } from '../../services/userMasterApi';
+// import CreateNewButton from "../../common/Buttons/AddButton";
+// import SponsorDetailsPopup from './SponsorDetailsPopup';
+// import { decryptData } from "../../common/Functions/DecryptData"
+
+// const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL
+
+// function SponsorMaster() {
+//     const [isModalOpen, setIsModalOpen] = useState(false);
+//     const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+//     const [itemToDelete, setItemToDelete] = useState(null);
+//     const [showViewPopup, setShowViewPopup] = useState(false);
+//     const [selectedSponsorId, setSelectedSponsorId] = useState(null);
+//     const initialFormdata = {
+//         SponsorMasterId: '',
+//         Sponsor_Name: '',
+//         Doc_Date: '',
+//         Event_Code: sessionStorage.getItem("Event_Code") || '',
+//         CategoryMaster_Code: '',
+//         CategorySubMaster_Code: '',
+//         Proposal_Sent: 'N',
+//         Approval_Received: 'N',
+//         Sponsorship_Amount: '',
+//         Sponsorship_Amount_Advance: '',
+//         Payment_Status: 'Pending',
+//         Proforma_Invoice_Sent: 'N',
+//         Final_Invoice_Sent: 'N',
+//         GST_Details_Received: 'N',
+//         Contact_Person: '',
+//         Contact_Email: '',
+//         Contact_Phone: '',
+//         Notes: '',
+//         Address: '',
+//         CIN: '',
+//         Sponsor_Deliverables_Tracker: '',
+//         Website: '',
+//         Awards_Registry_Tracker: '',
+//         Category_Sponsors: '',
+//         Designation: '',
+//         Expo_Registry: '',
+//         GST: '',
+//         Passes_Registry_Tracker: '',
+//         Sponsor_Speakers: '',
+//         Networking_Table_Slots_Tracker: '',
+//         Created_By: '',
+//         Modified_By: '',
+//         User_Id: '',
+//         details: []
+//     }
+
+//     const [formData, setFormData] = useState(initialFormdata);
+//     const [editId, setEditId] = useState(null);
+//     const [selectedDeliverablesInModal, setSelectedDeliverablesInModal] = useState([]);
+//     const [logoFile, setLogoFile] = useState(null);
+//     const [logoPreviewUrl, setLogoPreviewUrl] = useState(null);
+
+//     const { data: tableData = [], isLoading: isTableLoading, isError, refetch } = useGetSponsorsQuery({ event_code: sessionStorage.getItem("Event_Code") });
+//     const { data: events = [], isLoading: isEventsLoading } = useGetEventMastersQuery();
+//     const { data: categories = [], isLoading: isCategoriesLoading } = useGetCategoryMasterQuery();
+//     const { data: subCategories = [], refetch: refetchSubCategories, isLoading: isSubCategoriesLoading } = useGetCategorySubMasterQuery();
+//     const { data: allDeliverables = [], isLoading: isDeliverablesLoading } = useGetDeliverablesQuery();
+
+//     const [triggerGetFilteredDeliverables, { data: filteredDeliverables = [], isLoading: isFilteredDeliverablesLoading }] =
+//         useLazyGetFilteredCategoryWiseDeliverablesQuery();
+
+
+//     const { data: sponsorDetails = [], isLoading: isSponsorDetailsLoading } = useGetSponsorCompleteDetailsQuery(
+//         selectedSponsorId ? {
+//             sponsor_master_id: selectedSponsorId,
+//             event_code: sessionStorage.getItem("Event_Code")
+//         } : null,
+//         { skip: !selectedSponsorId }
+//     );
+
+//     const { data: maxSponsorId, isLoading: isMaxIdLoading, refetch: refetchMaxId } = useGetMaxSponsorIdQuery();
+
+//     const { data: userdata = [], isLoading: isUserdataLoading } = useGetUserMastersQuery();
+//     const [addSponsor] = useAddSponsorMutation();
+//     const [updateSponsor] = useUpdateSponsorMutation();
+//     const [deleteSponsor] = useDeleteSponsorMutation();
+
+//     useEffect(() => {
+//         if (!editId && isModalOpen && !isMaxIdLoading) {
+//             const nextId = (typeof maxSponsorId === 'number' ? maxSponsorId : 0) + 1;
+//             setFormData(prev => ({
+//                 ...prev,
+//                 SponsorMasterId: nextId
+//             }));
+//         }
+//     }, [maxSponsorId, isMaxIdLoading, editId, isModalOpen]);
+
+
+//     useEffect(() => {
+//         const fetchAndCheckDeliverables = async () => {
+//             const hasValidCategorySub = formData.CategorySubMaster_Code !== null &&
+//                 formData.CategorySubMaster_Code !== undefined;
+
+//             if (editId === null && formData.Event_Code && formData.CategoryMaster_Code && hasValidCategorySub) {
+//                 try {
+//                     const categorySubMasterCode = formData.CategorySubMaster_Code === "" ? 0 : formData.CategorySubMaster_Code;
+
+//                     const result = await triggerGetFilteredDeliverables({
+//                         event_code: formData.Event_Code,
+//                         category_master_code: formData.CategoryMaster_Code,
+//                         category_sub_master_code: categorySubMasterCode
+//                     }).unwrap();
+
+//                     const allDeliverableCodes = result.flatMap(master =>
+//                         master.details.map(detail => detail.Deliverabled_Code)
+//                     );
+
+//                     setSelectedDeliverablesInModal(allDeliverableCodes);
+//                 } catch (error) {
+//                     console.error('Error fetching filtered deliverables:', error);
+//                     setSelectedDeliverablesInModal([]);
+//                 }
+//             } else if (editId === null) {
+//                 setSelectedDeliverablesInModal([]);
+//             }
+//         };
+
+//         const timeoutId = setTimeout(fetchAndCheckDeliverables, 300);
+//         return () => clearTimeout(timeoutId);
+//     }, [formData.Event_Code, formData.CategoryMaster_Code, formData.CategorySubMaster_Code, editId, triggerGetFilteredDeliverables]);
+
+
+
+//     useEffect(() => {
+//         if (editId && isModalOpen) {
+//             const selectedRow = tableData.find(row => row.SponsorMasterId === editId);
+//             if (selectedRow) {
+//                 setFormData(selectedRow);
+//                 const existingDeliverableCodes = Array.isArray(selectedRow.details)
+//                     ? selectedRow.details.map(d => d.Deliverabled_Code)
+//                     : [];
+//                 setSelectedDeliverablesInModal(existingDeliverableCodes);
+//                 setLogoFile(null);
+//                 if (selectedRow.Sponsor_logo) {
+//                     setLogoPreviewUrl(`${API_BASE_URL}sponsors/logo/${getFileName(selectedRow.Sponsor_logo)}`);
+//                 } else {
+//                     setLogoPreviewUrl(null);
+//                 }
+//             }
+//         }
+//     }, [editId, isModalOpen, tableData]);
+
+
+//     useEffect(() => {
+//         if (logoFile) {
+//             const objectUrl = URL.createObjectURL(logoFile);
+//             setLogoPreviewUrl(objectUrl);
+//             return () => URL.revokeObjectURL(objectUrl);
+//         } else if (!formData.Sponsor_logo && !editId) {
+//             setLogoPreviewUrl(null);
+//         }
+//     }, [logoFile, formData.Sponsor_logo, editId]);
+
+
+//     const groupedDeliverables = useMemo(() => {
+//         return allDeliverables.reduce((acc, current) => {
+//             const { Category } = current;
+//             if (!acc[Category]) {
+//                 acc[Category] = [];
+//             }
+//             acc[Category].push(current);
+//             return acc;
+//         }, {});
+//     }, [allDeliverables]);
+
+//     useEffect(() => {
+//         if (formData.CategoryMaster_Code) {
+//             refetchSubCategories();
+//         }
+//     }, [formData.CategoryMaster_Code, refetchSubCategories]);
+
+//     const [selectedOptions, setSelectedOptions] = useState({
+//         event: null,
+//         category: null,
+//         subCategory: null,
+//     });
+
+//     const eventOptions = useMemo(() => events.map(event => ({
+//         value: event.EventMasterId,
+//         label: `${event.EventMasterId} - ${event.EventMaster_Name}`
+//     })), [events]);
+
+//     const userdataOptions = useMemo(() => userdata.map(user => ({
+//         value: user.User_Id,
+//         label: `${user.User_Id} - ${user.userfullname}`
+//     })), [userdata]);
+
+//     const categoryOptions = useMemo(() => categories.map(category => ({
+//         value: category.CategoryId,
+//         label: `${category.CategoryId} - ${category.category_name}`
+//     })), [categories]);
+
+//     const subCategoryOptions = useMemo(() => {
+//         if (!subCategories || !formData.CategoryMaster_Code) {
+//             return [];
+//         }
+//         const filteredSubs = subCategories.filter(sub => sub.CategoryId === formData.CategoryMaster_Code);
+//         return filteredSubs.map(subCategory => ({
+//             value: subCategory.CategorySubMasterId,
+//             label: `${subCategory.CategorySubMasterId} - ${subCategory.CategorySub_Name}`
+//         }));
+//     }, [subCategories, formData.CategoryMaster_Code]);
+
+//     const paymentStatusOptions = [
+//         { value: 'Pending', label: 'Pending' },
+//         { value: 'Partially Paid', label: 'Partially Paid' },
+//         { value: 'Paid', label: 'Paid' },
+//         { value: 'Cancelled', label: 'Cancelled' },
+//     ];
+
+//     const yesNoOptions = [
+//         { value: 'Y', label: 'Yes' },
+//         { value: 'N', label: 'No' }
+//     ];
+
+//     const columns = [
+//         { header: 'ID', accessor: 'SponsorMasterId' },
+//         { header: 'Sponsor Name', accessor: 'Sponsor_Name' },
+//         {
+//             header: 'Event Name',
+//             accessor: 'EventMaster_Name',
+//             cellRenderer: (value, row) => `${row.Event_Code} - ${value}`
+//         },
+//         {
+//             header: 'Category',
+//             accessor: 'category_name',
+//             cellRenderer: (value, row) => row.CategoryMaster_Code ? `${row.CategoryMaster_Code} - ${value}` : 'N/A'
+//         },
+//         {
+//             header: 'Sub Category',
+//             accessor: 'CategorySub_Name',
+//             cellRenderer: (value, row) => row.CategorySubMaster_Code ? `${row.CategorySubMaster_Code} - ${value}` : 'N/A'
+//         },
+//         {
+//             header: 'User Name',
+//             accessor: 'User_Name',
+//             cellRenderer: (value, row) => `${row.User_Id} - ${value}`
+//         },
+//         { header: 'Contact Person', accessor: 'Contact_Person' },
+//         { header: 'Contact Email', accessor: 'Contact_Email' },
+//         { header: 'Sponsorship Amount', accessor: 'Sponsorship_Amount' },
+//         { header: 'Received Amount', accessor: 'Sponsorship_Amount_Advance' },
+//         { header: 'Pending Amount', accessor: 'Pending_Amount' },
+//         { header: 'Payment Status', accessor: 'Payment_Status' },
+//         {
+//             header: 'Action',
+//             accessor: 'action',
+//             isAction: true,
+//             className: 'text-center',
+//             actionRenderer: (row) => (
+//                 <div className="flex justify-center space-x-3">
+//                     <button
+//                         className="p-2 text-green-600 bg-green-50 rounded-md hover:bg-green-100 transition-colors duration-200"
+//                         onClick={() => handleView(row.SponsorMasterId)}
+//                         title="View Details"
+//                     >
+//                         <EyeIcon className="h-5 w-5" />
+//                     </button>
+//                     <button
+//                         className="p-2 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors duration-200"
+//                         onClick={() => handleEdit(row)}
+//                         title="Edit"
+//                     >
+//                         <PencilSquareIcon className="h-5 w-5" />
+//                     </button>
+//                     <button
+//                         className="p-2 text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors duration-200"
+//                         onClick={() => openDeleteConfirm(row.SponsorMasterId)}
+//                         title="Delete"
+//                     >
+//                         <Trash2 className="h-5 w-5" />
+//                     </button>
+//                 </div>
+//             )
+//         }
+//     ];
+
+
+//     const handleView = (sponsorId) => {
+//         setSelectedSponsorId(sponsorId);
+//         setShowViewPopup(true);
+//     };
+
+
+//     const handleAddNew = async () => {
+//         setEditId(null);
+//         resetForm();
+//         await refetchMaxId();
+//         setSelectedDeliverablesInModal([]);
+//         setLogoFile(null);
+//         setLogoPreviewUrl(null);
+
+//         const eventCodeFromStorage = sessionStorage.getItem("Event_Code");
+//         const eventCodeNumber = eventCodeFromStorage ? parseInt(eventCodeFromStorage) : null;
+
+//         setFormData(prev => ({
+//             ...prev,
+//             Event_Code: eventCodeNumber || ''
+//         }));
+
+//         if (eventCodeNumber) {
+//             const eventOption = eventOptions.find(o => o.value === eventCodeNumber);
+//             setSelectedOptions(prev => ({
+//                 ...prev,
+//                 event: eventOption || null
+//             }));
+//         }
+
+//         setIsModalOpen(true);
+//     };
+
+//     const handleEdit = (row) => {
+//         setFormData({
+//             SponsorMasterId: row.SponsorMasterId || '',
+//             Sponsor_Name: row.Sponsor_Name || '',
+//             Doc_Date: row.Doc_Date || '',
+//             Event_Code: row.Event_Code || '',
+//             CategoryMaster_Code: row.CategoryMaster_Code || '',
+//             CategorySubMaster_Code: row.CategorySubMaster_Code || '',
+//             Proposal_Sent: row.Proposal_Sent || '',
+//             Approval_Received: row.Approval_Received || '',
+//             Sponsorship_Amount: row.Sponsorship_Amount || '',
+//             Sponsorship_Amount_Advance: row.Sponsorship_Amount_Advance || '',
+//             Payment_Status: row.Payment_Status || '',
+//             Proforma_Invoice_Sent: row.Proforma_Invoice_Sent || '',
+//             Final_Invoice_Sent: row.Final_Invoice_Sent || '',
+//             GST_Details_Received: row.GST_Details_Received || '',
+//             Contact_Person: row.Contact_Person || '',
+//             Contact_Email: row.Contact_Email || '',
+//             Contact_Phone: row.Contact_Phone || '',
+//             Notes: row.Notes || '',
+//             Address: row.Address || '',
+//             CIN: row.CIN || '',
+//             Sponsor_Deliverables_Tracker: row.Sponsor_Deliverables_Tracker || '',
+//             Website: row.Website || '',
+//             Awards_Registry_Tracker: row.Awards_Registry_Tracker || '',
+//             Category_Sponsors: row.Category_Sponsors || '',
+//             Designation: row.Designation || '',
+//             Expo_Registry: row.Expo_Registry || '',
+//             GST: row.GST || '',
+//             Passes_Registry_Tracker: row.Passes_Registry_Tracker || '',
+//             Sponsor_Speakers: row.Sponsor_Speakers || '',
+//             Networking_Table_Slots_Tracker: row.Networking_Table_Slots_Tracker || '',
+//             Created_By: row.Created_By || '',
+//             Modified_By: row.Modified_By || '',
+//             User_Id: row.User_Id || '',
+//             details: Array.isArray(row.details) ? [...row.details] : []
+//         });
+
+//         const eventOption = eventOptions.find(o => o.value === row.Event_Code) || null;
+//         const userdataOption = userdataOptions.find(o => o.value === row.User_Id) || null;
+//         const categoryOption = categoryOptions.find(o => o.value === row.CategoryMaster_Code) || null;
+//         const subCategoryOption = subCategories
+//             .filter(sub => sub.CategoryId === row.CategoryMaster_Code)
+//             .map(subCategory => ({
+//                 value: subCategory.CategorySubMasterId,
+//                 label: `${subCategory.CategorySubMasterId} - ${subCategory.CategorySub_Name}`
+//             }))
+//             .find(o => o.value === row.CategorySubMaster_Code) || null;
+
+//         setSelectedOptions({
+//             event: eventOption,
+//             user: userdataOption,
+//             category: categoryOption,
+//             subCategory: subCategoryOption,
+//         });
+
+//         setSelectedDeliverablesInModal(Array.isArray(row.details) ? row.details.map(d => d.Deliverabled_Code) : []);
+//         setEditId(row.SponsorMasterId);
+//         setIsModalOpen(true);
+//     };
+
+//     const handleSubmit = async (e) => {
+//         e.preventDefault();
+
+
+//         let currentUser = null;
+//         try {
+//             const encryptedUserData = sessionStorage.getItem('user_data');
+//             if (encryptedUserData) {
+//                 currentUser = decryptData(encryptedUserData);
+//                 console.log("currentUser", currentUser.user_name)
+//             }
+//         } catch (error) {
+//             console.error('Failed to decrypt user data:', error);
+//         }
+
+//         const payloadData = {
+//             ...formData,
+//             CategorySubMaster_Code: formData.CategorySubMaster_Code === '' ? 0 : parseInt(formData.CategorySubMaster_Code),
+//             CategoryMaster_Code: formData.CategoryMaster_Code === '' ? 0 : parseInt(formData.CategoryMaster_Code),
+//             Sponsorship_Amount: formData.Sponsorship_Amount ? parseFloat(formData.Sponsorship_Amount) : 0,
+//             Sponsorship_Amount_Advance: formData.Sponsorship_Amount_Advance ? parseFloat(formData.Sponsorship_Amount_Advance) : 0
+//         };
+
+
+//         if (editId) {
+//             payloadData.Modified_By = currentUser?.username || currentUser?.user_name || '';
+//         } else {
+//             payloadData.Created_By = currentUser?.username || currentUser?.user_name || '';
+//         }
+
+//         const finalDetails = selectedDeliverablesInModal.map(selectedId => {
+//             const deliverable = allDeliverables.find(d => d.id === selectedId);
+//             return deliverable ? {
+//                 Deliverabled_Code: deliverable.id,
+//                 Deliverable_No: deliverable.Deliverable_No,
+//             } : null;
+//         }).filter(Boolean);
+
+//         const sponsorDataToSend = { ...payloadData, details: finalDetails };
+
+//         if (logoFile) {
+//             delete sponsorDataToSend.Sponsor_logo;
+//         } else if (formData.Sponsor_logo === null && editId) {
+
+//             sponsorDataToSend.Sponsor_logo = null;
+//         }
+
+//         try {
+//             const payload = { sponsorData: sponsorDataToSend, logoFile };
+
+//             if (editId) {
+//                 await updateSponsor({ id: editId, ...payload }).unwrap();
+//             } else {
+//                 await addSponsor(payload).unwrap();
+//             }
+//             resetForm();
+//             setIsModalOpen(false);
+//             refetch();
+//         } catch (error) {
+//             console.error('Failed to save sponsor:', error);
+//         }
+//     };
+
+//     const openDeleteConfirm = (id) => {
+//         setItemToDelete(id);
+//         setShowDeleteConfirmModal(true);
+//     };
+
+//     const confirmDelete = async () => {
+//         if (itemToDelete) {
+//             try {
+//                 await deleteSponsor(itemToDelete).unwrap();
+//                 refetch();
+//             } catch (error) {
+//                 console.error('Failed to delete sponsor:', error);
+//             } finally {
+//                 setShowDeleteConfirmModal(false);
+//                 setItemToDelete(null);
+//             }
+//         }
+//     };
+
+//     const resetForm = () => {
+//         setFormData(initialFormdata);
+//         setSelectedDeliverablesInModal([]);
+//         setSelectedOptions({
+//             event: null,
+//             category: null,
+//             user: null,
+//             subCategory: null,
+//         });
+//         setEditId(null);
+//         setLogoFile(null);
+//         setLogoPreviewUrl(null);
+//     };
+
+//     const handleFileChange = (e) => {
+//         const file = e.target.files ? e.target.files[0] : null;
+//         setLogoFile(file);
+//     };
+
+//     const handleSelectAllDeliverables = (isChecked) => {
+//         if (isChecked) {
+//             const allIds = allDeliverables.map(d => d.id);
+//             setSelectedDeliverablesInModal(allIds);
+//         } else {
+//             setSelectedDeliverablesInModal([]);
+//         }
+//     };
+
+//     const transformedTableData = tableData.map(item => ({
+//         ...item,
+//         details: Array.isArray(item.details) ? item.details : []
+//     }));
+
+//     const isLoading = isTableLoading || isEventsLoading || isCategoriesLoading || isSubCategoriesLoading || isDeliverablesLoading || isMaxIdLoading;
+//     const isErrorOccurred = isError;
+
+//     if (isLoading) {
+//         return <div>Loading...</div>;
+//     }
+
+//     if (isErrorOccurred) {
+//         return <div>An error occurred while loading Data.</div>;
+//     }
+
+//     const categoryNameMap = {
+//         'B': 'Before Conference',
+//         'D': 'During Conference',
+//         'A': 'After Conference',
+//         'S': 'Special Conference',
+//     };
+
+//     const allDeliverablesSelected = allDeliverables.length > 0 && selectedDeliverablesInModal.length === allDeliverables.length;
+
+//     const getFileName = (path) => {
+//         if (!path) return '';
+//         const normalizedPath = path.replace(/\\/g, '/');
+//         return normalizedPath.split('/').pop();
+//     };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import Select, { components } from 'react-select';
 import TableUtility from "../../common/TableUtility/TableUtility";
 import { PencilSquareIcon, EyeIcon } from '@heroicons/react/24/outline';
 import { Trash2 } from 'lucide-react';
@@ -26,19 +585,47 @@ import {
 } from '../../services/deliverablesApi';
 import { useLazyGetFilteredCategoryWiseDeliverablesQuery } from "../../services/categoryWiseDeliverableMasterApi"
 import { useGetUserMastersQuery } from '../../services/userMasterApi';
+import { useGetAccountMastersQuery } from '../../services/accountMasterApi';
 import CreateNewButton from "../../common/Buttons/AddButton";
 import SponsorDetailsPopup from './SponsorDetailsPopup';
-import CryptoJS from 'crypto-js';
 import { decryptData } from "../../common/Functions/DecryptData"
 
 const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL
+
+
+const CustomOption = (props) => {
+    return (
+        <components.Option {...props}>
+            {props.data.label}
+        </components.Option>
+    );
+};
+
+
+const CustomMenuList = (props) => {
+    const { children, ...rest } = props;
+    return (
+        <components.MenuList {...rest}>
+            {children}
+        </components.MenuList>
+    );
+};
 
 function SponsorMaster() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
-    const [showViewPopup, setShowViewPopup] = useState(false); 
-    const [selectedSponsorId, setSelectedSponsorId] = useState(null); 
+    const [showViewPopup, setShowViewPopup] = useState(false);
+    const [selectedSponsorId, setSelectedSponsorId] = useState(null);
+    const [selectedAccount, setSelectedAccount] = useState(null);
+
+    // Lazy loading states for accounts
+    const [accountSearchTerm, setAccountSearchTerm] = useState('');
+    const [displayedAccountOptions, setDisplayedAccountOptions] = useState([]);
+    const [hasMoreAccounts, setHasMoreAccounts] = useState(true);
+    const [accountPage, setAccountPage] = useState(1);
+    const ITEMS_PER_PAGE = 50;
+
     const initialFormdata = {
         SponsorMasterId: '',
         Sponsor_Name: '',
@@ -87,10 +674,10 @@ function SponsorMaster() {
     const { data: categories = [], isLoading: isCategoriesLoading } = useGetCategoryMasterQuery();
     const { data: subCategories = [], refetch: refetchSubCategories, isLoading: isSubCategoriesLoading } = useGetCategorySubMasterQuery();
     const { data: allDeliverables = [], isLoading: isDeliverablesLoading } = useGetDeliverablesQuery();
+    const { data: accountData = [], isLoading: isAccountLoading } = useGetAccountMastersQuery();
 
     const [triggerGetFilteredDeliverables, { data: filteredDeliverables = [], isLoading: isFilteredDeliverablesLoading }] =
         useLazyGetFilteredCategoryWiseDeliverablesQuery();
-
 
     const { data: sponsorDetails = [], isLoading: isSponsorDetailsLoading } = useGetSponsorCompleteDetailsQuery(
         selectedSponsorId ? {
@@ -107,6 +694,78 @@ function SponsorMaster() {
     const [updateSponsor] = useUpdateSponsorMutation();
     const [deleteSponsor] = useDeleteSponsorMutation();
 
+
+    const accountOptions = useMemo(() => {
+        if (!accountData || accountData.length === 0) return [];
+
+        return accountData.map(account => ({
+            value: account.Ac_Code,
+            label: `${account.Ac_Code} - ${account.Ac_Name_E}`,
+            rawData: account
+        }));
+    }, [accountData]);
+
+
+    const filterAccounts = useCallback((searchTerm = '', page = 1) => {
+        let filtered = accountOptions;
+
+        if (searchTerm.trim() !== '') {
+            filtered = accountOptions.filter(option =>
+                option.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                option.rawData.Ac_Name_E.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        const startIndex = 0;
+        const endIndex = page * ITEMS_PER_PAGE;
+        const paginated = filtered.slice(0, endIndex);
+
+        setDisplayedAccountOptions(paginated);
+        setHasMoreAccounts(endIndex < filtered.length);
+    }, [accountOptions]);
+
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            setAccountPage(1);
+            filterAccounts(accountSearchTerm, 1);
+        }, 300);
+
+        return () => clearTimeout(timeoutId);
+    }, [accountSearchTerm, filterAccounts]);
+
+
+    useEffect(() => {
+        if (accountOptions.length > 0) {
+            filterAccounts('', 1);
+        }
+    }, [accountOptions, filterAccounts]);
+
+
+    const onMenuScrollToBottom = useCallback(() => {
+        if (hasMoreAccounts) {
+            const nextPage = accountPage + 1;
+            setAccountPage(nextPage);
+            filterAccounts(accountSearchTerm, nextPage);
+        }
+    }, [accountPage, accountSearchTerm, hasMoreAccounts, filterAccounts]);
+
+
+    const handleAccountSelect = useCallback((option) => {
+        setSelectedAccount(option);
+        if (option) {
+            setFormData(prev => ({
+                ...prev,
+                Sponsor_Name: option.rawData.Ac_Name_E,
+                GST: option.rawData.Gst_No || '',
+                Address: option.rawData.Address_E || '',
+                Contact_Phone: option.rawData.whatsup_no || option.rawData.Mobile_No || '',
+                Contact_Person: option.rawData.Ac_Name_E || '',
+                Contact_Email: option.rawData.Email_Id || ''
+            }));
+        }
+    }, []);
+
     useEffect(() => {
         if (!editId && isModalOpen && !isMaxIdLoading) {
             const nextId = (typeof maxSponsorId === 'number' ? maxSponsorId : 0) + 1;
@@ -116,36 +775,6 @@ function SponsorMaster() {
             }));
         }
     }, [maxSponsorId, isMaxIdLoading, editId, isModalOpen]);
-
-
-    // useEffect(() => {
-    //     const fetchAndCheckDeliverables = async () => {
-    //         if (editId === null && formData.Event_Code && formData.CategoryMaster_Code && formData.CategorySubMaster_Code) {
-    //             try {
-    //                 const result = await triggerGetFilteredDeliverables({
-    //                     event_code: formData.Event_Code,
-    //                     category_master_code: formData.CategoryMaster_Code,
-    //                     category_sub_master_code: formData.CategorySubMaster_Code
-    //                 }).unwrap();
-
-    //                 const allDeliverableCodes = result.flatMap(master =>
-    //                     master.details.map(detail => detail.Deliverabled_Code)
-    //                 );
-
-    //                 setSelectedDeliverablesInModal(allDeliverableCodes);
-    //             } catch (error) {
-    //                 console.error('Error fetching filtered deliverables:', error);
-    //                 setSelectedDeliverablesInModal([]);
-    //             }
-    //         } else if (editId === null) {
-    //             setSelectedDeliverablesInModal([]);
-    //         }
-    //     };
-
-    //     const timeoutId = setTimeout(fetchAndCheckDeliverables, 300);
-    //     return () => clearTimeout(timeoutId);
-    // }, [formData.Event_Code, formData.CategoryMaster_Code, formData.CategorySubMaster_Code, editId, triggerGetFilteredDeliverables]);
-
 
     useEffect(() => {
         const fetchAndCheckDeliverables = async () => {
@@ -180,8 +809,6 @@ function SponsorMaster() {
         return () => clearTimeout(timeoutId);
     }, [formData.Event_Code, formData.CategoryMaster_Code, formData.CategorySubMaster_Code, editId, triggerGetFilteredDeliverables]);
 
-
-
     useEffect(() => {
         if (editId && isModalOpen) {
             const selectedRow = tableData.find(row => row.SponsorMasterId === editId);
@@ -193,14 +820,19 @@ function SponsorMaster() {
                 setSelectedDeliverablesInModal(existingDeliverableCodes);
                 setLogoFile(null);
                 if (selectedRow.Sponsor_logo) {
-                    setLogoPreviewUrl(`${API_BASE_URL}/sponsors/logo/${getFileName(selectedRow.Sponsor_logo)}`);
+                    setLogoPreviewUrl(`${API_BASE_URL}sponsors/logo/${getFileName(selectedRow.Sponsor_logo)}`);
                 } else {
                     setLogoPreviewUrl(null);
                 }
+
+                // Set account if available
+                if (selectedRow.Ac_Code) {
+                    const accountOption = accountOptions.find(o => o.value === selectedRow.Ac_Code);
+                    setSelectedAccount(accountOption || null);
+                }
             }
         }
-    }, [editId, isModalOpen, tableData]);
-
+    }, [editId, isModalOpen, tableData, accountOptions]);
 
     useEffect(() => {
         if (logoFile) {
@@ -211,7 +843,6 @@ function SponsorMaster() {
             setLogoPreviewUrl(null);
         }
     }, [logoFile, formData.Sponsor_logo, editId]);
-
 
     const groupedDeliverables = useMemo(() => {
         return allDeliverables.reduce((acc, current) => {
@@ -234,6 +865,7 @@ function SponsorMaster() {
         event: null,
         category: null,
         subCategory: null,
+        user: null,
     });
 
     const eventOptions = useMemo(() => events.map(event => ({
@@ -336,14 +968,10 @@ function SponsorMaster() {
         }
     ];
 
-
-
     const handleView = (sponsorId) => {
         setSelectedSponsorId(sponsorId);
         setShowViewPopup(true);
     };
-
-
 
     const handleAddNew = async () => {
         setEditId(null);
@@ -352,6 +980,7 @@ function SponsorMaster() {
         setSelectedDeliverablesInModal([]);
         setLogoFile(null);
         setLogoPreviewUrl(null);
+        setSelectedAccount(null);
 
         const eventCodeFromStorage = sessionStorage.getItem("Event_Code");
         const eventCodeNumber = eventCodeFromStorage ? parseInt(eventCodeFromStorage) : null;
@@ -428,6 +1057,11 @@ function SponsorMaster() {
             subCategory: subCategoryOption,
         });
 
+        if (row.Ac_Code) {
+            const accountOption = accountOptions.find(o => o.value === row.Ac_Code) || null;
+            setSelectedAccount(accountOption);
+        }
+
         setSelectedDeliverablesInModal(Array.isArray(row.details) ? row.details.map(d => d.Deliverabled_Code) : []);
         setEditId(row.SponsorMasterId);
         setIsModalOpen(true);
@@ -436,13 +1070,11 @@ function SponsorMaster() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-
         let currentUser = null;
         try {
             const encryptedUserData = sessionStorage.getItem('user_data');
             if (encryptedUserData) {
                 currentUser = decryptData(encryptedUserData);
-                console.log("currentUser", currentUser.user_name)
             }
         } catch (error) {
             console.error('Failed to decrypt user data:', error);
@@ -450,12 +1082,12 @@ function SponsorMaster() {
 
         const payloadData = {
             ...formData,
+            Ac_Code: selectedAccount ? selectedAccount.value : null,
             CategorySubMaster_Code: formData.CategorySubMaster_Code === '' ? 0 : parseInt(formData.CategorySubMaster_Code),
             CategoryMaster_Code: formData.CategoryMaster_Code === '' ? 0 : parseInt(formData.CategoryMaster_Code),
             Sponsorship_Amount: formData.Sponsorship_Amount ? parseFloat(formData.Sponsorship_Amount) : 0,
             Sponsorship_Amount_Advance: formData.Sponsorship_Amount_Advance ? parseFloat(formData.Sponsorship_Amount_Advance) : 0
         };
-
 
         if (editId) {
             payloadData.Modified_By = currentUser?.username || currentUser?.user_name || '';
@@ -476,7 +1108,6 @@ function SponsorMaster() {
         if (logoFile) {
             delete sponsorDataToSend.Sponsor_logo;
         } else if (formData.Sponsor_logo === null && editId) {
-
             sponsorDataToSend.Sponsor_logo = null;
         }
 
@@ -524,9 +1155,14 @@ function SponsorMaster() {
             user: null,
             subCategory: null,
         });
+        setSelectedAccount(null);
         setEditId(null);
         setLogoFile(null);
         setLogoPreviewUrl(null);
+        setAccountSearchTerm('');
+        setDisplayedAccountOptions([]);
+        setAccountPage(1);
+        setHasMoreAccounts(true);
     };
 
     const handleFileChange = (e) => {
@@ -548,11 +1184,22 @@ function SponsorMaster() {
         details: Array.isArray(item.details) ? item.details : []
     }));
 
-    const isLoading = isTableLoading || isEventsLoading || isCategoriesLoading || isSubCategoriesLoading || isDeliverablesLoading || isMaxIdLoading;
+    const isLoading = isTableLoading || isEventsLoading || isCategoriesLoading || isSubCategoriesLoading || isDeliverablesLoading || isMaxIdLoading || isAccountLoading;
     const isErrorOccurred = isError;
 
+
     if (isLoading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+                <div className="text-center space-y-4">
+                    <div className="w-12 h-12 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin mx-auto" />
+                    <p className="text-gray-700 text-lg font-medium">
+                        Loading
+                        <span className="inline-block animate-pulse ml-1 text-blue-600">...</span>
+                    </p>
+                </div>
+            </div>
+        );
     }
 
     if (isErrorOccurred) {
@@ -595,7 +1242,7 @@ function SponsorMaster() {
                 width="1500px"
                 createdBy={formData.Created_By}
                 modifiedBy={formData.Modified_By}
-                
+
             >
                 <form onSubmit={handleSubmit} className="space-y-2">
                     <div className="grid grid-cols-1 gap-1 sm:grid-cols-4">
@@ -616,6 +1263,41 @@ function SponsorMaster() {
                                 {isMaxIdLoading ? 'Loading Max ID...' : 'Auto-generated'}
                             </p>
                         </div>
+
+
+                        <div className="md:col-span-1">
+                            <label htmlFor="account" className="block text-sm font-medium text-gray-700 mb-1">
+                                Select Sponsor
+                            </label>
+                            <Select
+                                id="account"
+                                options={displayedAccountOptions}
+                                value={selectedAccount}
+                                onChange={handleAccountSelect}
+                                onInputChange={(inputValue) => setAccountSearchTerm(inputValue)}
+                                onMenuScrollToBottom={onMenuScrollToBottom}
+                                placeholder="Search account..."
+                                isSearchable
+                                isLoading={isAccountLoading}
+                                components={{
+                                    Option: CustomOption,
+                                    MenuList: CustomMenuList
+                                }}
+                                filterOption={null}
+                                styles={{
+                                    menu: (provided) => ({
+                                        ...provided,
+                                        maxHeight: '300px',
+                                        overflow: 'hidden'
+                                    })
+                                }}
+                                loadingMessage={() => "Loading accounts..."}
+                                noOptionsMessage={() =>
+                                    accountSearchTerm ? "No accounts found" : "Start typing to search accounts"
+                                }
+                            />
+                        </div>
+
 
                         <div>
                             <label htmlFor="Sponsor_Name" className="block text-sm font-medium text-gray-700 mb-1">Sponsor Name  <span className="text-red-500">*</span></label>
@@ -682,7 +1364,7 @@ function SponsorMaster() {
                         </div>
 
                         <div>
-                            <label htmlFor="User_Id" className="block text-sm font-medium text-gray-700 mb-1">User Master  <span className="text-red-500">*</span></label>
+                            <label htmlFor="User_Id" className="block text-sm font-medium text-gray-700 mb-1">Assigned To  <span className="text-red-500">*</span></label>
                             <Select
                                 id="User_Id"
                                 options={userdataOptions}
@@ -732,6 +1414,7 @@ function SponsorMaster() {
                                 placeholder="Select payment status..."
                                 isSearchable
                                 autoComplete='off'
+                                isDisabled={formData.Approval_Received === 'N'}
                             />
                         </div>
 
@@ -746,7 +1429,8 @@ function SponsorMaster() {
                                 value={formData.Sponsorship_Amount}
                                 autoComplete='off'
                                 onChange={(e) => setFormData(prev => ({ ...prev, Sponsorship_Amount: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className={`w-full px-3 py-2 border border-gray-300 rounded-md ${formData.Approval_Received === 'N' ? 'cursor-not-allowed opacity-50' : ''}`}
+                                disabled={formData.Approval_Received === 'N'}
                             />
                         </div>
 
@@ -760,7 +1444,8 @@ function SponsorMaster() {
                                 value={formData.Sponsorship_Amount_Advance}
                                 autoComplete='off'
                                 onChange={(e) => setFormData(prev => ({ ...prev, Sponsorship_Amount_Advance: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className={`w-full px-3 py-2 border border-gray-300 rounded-md ${formData.Approval_Received === 'N' ? 'cursor-not-allowed opacity-50' : ''}`}
+                                disabled={formData.Approval_Received === 'N'}
                             />
                         </div>
 
@@ -773,8 +1458,8 @@ function SponsorMaster() {
                                 autoComplete='off'
                                 value={formData.Contact_Person}
                                 onChange={(e) => setFormData(prev => ({ ...prev, Contact_Person: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-
+                                className={`w-full px-3 py-2 border border-gray-300 rounded-md ${formData.Approval_Received === 'N' ? 'cursor-not-allowed opacity-50' : ''}`}
+                                disabled={formData.Approval_Received === 'N'}
                             />
                         </div>
 
@@ -786,8 +1471,9 @@ function SponsorMaster() {
                                 name="Contact_Email"
                                 value={formData.Contact_Email}
                                 onChange={(e) => setFormData(prev => ({ ...prev, Contact_Email: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className={`w-full px-3 py-2 border border-gray-300 rounded-md ${formData.Approval_Received === 'N' ? 'cursor-not-allowed opacity-50' : ''}`}
                                 autoComplete='off'
+                                disabled={formData.Approval_Received === 'N'}
                             />
                         </div>
 
@@ -799,8 +1485,9 @@ function SponsorMaster() {
                                 name="Contact_Phone"
                                 value={formData.Contact_Phone}
                                 onChange={(e) => setFormData(prev => ({ ...prev, Contact_Phone: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className={`w-full px-3 py-2 border border-gray-300 rounded-md ${formData.Approval_Received === 'N' ? 'cursor-not-allowed opacity-50' : ''}`}
                                 autoComplete='off'
+                                disabled={formData.Approval_Received === 'N'}
                             />
                         </div>
 
@@ -812,8 +1499,9 @@ function SponsorMaster() {
                                 name="Designation"
                                 value={formData.Designation}
                                 onChange={(e) => setFormData(prev => ({ ...prev, Designation: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className={`w-full px-3 py-2 border border-gray-300 rounded-md ${formData.Approval_Received === 'N' ? 'cursor-not-allowed opacity-50' : ''}`}
                                 autoComplete='off'
+                                disabled={formData.Approval_Received === 'N'}
                             />
                         </div>
 
@@ -825,8 +1513,9 @@ function SponsorMaster() {
                                 name="Website"
                                 value={formData.Website}
                                 onChange={(e) => setFormData(prev => ({ ...prev, Website: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className={`w-full px-3 py-2 border border-gray-300 rounded-md ${formData.Approval_Received === 'N' ? 'cursor-not-allowed opacity-50' : ''}`}
                                 autoComplete='off'
+                                disabled={formData.Approval_Received === 'N'}
                             />
                         </div>
 
@@ -838,57 +1527,8 @@ function SponsorMaster() {
                                 name="CIN"
                                 value={formData.CIN}
                                 onChange={(e) => setFormData(prev => ({ ...prev, CIN: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="GST" className="block text-sm font-medium text-gray-700 mb-1">GST</label>
-                            <input
-                                id="GST"
-                                type="text"
-                                name="GST"
-                                value={formData.GST}
-                                onChange={(e) => setFormData(prev => ({ ...prev, GST: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                        </div>
-
-                        <div className="sm:col-span-2">
-                            <label htmlFor="Address" className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                            <textarea
-                                id="Address"
-                                name="Address"
-                                value={formData.Address}
-                                onChange={(e) => setFormData(prev => ({ ...prev, Address: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                rows={2}
-                            />
-                        </div>
-
-
-
-                        <div>
-                            <label htmlFor="Proforma_Invoice_Sent" className="block text-sm font-medium text-gray-700 mb-1">Proforma Invoice Sent</label>
-                            <Select
-                                id="Proforma_Invoice_Sent"
-                                options={yesNoOptions}
-                                value={yesNoOptions.find(option => option.value === formData.Proforma_Invoice_Sent)}
-                                onChange={(option) => setFormData(prev => ({ ...prev, Proforma_Invoice_Sent: option ? option.value : '' }))}
-                                placeholder="Select..."
-                                isSearchable
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="Final_Invoice_Sent" className="block text-sm font-medium text-gray-700 mb-1">Final Invoice Sent</label>
-                            <Select
-                                id="Final_Invoice_Sent"
-                                options={yesNoOptions}
-                                value={yesNoOptions.find(option => option.value === formData.Final_Invoice_Sent)}
-                                onChange={(option) => setFormData(prev => ({ ...prev, Final_Invoice_Sent: option ? option.value : '' }))}
-                                placeholder="Select..."
-                                isSearchable
+                                className={`w-full px-3 py-2 border border-gray-300 rounded-md ${formData.Approval_Received === 'N' ? 'cursor-not-allowed opacity-50' : ''}`}
+                                disabled={formData.Approval_Received === 'N'}
                             />
                         </div>
 
@@ -901,8 +1541,63 @@ function SponsorMaster() {
                                 onChange={(option) => setFormData(prev => ({ ...prev, GST_Details_Received: option ? option.value : '' }))}
                                 placeholder="Select..."
                                 isSearchable
+                                isDisabled={formData.Approval_Received === 'N'}
                             />
                         </div>
+
+                        <div>
+                            <label htmlFor="GST" className="block text-sm font-medium text-gray-700 mb-1">GST</label>
+                            <input
+                                id="GST"
+                                type="text"
+                                name="GST"
+                                value={formData.GST}
+                                onChange={(e) => setFormData(prev => ({ ...prev, GST: e.target.value }))}
+                                className={`w-full px-3 py-2 border border-gray-300 rounded-md ${formData.Approval_Received === 'N' ? 'cursor-not-allowed opacity-50' : ''}`}
+                                disabled={formData.Approval_Received === 'N'}
+                            />
+                        </div>
+
+                        <div className="sm:col-span-2">
+                            <label htmlFor="Address" className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                            <textarea
+                                id="Address"
+                                name="Address"
+                                value={formData.Address}
+                                onChange={(e) => setFormData(prev => ({ ...prev, Address: e.target.value }))}
+                                className={`w-full px-3 py-2 border border-gray-300 rounded-md ${formData.Approval_Received === 'N' ? 'cursor-not-allowed opacity-50' : ''}`}
+                                rows={2}
+                                disabled={formData.Approval_Received === 'N'}
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="Proforma_Invoice_Sent" className="block text-sm font-medium text-gray-700 mb-1">Proforma Invoice Sent</label>
+                            <Select
+                                id="Proforma_Invoice_Sent"
+                                options={yesNoOptions}
+                                value={yesNoOptions.find(option => option.value === formData.Proforma_Invoice_Sent)}
+                                onChange={(option) => setFormData(prev => ({ ...prev, Proforma_Invoice_Sent: option ? option.value : '' }))}
+                                placeholder="Select..."
+                                isSearchable
+                                isDisabled={formData.Approval_Received === 'N'}
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="Final_Invoice_Sent" className="block text-sm font-medium text-gray-700 mb-1">Final Invoice Sent</label>
+                            <Select
+                                id="Final_Invoice_Sent"
+                                options={yesNoOptions}
+                                value={yesNoOptions.find(option => option.value === formData.Final_Invoice_Sent)}
+                                onChange={(option) => setFormData(prev => ({ ...prev, Final_Invoice_Sent: option ? option.value : '' }))}
+                                placeholder="Select..."
+                                isSearchable
+                                isDisabled={formData.Approval_Received === 'N'}
+                            />
+                        </div>
+
+
 
                         <div className="sm:col-span-2">
                             <label htmlFor="Notes" className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
@@ -911,8 +1606,9 @@ function SponsorMaster() {
                                 name="Notes"
                                 value={formData.Notes}
                                 onChange={(e) => setFormData(prev => ({ ...prev, Notes: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className={`w-full px-3 py-2 border border-gray-300 rounded-md ${formData.Approval_Received === 'N' ? 'cursor-not-allowed opacity-50' : ''}`}
                                 rows={2}
+                                disabled={formData.Approval_Received === 'N'}
                             />
                         </div>
 
