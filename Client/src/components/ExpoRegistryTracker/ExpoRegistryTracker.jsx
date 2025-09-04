@@ -797,11 +797,10 @@ function ExpoRegistryTracker() {
             header: 'Sponsor Name',
             accessor: 'Sponsor_Name',
         },
-        {
-            header: 'Deliverables',
-            accessor: 'Deliverables',
-        },
-
+        // {
+        //     header: 'Deliverables',
+        //     accessor: 'Deliverables',
+        // },
         {
             header: 'Booth to be Provided',
             accessor: 'Booth_to_be_provided',
@@ -1302,6 +1301,7 @@ function ExpoRegistryTracker() {
                                 onChange={handleInputChange}
                                 autoComplete='off'
                                 rows={3}
+                                data-gramm="false" 
                                 className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
                             />
                         </div>

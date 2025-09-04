@@ -52,7 +52,7 @@ function MinisterialSessionTracker() {
         isLoading: isTableLoading,
         isError,
         refetch
-    } = useGetMinisterialSessionsQuery({event_code: sessionStorage.getItem("Event_Code")});
+    } = useGetMinisterialSessionsQuery({ event_code: sessionStorage.getItem("Event_Code") });
 
     const {
         data: maxMinisterialSessionId = 0,
@@ -68,7 +68,7 @@ function MinisterialSessionTracker() {
     const {
         data: sponsors = [],
         isLoading: isSponsorsLoading
-    } = useGetSponsorsQuery({ event_code: sessionStorage.getItem("Event_Code")});
+    } = useGetSponsorsQuery({ event_code: sessionStorage.getItem("Event_Code") });
 
     const [addMinisterialSession] = useAddMinisterialSessionMutation();
     const [updateMinisterialSession] = useUpdateMinisterialSessionMutation();
@@ -120,7 +120,7 @@ function MinisterialSessionTracker() {
             accessor: 'designation',
         },
         {
-            header: 'Track',
+            header: 'Ministry',
             accessor: 'Track',
         },
         {
@@ -291,15 +291,15 @@ function MinisterialSessionTracker() {
     );
 
     if (isTableLoading || isEventsLoading || isSponsorsLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-            <div className="text-center space-y-4">
-                <div className="w-12 h-12 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin mx-auto" />
+        <div className="text-center space-y-4">
+            <div className="w-12 h-12 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin mx-auto" />
 
-                <p className="text-gray-700 text-lg font-medium">
-                    Loading
-                    <span className="inline-block animate-pulse ml-1 text-blue-600">...</span>
-                </p>
-            </div>
-        </div>;
+            <p className="text-gray-700 text-lg font-medium">
+                Loading
+                <span className="inline-block animate-pulse ml-1 text-blue-600">...</span>
+            </p>
+        </div>
+    </div>;
     if (isError) return <div>Error loading ministerial sessions</div>;
 
     return (
@@ -320,7 +320,7 @@ function MinisterialSessionTracker() {
 
             <TableUtility
                 // headerContent={<CreateNewButton onClick={handleAddNew} />}
-                title="Ministerial RounTable Sessions"
+                title="Ministerial RoundTable Sessions"
                 columns={columns}
                 data={tableData}
                 pageSize={10}
@@ -481,6 +481,7 @@ function MinisterialSessionTracker() {
                             onChange={handleInputChange}
                             rows={3}
                             autoComplete='off'
+                            data-gramm="false"
                             className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
                         />
                     </div>
@@ -498,7 +499,7 @@ function MinisterialSessionTracker() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Track</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Ministry</label>
                             <input
                                 type="text"
                                 name="Track"

@@ -94,8 +94,8 @@ function PassesRegistry() {
       cellRenderer: (value, row) => `${row.Event_Code} - ${value}`
     },
     {
-      header: 'Passes Name',
-      accessor: 'Deliverables',
+      header: 'Sponsor Name',
+      accessor: 'Sponsor_Name',
       cellRenderer: (value, row) => `${row.Deliverabled_Code} - ${value}`
     },
     { header: 'Elite Passes', accessor: 'Elite_Passess' },
@@ -654,6 +654,7 @@ function PassesRegistry() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               rows={2}
               autoComplete='off'
+              data-gramm="false" 
             />
           </div>
           <div className="flex justify-end space-x-3 pt-4">

@@ -148,14 +148,12 @@ async def get_event_dashboard_stats(db: AsyncSession, event_code: int) -> Dict[s
             AND (Booth_Number_Assigned IS NOT NULL AND Booth_Number_Assigned <> '')
         """),
         "sponsor_details": text("""
-          SELECT        dbo.tbluser.User_Name, dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_SponsorMaster.Sponsorship_Amount, dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance, 
-                 dbo.Eve_SponsorMaster.Sponsorship_Amount - ISNULL(dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance, 0) AS Pending_Amount, 
-                 COALESCE(dbo.Eve_CategorySubMaster.CategorySub_Name, 'No Subcategory') AS CategorySub_Name, 
-                 dbo.Eve_SponsorMaster.Proposal_Sent, dbo.Eve_SponsorMaster.Approval_Received, dbo.Eve_SponsorMaster.Contact_Phone, 
-                 dbo.Eve_SponsorMaster.Contact_Email, dbo.Eve_SponsorMaster.Contact_Person, dbo.Eve_SponsorMaster.User_Id
-                FROM            dbo.Eve_SponsorMaster 
-                INNER JOIN dbo.tbluser ON dbo.Eve_SponsorMaster.User_Id = dbo.tbluser.User_Id 
-                LEFT JOIN dbo.Eve_CategorySubMaster ON dbo.Eve_SponsorMaster.CategorySubMaster_Code = dbo.Eve_CategorySubMaster.CategorySubMasterId
+SELECT        dbo.tbluser.User_Name, dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_SponsorMaster.Sponsorship_Amount, dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance, 
+                         dbo.Eve_SponsorMaster.Sponsorship_Amount - ISNULL(dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance, 0) AS Pending_Amount, dbo.Eve_SponsorMaster.Proposal_Sent, dbo.Eve_SponsorMaster.Approval_Received, 
+                         dbo.Eve_SponsorMaster.Contact_Phone, dbo.Eve_SponsorMaster.Contact_Email, dbo.Eve_SponsorMaster.Contact_Person, dbo.Eve_SponsorMaster.User_Id, dbo.Eve_CategoryMaster.category_name
+FROM            dbo.Eve_SponsorMaster INNER JOIN
+                         dbo.tbluser ON dbo.Eve_SponsorMaster.User_Id = dbo.tbluser.User_Id INNER JOIN
+                         dbo.Eve_CategoryMaster ON dbo.Eve_SponsorMaster.CategoryMaster_Code = dbo.Eve_CategoryMaster.CategoryId
             WHERE dbo.Eve_SponsorMaster.Event_Code = :event_code
         """)
     }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import logo from '../../assets/jkIndia.png';
+import logo from '../../assets/jklogo.png';
 import { useNavigate } from "react-router-dom";
 import { useLoginMutation } from '../../services/userMasterApi';
 import CryptoJS from 'crypto-js';

@@ -7,54 +7,19 @@ from ..schemas.passes_registry_schema import PassRegistryCreate, PassRegistryUpd
 from fastapi import APIRouter, Depends, HTTPException
 from ..websockets.connection_manager import ConnectionManager
 
-# async def get_passes_registries(db: AsyncSession, skip: int = 0, limit: int = 100):
-#     result = await db.execute(
-#         select(Eve_PassesRegistry)
-#         .order_by(asc(Eve_PassesRegistry.PassessRegistryId))  
-#         .offset(skip)
-#         .limit(limit)
-#     )
-#     return result.scalars().all()
-
-# async def get_passes_registries(db: AsyncSession, skip: int = 0, limit: int = 100):
-#     query = text("""
-# SELECT        dbo.Eve_DeliverablesMaster.Deliverables, dbo.Eve_EventMaster.EventMaster_Name, dbo.Eve_PassesRegistry.*, dbo.Eve_PassessRegistryDetail.*
-# FROM            dbo.Eve_PassesRegistry INNER JOIN
-#                          dbo.Eve_DeliverablesMaster ON dbo.Eve_PassesRegistry.Deliverabled_Code = dbo.Eve_DeliverablesMaster.id INNER JOIN
-#                          dbo.Eve_EventMaster ON dbo.Eve_PassesRegistry.Event_Code = dbo.Eve_EventMaster.EventMasterId INNER JOIN
-#                          dbo.Eve_PassessRegistryDetail ON dbo.Eve_PassesRegistry.PassessRegistryId = dbo.Eve_PassessRegistryDetail.PassessRegistryId
-#     """)
-    
-#     result = await db.execute(query)
-#     return result.mappings().all()
 
 async def get_passes_registries(db: AsyncSession, event_code: int, skip: int = 0, limit: int = 100):
     query = text("""
-    SELECT        
-        dm.Deliverables, 
-        em.EventMaster_Name, 
-        pr.*,
-        prd.PassessRegistryDetailId,
-        prd.Pass_type,
-        prd.Assigen_Name,
-        prd.Mobile_No,
-        prd.Email_Address,
-        prd.Designation,
-        prd.Remark,
-        prd.PassessRegistryId as detail_RegistryId
-    FROM            
-        dbo.Eve_PassesRegistry pr
-    INNER JOIN dbo.Eve_DeliverablesMaster dm
-        ON pr.Deliverabled_Code = dm.id 
-    INNER JOIN dbo.Eve_EventMaster em
-        ON pr.Event_Code = em.EventMasterId 
-    LEFT JOIN dbo.Eve_PassessRegistryDetail prd
-        ON pr.PassessRegistryId = prd.PassessRegistryId
-                 WHERE        pr.Event_Code = :event_code
-    ORDER BY 
-        pr.PassessRegistryId DESC,
-        prd.PassessRegistryDetailId ASC
-    OFFSET :skip ROWS FETCH NEXT :limit ROWS ONLY
+   SELECT        TOP (100) PERCENT dm.Deliverables, em.EventMaster_Name, pr.PassessRegistryId, pr.Deliverabled_Code, pr.Event_Code, pr.Elite_Passess, pr.Carporate_Passess, pr.Visitor_Passess, pr.Deligate_Name_Recieverd, 
+                         pr.SponsorMasterId, pr.Deliverable_No, prd.PassessRegistryDetailId, prd.Pass_type, prd.Assigen_Name, prd.Mobile_No, prd.Email_Address, prd.Designation, prd.Remark, prd.PassessRegistryId AS detail_RegistryId, 
+                         dbo.Eve_SponsorMaster.Sponsor_Name
+FROM            dbo.Eve_PassesRegistry AS pr INNER JOIN
+                         dbo.Eve_DeliverablesMaster AS dm ON pr.Deliverabled_Code = dm.id INNER JOIN
+                         dbo.Eve_EventMaster AS em ON pr.Event_Code = em.EventMasterId INNER JOIN
+                         dbo.Eve_SponsorMaster ON pr.SponsorMasterId = dbo.Eve_SponsorMaster.SponsorMasterId LEFT OUTER JOIN
+                         dbo.Eve_PassessRegistryDetail AS prd ON pr.PassessRegistryId = prd.PassessRegistryId
+WHERE        (pr.Event_Code = 1)
+ORDER BY pr.PassessRegistryId DESC, prd.PassessRegistryDetailId
     """)
     
     try:
@@ -84,6 +49,7 @@ async def get_passes_registries(db: AsyncSession, event_code: int, skip: int = 0
                     "ModifiedBy": row_dict.get('ModifiedBy'),
                     "EventMaster_Name": row_dict.get('EventMaster_Name'),
                     "Deliverables": row_dict.get('Deliverables'),
+                    "Sponsor_Name": row_dict.get('Sponsor_Name'),
                     "details": []
                 }
             
@@ -111,26 +77,6 @@ async def get_passes_registry(db: AsyncSession, registry_id: int):
         select(Eve_PassesRegistry).where(Eve_PassesRegistry.PassessRegistryId == registry_id)
     )
     return result.scalar_one_or_none()
-
-# async def create_passes_registry(db: AsyncSession, registry_data: PassRegistryCreate):
-#     db_registry = Eve_PassesRegistry(**registry_data.dict(exclude={"details"}))
-#     db.add(db_registry)
-#     await db.flush()  # Get the ID
-    
-#     # Process details
-#     created_details = []
-#     for detail in registry_data.details:
-#         if detail.rowaction == "add" or not detail.rowaction:
-#             db_detail = Eve_PassessRegistryDetail(
-#                 **detail.dict(exclude={"rowaction"}),
-#                 PassessRegistryId=db_registry.PassessRegistryId
-#             )
-#             db.add(db_detail)
-#             created_details.append(db_detail)
-    
-#     await db.commit()
-#     await db.refresh(db_registry)
-#     return db_registry
 
 
 async def create_passes_registry(db: AsyncSession, registry_data: PassRegistryCreate,ws_manager: Optional[ConnectionManager] = None):

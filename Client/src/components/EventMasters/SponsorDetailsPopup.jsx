@@ -204,7 +204,7 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                             <div className="bg-blue-100 p-2 rounded-full mr-3">
                                                 <MegaphoneIcon className="h-5 w-5 text-blue-600" />
                                             </div>
-                                            <label className="text-sm font-medium text-blue-700">Ministerial Speaker</label>
+                                            <label className="text-sm font-medium text-blue-700">Ministerial RoundTable Speaker</label>
                                         </div>
 
 
@@ -240,7 +240,7 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                             <div className="bg-green-100 p-2 rounded-full mr-3">
                                                 <MegaphoneIcon className="h-5 w-5 text-green-600" />
                                             </div>
-                                            <label className="text-sm font-medium text-green-700">Curated Speaker</label>
+                                            <label className="text-sm font-medium text-green-700">Curated Session Speaker</label>
                                         </div>
 
 
@@ -276,10 +276,8 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                             <div className="bg-purple-100 p-2 rounded-full mr-3">
                                                 <MegaphoneIcon className="h-5 w-5 text-purple-600" />
                                             </div>
-                                            <label className="text-sm font-medium text-purple-700">Speaker Tracker</label>
+                                            <label className="text-sm font-medium text-purple-700">Speaker Tracker Sponsors</label>
                                         </div>
-
-
 
                                         <div>
                                             <div className="flex items-center space-x-2">

@@ -42,6 +42,7 @@ class PassRegistry(PassRegistryBase):
     details: List[PassRegistryDetail] = []
     EventMaster_Name: Optional[str] = None
     Deliverables: Optional[str] = None
+    Sponsor_Name: Optional[str] = None
 
     class Config:
         from_attributes = True

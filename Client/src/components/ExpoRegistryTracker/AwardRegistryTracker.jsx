@@ -110,10 +110,10 @@ function AwardRegistryTracker() {
             header: 'Sponsor Name',
             accessor: 'Sponsor_Name',
         },
-        {
-            header: 'Deliverables',
-            accessor: 'Deliverables',
-        },
+        // {
+        //     header: 'Deliverables',
+        //     accessor: 'Deliverables',
+        // },
         {
             header: 'Award Type',
             accessor: 'Award_Name',
