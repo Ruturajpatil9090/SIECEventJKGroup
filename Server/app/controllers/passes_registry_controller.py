@@ -16,7 +16,8 @@ from ..services.passes_registry_services import (
     create_passes_registry,
     update_passes_registry,
     delete_passes_registry,
-    get_max_registry_id
+    get_max_registry_id,
+    get_passessRegistry_details
 )
 from ..models.database import get_db
 
@@ -34,6 +35,31 @@ async def read_passes_registries(
 ):
     registries = await get_passes_registries(db,event_code=event_code, skip=skip, limit=limit)
     return registries
+
+
+#GET All Individual details from the Passes Registry with there details also.
+@router.get("/details/{PassessRegistryId}")
+async def read_passess_registry_details(
+    PassessRegistryId: int,
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        registry_details = await get_passessRegistry_details(db, PassessRegistryId=PassessRegistryId)
+        
+        if not registry_details:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Passes registry details not found for ID: {PassessRegistryId}"
+            )
+            
+        return registry_details
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error retrieving passes registry details: {str(e)}"
+        )
+
 
 @router.get("/max-id", response_model=int)
 async def get_max_registry_id_endpoint(db: AsyncSession = Depends(get_db)):

@@ -4,13 +4,15 @@ import { PencilSquareIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react
 import { Trash2 } from 'lucide-react';
 import Select from 'react-select';
 import Modal from '../../common/Modal/Modal';
+import { EyeIcon } from '@heroicons/react/24/outline';
 import { getCurrentDate } from '../../common/Functions/GetCurrentdate';
 import {
     useGetSpeakerTrackersQuery,
     useGetMaxSpeakerTrackerIdQuery,
     useAddSpeakerTrackerMutation,
     useUpdateSpeakerTrackerMutation,
-    useDeleteSpeakerTrackerMutation
+    useDeleteSpeakerTrackerMutation,
+    useGetSpeakerTrackerDetailByIdQuery
 } from '../../services/speakerTrackerApi';
 import {
     useGetEventMastersQuery,
@@ -18,6 +20,7 @@ import {
 import {
     useGetSponsorsQuery,
 } from '../../services/sponsorMasterApi';
+import SpeakerTrackerDetailView from '../ViewDetails/SpeakerTrackerDetailView';
 import CreateNewButton from "../../common/Buttons/AddButton";
 
 function SpeakerTracker() {
@@ -34,7 +37,8 @@ function SpeakerTracker() {
         Email_Address: '',
         Speaker_Bio: '',
         Speaking_Date: getCurrentDate(),
-        Track: ''
+        Track: '',
+        Pitch_session_Topic: ''
     });
     const [editId, setEditId] = useState(null);
     const [notification, setNotification] = useState({
@@ -43,12 +47,17 @@ function SpeakerTracker() {
         type: 'success'
     });
 
+    const [selectedEventDates, setSelectedEventDates] = useState({
+        startDate: '',
+        endDate: ''
+    });
+
     const {
         data: tableData = [],
         isLoading: isTableLoading,
         isError,
         refetch
-    } = useGetSpeakerTrackersQuery({event_code: sessionStorage.getItem("Event_Code")});
+    } = useGetSpeakerTrackersQuery({ event_code: sessionStorage.getItem("Event_Code") });
 
     const {
         data: maxSpeakerTrackerId = 0,
@@ -64,15 +73,40 @@ function SpeakerTracker() {
     const {
         data: sponsors = [],
         isLoading: isSponsorsLoading
-    } = useGetSponsorsQuery({ event_code: sessionStorage.getItem("Event_Code")});
+    } = useGetSponsorsQuery({ event_code: sessionStorage.getItem("Event_Code") });
 
     const [addSpeakerTracker] = useAddSpeakerTrackerMutation();
     const [updateSpeakerTracker] = useUpdateSpeakerTrackerMutation();
     const [deleteSpeakerTracker] = useDeleteSpeakerTrackerMutation();
 
+    //Detail popup view open 
+    const [isDetailViewOpen, setIsDetailViewOpen] = useState(false);
+    const [selectedRecordId, setSelectedRecordId] = useState(null);
+    const [selectedRecordDetails, setSelectedRecordDetails] = useState([]);
+    const [selectedMainData, setSelectedMainData] = useState(null);
+
+    const { data: detailData, isLoading: isDetailLoading, refetch: refetchDetails } =
+        useGetSpeakerTrackerDetailByIdQuery(selectedRecordId, {
+            skip: !selectedRecordId
+        });
+
+
+    const handleShowPopup = async (row) => {
+        setSelectedRecordId(row.MinisterialSessionId);
+        setSelectedMainData(row);
+        setIsDetailViewOpen(true);
+    };
+
+
+    useEffect(() => {
+        if (detailData && selectedRecordId) {
+            setSelectedRecordDetails(detailData);
+        }
+    }, [detailData, selectedRecordId]);
+
     const trackOptions = [
-        { value: 'E', label: 'Ethanol' },
-        { value: 'B', label: 'Bioenergy' }
+        { value: 'S', label: 'Sugar' },
+        { value: 'E', label: 'Ethanol & Bioenergy' }
     ];
 
     const showNotification = (message, type = 'success') => {
@@ -92,12 +126,54 @@ function SpeakerTracker() {
         }
     }, [maxSpeakerTrackerId, isMaxIdLoading, editId, isModalOpen]);
 
+
+    useEffect(() => {
+        if (formData.Event_Code) {
+            const selectedEvent = events.find(event =>
+                event.EventMasterId === Number(formData.Event_Code)
+            );
+
+            if (selectedEvent) {
+                setSelectedEventDates({
+                    startDate: selectedEvent.Start_Date,
+                    endDate: selectedEvent.End_Date
+                });
+
+                if (formData.Speaking_Date) {
+                    const speakingDate = new Date(formData.Speaking_Date);
+                    const startDate = new Date(selectedEvent.Start_Date);
+                    const endDate = new Date(selectedEvent.End_Date);
+
+                    if (speakingDate < startDate || speakingDate > endDate) {
+                        setFormData(prev => ({
+                            ...prev,
+                            Speaking_Date: selectedEvent.Start_Date
+                        }));
+                    }
+                }
+            }
+        }
+    }, [formData.Event_Code, events, formData.Speaking_Date]);
+
+
+
+
     const handleAddNew = async () => {
         setEditId(null);
         resetForm();
         await refetchMaxId();
         setIsModalOpen(true);
     };
+
+
+    const processedTableData = tableData.map(item => ({
+        ...item,
+        Track_Display: item.Track === 'S' ? 'Sugar' :
+            item.Track === 'E' ? 'Ethanol & Bioenergy' :
+                item.Track || '-',
+        Speaking_Date_Display: item.Speaking_Date ?
+            new Date(item.Speaking_Date).toLocaleDateString() : '-'
+    }));
 
     const columns = [
         {
@@ -122,21 +198,21 @@ function SpeakerTracker() {
         },
         {
             header: 'Track',
-            accessor: 'Track',
-            cellRenderer: (row) => {
-                const trackLabel = trackOptions.find(option => option.value === row.Track)?.label;
-                return trackLabel || row.Track;
-            }
+            accessor: 'Track_Display',
         },
         {
-            header: 'Speaking Date',
-            accessor: 'Speaking_Date',
-            cellRenderer: (row) => {
-                if (!row.Speaking_Date) return '-';
-                const date = new Date(row.Speaking_Date);
-                return date.toLocaleDateString();
-            }
+            header: 'Pitch/Session Topic',
+            accessor: 'Pitch_session_Topic',
         },
+        // {
+        //     header: 'Speaking Date',
+        //     accessor: 'Speaking_Date',
+        //     cellRenderer: (row) => {
+        //         if (!row.Speaking_Date) return '-';
+        //         const date = new Date(row.Speaking_Date);
+        //         return date.toLocaleDateString();
+        //     }
+        // },
         {
             header: 'Action',
             accessor: 'action',
@@ -144,6 +220,13 @@ function SpeakerTracker() {
             className: 'text-center',
             actionRenderer: (row) => (
                 <div className="flex justify-center space-x-3">
+                    <button
+                        className="p-2 text-green-600 bg-green-50 rounded-md hover:bg-green-100 transition-colors duration-200"
+                        onClick={() => handleShowPopup(row)}
+                        title="View Details"
+                    >
+                        <EyeIcon className="h-5 w-5" />
+                    </button>
                     <button
                         className="p-2 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors duration-200"
                         onClick={() => handleEdit(row)}
@@ -204,7 +287,8 @@ function SpeakerTracker() {
                 Email_Address: formData.Email_Address,
                 Speaker_Bio: formData.Speaker_Bio,
                 Speaking_Date: formData.Speaking_Date,
-                Track: formData.Track
+                Track: formData.Track,
+                Pitch_session_Topic: formData.Pitch_session_Topic
             };
 
             if (editId) {
@@ -241,7 +325,8 @@ function SpeakerTracker() {
             Email_Address: row.Email_Address || '',
             Speaker_Bio: row.Speaker_Bio || '',
             Speaking_Date: row.Speaking_Date ? new Date(row.Speaking_Date).toISOString().split('T')[0] : getCurrentDate(),
-            Track: row.Track || ''
+            Track: row.Track || '',
+            Pitch_session_Topic: row.Pitch_session_Topic || ''
         });
         setEditId(row.SpeakerTrackerId);
         setIsModalOpen(true);
@@ -279,8 +364,14 @@ function SpeakerTracker() {
             Email_Address: '',
             Speaker_Bio: '',
             Speaking_Date: getCurrentDate(),
-            Track: ''
+            Track: '',
+            Pitch_session_Topic: ''
         });
+        setSelectedEventDates({
+            startDate: '',
+            endDate: ''
+        });
+
         setEditId(null);
     };
 
@@ -307,15 +398,15 @@ function SpeakerTracker() {
     );
 
     if (isTableLoading || isEventsLoading || isSponsorsLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-            <div className="text-center space-y-4">
-                <div className="w-12 h-12 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin mx-auto" />
+        <div className="text-center space-y-4">
+            <div className="w-12 h-12 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin mx-auto" />
 
-                <p className="text-gray-700 text-lg font-medium">
-                    Loading
-                    <span className="inline-block animate-pulse ml-1 text-blue-600">...</span>
-                </p>
-            </div>
-        </div>;
+            <p className="text-gray-700 text-lg font-medium">
+                Loading
+                <span className="inline-block animate-pulse ml-1 text-blue-600">...</span>
+            </p>
+        </div>
+    </div>;
     if (isError) return <div>Error loading speaker trackers</div>;
 
     return (
@@ -338,7 +429,7 @@ function SpeakerTracker() {
                 // headerContent={<CreateNewButton onClick={handleAddNew} />}
                 title="Speaker - Sponsor"
                 columns={columns}
-                data={tableData}
+                data={processedTableData}
                 pageSize={10}
             />
 
@@ -349,10 +440,10 @@ function SpeakerTracker() {
                     resetForm();
                 }}
                 title={editId ? 'Edit Speaker Tracker' : 'Add New Speaker Tracker'}
-                size="lg"
+                width="800px"
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Speaker Tracker ID
@@ -377,6 +468,7 @@ function SpeakerTracker() {
                                 required
                                 className="basic-single"
                                 classNamePrefix="select"
+                                isDisabled
                                 styles={{
                                     control: (provided) => ({
                                         ...provided,
@@ -411,6 +503,7 @@ function SpeakerTracker() {
                             required
                             className="basic-single"
                             classNamePrefix="select"
+                            isDisabled
                             styles={{
                                 control: (provided) => ({
                                     ...provided,
@@ -433,7 +526,7 @@ function SpeakerTracker() {
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Speaker Name</label>
                             <input
@@ -488,6 +581,19 @@ function SpeakerTracker() {
                     </div>
 
                     <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Pitch Session Topic</label>
+                        <input
+                            type="text"
+                            name="Pitch_session_Topic"
+                            value={formData.Pitch_session_Topic}
+                            onChange={handleInputChange}
+                            autoComplete='off'
+                            className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                            required
+                        />
+                    </div>
+
+                    <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
                         <textarea
                             name="Speaker_Bio"
@@ -495,13 +601,35 @@ function SpeakerTracker() {
                             onChange={handleInputChange}
                             rows={3}
                             autoComplete='off'
-                             data-gramm="false" 
+                            data-gramm="false"
                             className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
                         />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                         <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Speaking Date</label>
+                            <input
+                                type="date"
+                                name="Speaking_Date"
+                                value={formData.Speaking_Date}
+                                onChange={handleInputChange}
+                                min={selectedEventDates.startDate}
+                                max={selectedEventDates.endDate}
+                                className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                                required
+                            />
+                            {selectedEventDates.startDate && selectedEventDates.endDate && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Must be between {new Date(selectedEventDates.startDate).toLocaleDateString()}
+                                    and {new Date(selectedEventDates.endDate).toLocaleDateString()}
+                                </p>
+                            )}
+                        </div>
+
+
+                        {/* <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Speaking Date</label>
                             <input
                                 type="date"
@@ -510,7 +638,7 @@ function SpeakerTracker() {
                                 onChange={handleInputChange}
                                 className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
                             />
-                        </div>
+                        </div> */}
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Track</label>
@@ -594,6 +722,18 @@ function SpeakerTracker() {
                     </div>
                 </div>
             </Modal>
+
+            <SpeakerTrackerDetailView
+                isOpen={isDetailViewOpen}
+                onClose={() => {
+                    setIsDetailViewOpen(false);
+                    setSelectedRecordId(null);
+                    setSelectedRecordDetails([]);
+                    setSelectedMainData(null);
+                }}
+                details={selectedRecordDetails}
+                mainData={selectedMainData}
+            />
         </>
     );
 }

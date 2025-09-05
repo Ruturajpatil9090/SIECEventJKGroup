@@ -15,7 +15,8 @@ from ..services.ministerial_session_service import (
     get_max_ministerial_session_id,
     get_ministerial_sessions_by_event_code,
     get_ministerial_sessions_by_sponsor,
-    get_ministerial_sessions_by_track
+    get_ministerial_sessions_by_track,
+    get_ministrial_details
 )
 from ..models.database import get_db
 from app.websockets.connection_manager import manager
@@ -59,6 +60,29 @@ async def get_all_ministerial_sessions(
         results = await get_ministerial_sessions(db, None)  
     
     return results
+
+
+@router.get("/details/{MinisterialSessionId}")
+async def read_MinisterialSessionId_details(
+    MinisterialSessionId: int,
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        registry_details = await get_ministrial_details(db, MinisterialSessionId=MinisterialSessionId)
+        
+        if not registry_details:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Ministerial registry details not found for ID: {MinisterialSessionId}"
+            )
+            
+        return registry_details
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error retrieving Ministerial registry details: {str(e)}"
+        )
 
 
 @router.get("/getlastMinisterialSessionId", response_model=int)

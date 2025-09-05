@@ -5,6 +5,7 @@ import { Trash2 } from 'lucide-react';
 import Select from 'react-select';
 import Modal from '../../common/Modal/Modal';
 import { getCurrentDate } from '../../common/Functions/GetCurrentdate';
+import { EyeIcon } from '@heroicons/react/24/outline';
 import {
     useGetMinisterialSessionsQuery,
     useGetMinisterialSessionByIdQuery,
@@ -14,7 +15,8 @@ import {
     useGetMinisterialSessionsByTrackQuery,
     useAddMinisterialSessionMutation,
     useUpdateMinisterialSessionMutation,
-    useDeleteMinisterialSessionMutation
+    useDeleteMinisterialSessionMutation,
+    useGetMinisterialSessionDetailsByIdQuery
 } from '../../services/ministerialSessionApi';
 import {
     useGetEventMastersQuery,
@@ -22,6 +24,7 @@ import {
 import {
     useGetSponsorsQuery,
 } from '../../services/sponsorMasterApi';
+import MinisterialSessionDetailView from '../ViewDetails/MinisterialSessionDetailView';
 import CreateNewButton from "../../common/Buttons/AddButton";
 
 function MinisterialSessionTracker() {
@@ -38,13 +41,19 @@ function MinisterialSessionTracker() {
         Email_Address: '',
         MinisterialSession_Bio: '',
         Speaking_Date: getCurrentDate(),
-        Track: ''
+        Track: '',
+        Invitation_Sent: 'N'
     });
     const [editId, setEditId] = useState(null);
     const [notification, setNotification] = useState({
         show: false,
         message: '',
         type: 'success'
+    });
+
+    const [selectedEventDates, setSelectedEventDates] = useState({
+        startDate: '',
+        endDate: ''
     });
 
     const {
@@ -74,6 +83,34 @@ function MinisterialSessionTracker() {
     const [updateMinisterialSession] = useUpdateMinisterialSessionMutation();
     const [deleteMinisterialSession] = useDeleteMinisterialSessionMutation();
 
+
+    //Detail popup view open 
+    const [isDetailViewOpen, setIsDetailViewOpen] = useState(false);
+    const [selectedRecordId, setSelectedRecordId] = useState(null);
+    const [selectedRecordDetails, setSelectedRecordDetails] = useState([]);
+    const [selectedMainData, setSelectedMainData] = useState(null);
+
+    const { data: detailData, isLoading: isDetailLoading, refetch: refetchDetails } =
+        useGetMinisterialSessionDetailsByIdQuery(selectedRecordId, {
+            skip: !selectedRecordId
+        });
+
+
+    const handleShowPopup = async (row) => {
+        setSelectedRecordId(row.MinisterialSessionId);
+        setSelectedMainData(row);
+        setIsDetailViewOpen(true);
+    };
+
+
+    useEffect(() => {
+        if (detailData && selectedRecordId) {
+            setSelectedRecordDetails(detailData);
+        }
+    }, [detailData, selectedRecordId]);
+
+
+
     const showNotification = (message, type = 'success') => {
         setNotification({ show: true, message, type });
         setTimeout(() => {
@@ -91,12 +128,46 @@ function MinisterialSessionTracker() {
         }
     }, [maxMinisterialSessionId, isMaxIdLoading, editId, isModalOpen]);
 
+
+    useEffect(() => {
+        if (formData.Event_Code) {
+            const selectedEvent = events.find(event =>
+                event.EventMasterId === Number(formData.Event_Code)
+            );
+
+            if (selectedEvent) {
+                setSelectedEventDates({
+                    startDate: selectedEvent.Start_Date,
+                    endDate: selectedEvent.End_Date
+                });
+                if (formData.Speaking_Date) {
+                    const speakingDate = new Date(formData.Speaking_Date);
+                    const startDate = new Date(selectedEvent.Start_Date);
+                    const endDate = new Date(selectedEvent.End_Date);
+
+                    if (speakingDate < startDate || speakingDate > endDate) {
+                        setFormData(prev => ({
+                            ...prev,
+                            Speaking_Date: selectedEvent.Start_Date
+                        }));
+                    }
+                }
+            }
+        }
+    }, [formData.Event_Code, events, formData.Speaking_Date]);
+
     const handleAddNew = async () => {
         setEditId(null);
         resetForm();
         await refetchMaxId();
         setIsModalOpen(true);
     };
+
+
+    const invitationSentOption = [
+        { value: 'Y', label: 'Yes' },
+        { value: 'N', label: 'No' }
+    ];
 
     const columns = [
         {
@@ -119,19 +190,23 @@ function MinisterialSessionTracker() {
             header: 'Designation',
             accessor: 'designation',
         },
-        {
-            header: 'Ministry',
-            accessor: 'Track',
-        },
-        {
-            header: 'Speaking Date',
-            accessor: 'Speaking_Date',
-            cellRenderer: (row) => {
-                if (!row.Speaking_Date) return '-';
-                const date = new Date(row.Speaking_Date);
-                return date.toLocaleDateString();
-            }
-        },
+        // {
+        //     header: 'Ministry',
+        //     accessor: 'Track',
+        // },
+        // {
+        //     header: 'Invitation Sent',
+        //     accessor: 'Invitation_Sent',
+        // },
+        // {
+        //     header: 'Speaking Date',
+        //     accessor: 'Speaking_Date',
+        //     cellRenderer: (row) => {
+        //         if (!row.Speaking_Date) return '-';
+        //         const date = new Date(row.Speaking_Date);
+        //         return date.toLocaleDateString();
+        //     }
+        // },
         {
             header: 'Action',
             accessor: 'action',
@@ -139,6 +214,13 @@ function MinisterialSessionTracker() {
             className: 'text-center',
             actionRenderer: (row) => (
                 <div className="flex justify-center space-x-3">
+                    <button
+                        className="p-2 text-green-600 bg-green-50 rounded-md hover:bg-green-100 transition-colors duration-200"
+                        onClick={() => handleShowPopup(row)}
+                        title="View Details"
+                    >
+                        <EyeIcon className="h-5 w-5" />
+                    </button>
                     <button
                         className="p-2 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors duration-200"
                         onClick={() => handleEdit(row)}
@@ -180,6 +262,14 @@ function MinisterialSessionTracker() {
         }));
     };
 
+
+    const handleSelectInvitationChange = (selectInvitationsent) => {
+        setFormData(prev => ({
+            ...prev,
+            Invitation_Sent: selectInvitationsent ? selectInvitationsent.value : ''
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -192,7 +282,8 @@ function MinisterialSessionTracker() {
                 Email_Address: formData.Email_Address,
                 MinisterialSession_Bio: formData.MinisterialSession_Bio,
                 Speaking_Date: formData.Speaking_Date,
-                Track: formData.Track
+                Track: formData.Track,
+                Invitation_Sent: formData.Invitation_Sent
             };
 
             if (editId) {
@@ -229,7 +320,8 @@ function MinisterialSessionTracker() {
             Email_Address: row.Email_Address || '',
             MinisterialSession_Bio: row.MinisterialSession_Bio || '',
             Speaking_Date: row.Speaking_Date ? getCurrentDate() : getCurrentDate(),
-            Track: row.Track || ''
+            Track: row.Track || '',
+            Invitation_Sent: row.Invitation_Sent || ''
         });
         setEditId(row.MinisterialSessionId);
         setIsModalOpen(true);
@@ -267,7 +359,8 @@ function MinisterialSessionTracker() {
             Email_Address: '',
             MinisterialSession_Bio: '',
             Speaking_Date: getCurrentDate(),
-            Track: ''
+            Track: '',
+            Invitation_Sent: 'N'
         });
         setEditId(null);
     };
@@ -288,6 +381,10 @@ function MinisterialSessionTracker() {
 
     const selectedSponsor = sponsorOptions.find(option =>
         option.value === formData.SponsorMasterId?.toString()
+    );
+
+    const selectInvitationsent = invitationSentOption.find(option =>
+        option.value === formData.Invitation_Sent
     );
 
     if (isTableLoading || isEventsLoading || isSponsorsLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -333,7 +430,7 @@ function MinisterialSessionTracker() {
                     resetForm();
                 }}
                 title={editId ? 'Edit Ministerial Session' : 'Add New Ministerial Session'}
-                size="lg"
+                width="800px"
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -445,7 +542,43 @@ function MinisterialSessionTracker() {
                                 required
                             />
                         </div>
+
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Invitation Sent</label>
+                            <Select
+                                options={invitationSentOption}
+                                value={selectInvitationsent}
+                                onChange={handleSelectInvitationChange}
+                                placeholder="Select a Invitation..."
+                                isSearchable
+                                required
+                                className="basic-single"
+                                classNamePrefix="select"
+                                styles={{
+                                    control: (provided) => ({
+                                        ...provided,
+                                        minHeight: '42px',
+                                        borderColor: '#d1d5db',
+                                        '&:hover': {
+                                            borderColor: '#d1d5db'
+                                        }
+                                    }),
+                                    option: (provided, state) => ({
+                                        ...provided,
+                                        backgroundColor: state.isSelected ? '#2563eb' : 'white',
+                                        color: state.isSelected ? 'white' : 'black',
+                                        '&:hover': {
+                                            backgroundColor: '#2563eb',
+                                            color: 'white'
+                                        }
+                                    })
+                                }}
+                            />
+                        </div>
                     </div>
+
+
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -494,8 +627,17 @@ function MinisterialSessionTracker() {
                                 name="Speaking_Date"
                                 value={formData.Speaking_Date}
                                 onChange={handleInputChange}
+                                min={selectedEventDates.startDate}
+                                max={selectedEventDates.endDate}
                                 className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                                required
                             />
+                            {selectedEventDates.startDate && selectedEventDates.endDate && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Must be between {new Date(selectedEventDates.startDate).toLocaleDateString()}
+                                    and {new Date(selectedEventDates.endDate).toLocaleDateString()}
+                                </p>
+                            )}
                         </div>
 
                         <div>
@@ -560,6 +702,18 @@ function MinisterialSessionTracker() {
                     </div>
                 </div>
             </Modal>
+
+            <MinisterialSessionDetailView
+                isOpen={isDetailViewOpen}
+                onClose={() => {
+                    setIsDetailViewOpen(false);
+                    setSelectedRecordId(null);
+                    setSelectedRecordDetails([]);
+                    setSelectedMainData(null);
+                }}
+                details={selectedRecordDetails}
+                mainData={selectedMainData}
+            />
         </>
     );
 }

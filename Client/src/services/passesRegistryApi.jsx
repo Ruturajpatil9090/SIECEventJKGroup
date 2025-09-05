@@ -1,4 +1,3 @@
-// passesRegistryApi.js
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL;
 
@@ -18,6 +17,11 @@ export const passesRegistryApi = createApi({
 
         getPassesRegistryById: builder.query({
             query: (id) => `/passes-registry/${id}`,
+            providesTags: ['PassesRegistry']
+        }),
+
+        getPassesRegistryDetailsById: builder.query({
+            query: (id) => `/passes-registry/details/${id}`,
             providesTags: ['PassesRegistry']
         }),
 
@@ -69,6 +73,7 @@ export const passesRegistryApi = createApi({
 export const {
     useGetPassesRegistriesQuery,
     useGetPassesRegistryByIdQuery,
+    useGetPassesRegistryDetailsByIdQuery,
     useGetMaxPassesRegistryIdQuery,
     useAddPassesRegistryMutation,
     useUpdatePassesRegistryMutation,

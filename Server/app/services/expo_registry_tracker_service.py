@@ -159,6 +159,20 @@ ORDER BY dbo.Eve_ExpoRegistryTracker.ExpoRegistryTrackerId DESC
     return [dict(zip(columns, row)) for row in rows]
 
 
+async def get_exporegistry_details(db: AsyncSession, ExpoRegistryTrackerId: Optional[int] = None):
+    query = text("""
+SELECT        dbo.Eve_EventMaster.EventMaster_Name, dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_ExpoRegistryTracker.Booth_to_be_provided, dbo.Eve_ExpoRegistryTracker.Booth_Assigned, 
+                         dbo.Eve_ExpoRegistryTracker.Booth_Number_Assigned, dbo.Eve_ExpoRegistryTracker.Logo_Details_Received, dbo.Eve_ExpoRegistryTracker.Notes_Comments, dbo.Eve_ExpoRegistryTracker.ExpoRegistryTrackerId
+FROM            dbo.Eve_ExpoRegistryTracker INNER JOIN
+                         dbo.Eve_SponsorMaster ON dbo.Eve_ExpoRegistryTracker.SponsorMasterId = dbo.Eve_SponsorMaster.SponsorMasterId INNER JOIN
+                         dbo.Eve_EventMaster ON dbo.Eve_ExpoRegistryTracker.Event_Code = dbo.Eve_EventMaster.EventMasterId
+WHERE      dbo.Eve_ExpoRegistryTracker.ExpoRegistryTrackerId = :ExpoRegistryTrackerId
+    """)
+    
+    result = await db.execute(query, {'ExpoRegistryTrackerId': ExpoRegistryTrackerId})
+    return result.mappings().all()
+
+
 async def create_expo_registry_tracker(db: AsyncSession, tracker: ExpoRegistryTrackerCreate, ws_manager: Optional[ConnectionManager] = None):
     tracker_data = tracker.model_dump()
     

@@ -17,6 +17,7 @@ class EveSpeakerTracker(Base):
     Track = Column(String(2), nullable=True)
     Deliverabled_Code = Column(Integer, nullable=True)
     Deliverable_No = Column(Integer, nullable=True)
+    Pitch_session_Topic = Column(String(255), nullable=True)
 
     def __repr__(self):
         return f"<EveSpeakerTracker {self.SpeakerTrackerId}>"

@@ -15,7 +15,8 @@ from ..services.speaker_tracker_service import (
     get_max_speaker_tracker_id,
     get_speaker_trackers_by_event_code,
     get_speaker_trackers_by_sponsor,
-    get_speaker_trackers_by_track
+    get_speaker_trackers_by_track,
+    get_speakertrackers_details
 )
 from ..models.database import get_db
 from app.websockets.connection_manager import manager
@@ -60,6 +61,29 @@ async def get_all_speaker_trackers(
         results = await get_speaker_trackers(db, None)
     
     return results
+
+
+@router.get("/details/{SpeakerTrackerId}")
+async def read_speakertracker_details(
+    SpeakerTrackerId: int,
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        registry_details = await get_speakertrackers_details(db, SpeakerTrackerId=SpeakerTrackerId)
+        
+        if not registry_details:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"CuratedSession Speaker Tracker details not found for ID: {SpeakerTrackerId}"
+            )
+            
+        return registry_details
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error retrieving Speaker Tracker registry details: {str(e)}"
+        )
 
 @router.get("/getlastSpeakerTrackerId", response_model=int)
 async def get_max_speaker_tracker_id_endpoint(

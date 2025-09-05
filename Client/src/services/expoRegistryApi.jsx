@@ -17,6 +17,10 @@ export const expoRegistryApi = createApi({
             query: (id) => `/expo-registry/${id}`,
             providesTags: ['ExpoRegistry']
         }),
+        getExpoRegistryDetailById: builder.query({
+            query: (id) => `/expo-registry/details/${id}`,
+            providesTags: ['ExpoRegistry']
+        }),
         getMaxExpoRegistryId: builder.query({
             query: () => '/expo-registry/getlastExpoRegistryId',
             providesTags: ['ExpoRegistry']
@@ -58,6 +62,7 @@ export const expoRegistryApi = createApi({
 export const {
     useGetExpoRegistryQuery,
     useGetExpoRegistryByIdQuery,
+    useGetExpoRegistryDetailByIdQuery,
     useGetMaxExpoRegistryIdQuery,
     useGetExpoRegistryByEventCodeQuery,
     useGetExpoRegistryBySponsorQuery,

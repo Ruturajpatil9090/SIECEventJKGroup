@@ -200,7 +200,8 @@ function SponsorMaster() {
                 Address: option.rawData.Address_E || '',
                 Contact_Phone: option.rawData.whatsup_no || option.rawData.Mobile_No || '',
                 Contact_Person: option.rawData.Ac_Name_E || '',
-                Contact_Email: option.rawData.Email_Id || ''
+                Contact_Email: option.rawData.Email_Id || '',
+                GST_Details_Received: option.rawData.Gst_No ? 'Y' : 'N'
             }));
         }
     }, []);
@@ -980,7 +981,15 @@ function SponsorMaster() {
                                 id="GST_Details_Received"
                                 options={yesNoOptions}
                                 value={yesNoOptions.find(option => option.value === formData.GST_Details_Received)}
-                                onChange={(option) => setFormData(prev => ({ ...prev, GST_Details_Received: option ? option.value : '' }))}
+                                // onChange={(option) => setFormData(prev => ({ ...prev, GST_Details_Received: option ? option.value : '' }))}
+                                onChange={(option) => {
+                                    const gstReceived = option ? option.value : '';
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        GST_Details_Received: gstReceived,
+                                        GST: gstReceived === 'N' ? '' : prev.GST
+                                    }));
+                                }}
                                 placeholder="Select..."
                                 isSearchable
                                 isDisabled={formData.Approval_Received === 'N'}
@@ -995,8 +1004,11 @@ function SponsorMaster() {
                                 name="GST"
                                 value={formData.GST}
                                 onChange={(e) => setFormData(prev => ({ ...prev, GST: e.target.value }))}
-                                className={`w-full px-3 py-2 border border-gray-300 rounded-md ${formData.Approval_Received === 'N' ? 'cursor-not-allowed opacity-50' : ''}`}
-                                disabled={formData.Approval_Received === 'N'}
+                                className={`w-full px-3 py-2 border border-gray-300 rounded-md ${formData.Approval_Received === 'N' || formData.GST_Details_Received === 'N'
+                                    ? 'cursor-not-allowed opacity-50'
+                                    : ''
+                                    }`}
+                                disabled={formData.Approval_Received === 'N' || formData.GST_Details_Received === 'N'}
                             />
                         </div>
 
@@ -1020,7 +1032,15 @@ function SponsorMaster() {
                                 id="Proforma_Invoice_Sent"
                                 options={yesNoOptions}
                                 value={yesNoOptions.find(option => option.value === formData.Proforma_Invoice_Sent)}
-                                onChange={(option) => setFormData(prev => ({ ...prev, Proforma_Invoice_Sent: option ? option.value : '' }))}
+                                // onChange={(option) => setFormData(prev => ({ ...prev, Proforma_Invoice_Sent: option ? option.value : '' }))}
+                                onChange={(option) => {
+                                    const proformaSent = option ? option.value : '';
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        Proforma_Invoice_Sent: proformaSent,
+                                        Final_Invoice_Sent: proformaSent === 'N' ? '' : prev.Final_Invoice_Sent
+                                    }));
+                                }}
                                 placeholder="Select..."
                                 isSearchable
                                 isDisabled={formData.Approval_Received === 'N'}
@@ -1036,7 +1056,7 @@ function SponsorMaster() {
                                 onChange={(option) => setFormData(prev => ({ ...prev, Final_Invoice_Sent: option ? option.value : '' }))}
                                 placeholder="Select..."
                                 isSearchable
-                                isDisabled={formData.Approval_Received === 'N'}
+                                isDisabled={formData.Approval_Received === 'N' || formData.Proforma_Invoice_Sent === 'N'}
                             />
                         </div>
 

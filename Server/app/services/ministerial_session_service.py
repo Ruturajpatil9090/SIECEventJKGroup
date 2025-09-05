@@ -31,7 +31,8 @@ async def get_ministerial_sessions(db: AsyncSession,event_code: Optional[int] = 
             ms.Speaking_Date, 
             ms.Track,
             em.EventMaster_Name,
-            sm.Sponsor_Name
+            sm.Sponsor_Name,
+            ms.Invitation_Sent
         FROM Eve_MinisterialSessions ms
         LEFT JOIN Eve_EventMaster em ON ms.Event_Code = em.EventMasterId
         LEFT JOIN Eve_SponsorMaster sm ON ms.SponsorMasterId = sm.SponsorMasterId
@@ -41,6 +42,23 @@ async def get_ministerial_sessions(db: AsyncSession,event_code: Optional[int] = 
     
     result = await db.execute(query, {'event_code': event_code})
     return result.mappings().all()
+
+
+#GET All Ministrial Details with MinisterialSessionId
+async def get_ministrial_details(db: AsyncSession, MinisterialSessionId: Optional[int] = None):
+    query = text("""
+SELECT        dbo.Eve_EventMaster.EventMaster_Name, dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_MinisterialSessions.Speaker_Name, dbo.Eve_MinisterialSessions.Mobile_No, dbo.Eve_MinisterialSessions.Email_Address, 
+                         dbo.Eve_MinisterialSessions.MinisterialSession_Bio, dbo.Eve_MinisterialSessions.Speaking_Date, dbo.Eve_MinisterialSessions.Track, dbo.Eve_MinisterialSessions.Invitation_Sent, 
+                         dbo.Eve_MinisterialSessions.MinisterialSessionId
+FROM            dbo.Eve_MinisterialSessions INNER JOIN
+                         dbo.Eve_SponsorMaster ON dbo.Eve_MinisterialSessions.SponsorMasterId = dbo.Eve_SponsorMaster.SponsorMasterId INNER JOIN
+                         dbo.Eve_EventMaster ON dbo.Eve_MinisterialSessions.Event_Code = dbo.Eve_EventMaster.EventMasterId
+WHERE    dbo.Eve_MinisterialSessions.MinisterialSessionId = :MinisterialSessionId
+    """)
+    
+    result = await db.execute(query, {'MinisterialSessionId': MinisterialSessionId})
+    return result.mappings().all()
+
 
 async def create_ministerial_session(db: AsyncSession, session: MinisterialSessionCreate, ws_manager: Optional[ConnectionManager] = None):
     db_session = EveMinisterialSession(**session.model_dump())

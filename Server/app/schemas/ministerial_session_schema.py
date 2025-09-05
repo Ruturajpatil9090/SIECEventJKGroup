@@ -14,6 +14,7 @@ class MinisterialSessionBase(BaseModel):
     MinisterialSession_Bio: Optional[str] = None
     Speaking_Date: Optional[datetime] = None
     Track: Optional[str] = None
+    Invitation_Sent: Optional[str] = None
 
 class MinisterialSessionCreate(MinisterialSessionBase):
     pass

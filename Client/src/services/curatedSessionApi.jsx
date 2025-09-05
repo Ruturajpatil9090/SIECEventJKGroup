@@ -17,6 +17,11 @@ export const curatedSessionApi = createApi({
             query: (id) => `/curated-sessions/${id}`,
             providesTags: ['CuratedSession']
         }),
+
+        getCuratedSessionDetailById: builder.query({
+            query: (id) => `/curated-sessions/details/${id}`,
+            providesTags: ['CuratedSession']
+        }),
         getMaxCuratedSessionId: builder.query({
             query: () => '/curated-sessions/getlastCuratedSessionId',
             providesTags: ['CuratedSession']
@@ -62,6 +67,7 @@ export const curatedSessionApi = createApi({
 export const {
     useGetCuratedSessionsQuery,
     useGetCuratedSessionByIdQuery,
+    useGetCuratedSessionDetailByIdQuery,
     useGetMaxCuratedSessionIdQuery,
     useGetCuratedSessionsByEventCodeQuery,
     useGetCuratedSessionsBySponsorQuery,

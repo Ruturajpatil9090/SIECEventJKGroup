@@ -10,6 +10,7 @@ import {
   useUpdatePassesRegistryMutation,
   useDeletePassesRegistryMutation,
   useGetMaxPassesRegistryIdQuery,
+  useGetPassesRegistryDetailsByIdQuery
 } from '../../services/passesRegistryApi';
 import {
   useGetEventMastersQuery,
@@ -17,6 +18,8 @@ import {
 import {
   useGetDeliverablesQuery,
 } from '../../services/deliverablesApi';
+import { EyeIcon } from '@heroicons/react/24/outline';
+import PassesRegistryDetailView from '../../components/ViewDetails/PassessRegistryDetails';
 import CreateNewButton from "../../common/Buttons/AddButton";
 
 function PassesRegistry() {
@@ -30,6 +33,7 @@ function PassesRegistry() {
     Carporate_Passess: 0,
     Visitor_Passess: 0,
     Deligate_Name_Recieverd: 'N',
+    Registration_Form_Sent: 'N',
     details: []
   });
   const [editId, setEditId] = useState(null);
@@ -46,6 +50,32 @@ function PassesRegistry() {
     Remark: '',
   });
   const [detailEditIndex, setDetailEditIndex] = useState(null);
+
+//Detail popup view open 
+  const [isDetailViewOpen, setIsDetailViewOpen] = useState(false);
+  const [selectedRecordId, setSelectedRecordId] = useState(null);
+  const [selectedRecordDetails, setSelectedRecordDetails] = useState([]);
+  const [selectedMainData, setSelectedMainData] = useState(null);
+
+
+  const { data: detailData, isLoading: isDetailLoading, refetch: refetchDetails } = 
+    useGetPassesRegistryDetailsByIdQuery(selectedRecordId, {
+      skip: !selectedRecordId 
+    });
+
+
+  const handleShowPopup = async (row) => {
+    setSelectedRecordId(row.PassessRegistryId);
+    setSelectedMainData(row);
+    setIsDetailViewOpen(true);
+  };
+
+
+   useEffect(() => {
+    if (detailData && selectedRecordId) {
+      setSelectedRecordDetails(detailData);
+    }
+  }, [detailData, selectedRecordId]);
 
 
   const { data: tableData = [], isLoading: isTableLoading, isError, refetch } = useGetPassesRegistriesQuery({ event_code: sessionStorage.getItem("Event_Code") });
@@ -102,6 +132,7 @@ function PassesRegistry() {
     { header: 'Corporate Passes', accessor: 'Carporate_Passess' },
     { header: 'Visitor Passes', accessor: 'Visitor_Passess' },
     { header: 'Delegate Name Received', accessor: 'Deligate_Name_Recieverd' },
+    { header: 'Regi. Form Sent', accessor: 'Registration_Form_Sent' },
     {
       header: 'Action',
       accessor: 'action',
@@ -109,6 +140,13 @@ function PassesRegistry() {
       className: 'text-center',
       actionRenderer: (row) => (
         <div className="flex justify-center space-x-3">
+          <button
+            className="p-2 text-green-600 bg-green-50 rounded-md hover:bg-green-100 transition-colors duration-200"
+            onClick={() => handleShowPopup(row)}
+            title="View Details"
+          >
+            <EyeIcon className="h-5 w-5" />
+          </button>
           <button
             className="p-2 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors duration-200"
             onClick={() => handleEdit(row)}
@@ -216,6 +254,7 @@ function PassesRegistry() {
       Carporate_Passess: row.Carporate_Passess || 0,
       Visitor_Passess: row.Visitor_Passess || 0,
       Deligate_Name_Recieverd: row.Deligate_Name_Recieverd || 'N',
+      Registration_Form_Sent: row.Registration_Form_Sent || 'N',
       details: Array.isArray(row.details) ? [...row.details] : []
     });
     setEditId(row.PassessRegistryId);
@@ -392,15 +431,15 @@ function PassesRegistry() {
 
   if (isLoading) {
     return <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-            <div className="text-center space-y-4">
-                <div className="w-12 h-12 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin mx-auto" />
+      <div className="text-center space-y-4">
+        <div className="w-12 h-12 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin mx-auto" />
 
-                <p className="text-gray-700 text-lg font-medium">
-                    Loading
-                    <span className="inline-block animate-pulse ml-1 text-blue-600">...</span>
-                </p>
-            </div>
-        </div>;
+        <p className="text-gray-700 text-lg font-medium">
+          Loading
+          <span className="inline-block animate-pulse ml-1 text-blue-600">...</span>
+        </p>
+      </div>
+    </div>;
   }
 
   if (isErrorOccurred) {
@@ -517,11 +556,25 @@ function PassesRegistry() {
             </div>
 
             <div>
-              <label htmlFor="delegate_received" className="block text-sm font-medium text-gray-700 mb-1">Delegate Name Received</label>
+              <label htmlFor="delegate_received" className="block text-sm font-medium text-gray-700 mb-1">Details Recieved</label>
               <select
                 id="delegate_received"
                 value={formData.Deligate_Name_Recieverd}
                 onChange={(e) => setFormData(prev => ({ ...prev, Deligate_Name_Recieverd: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              >
+                <option value="C">Complete</option>
+                <option value="P">Partial</option>
+                <option value="N">No</option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="Registration_Form_Sent" className="block text-sm font-medium text-gray-700 mb-1">Registration Form Sent</label>
+              <select
+                id="Registration_Form_Sent"
+                value={formData.Registration_Form_Sent}
+                onChange={(e) => setFormData(prev => ({ ...prev, Registration_Form_Sent: e.target.value }))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
                 <option value="Y">Yes</option>
@@ -594,7 +647,7 @@ function PassesRegistry() {
               // onChange={(option) => setDetailFormData(prev => ({ ...prev, Pass_type: option ? option.value : '' }))}
               onChange={(option) => {
                 setDetailFormData(prev => ({ ...prev, Pass_type: option ? option.value : '' }));
-                setValidationErrors({}); 
+                setValidationErrors({});
               }}
               placeholder="Select pass type..."
               isSearchable
@@ -654,7 +707,7 @@ function PassesRegistry() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               rows={2}
               autoComplete='off'
-              data-gramm="false" 
+              data-gramm="false"
             />
           </div>
           <div className="flex justify-end space-x-3 pt-4">
@@ -688,7 +741,7 @@ function PassesRegistry() {
               onClick={() => {
                 setIsDetailModalOpen(false);
                 resetDetailForm();
-                setValidationErrors({}); 
+                setValidationErrors({});
               }}
               className="px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
             >
@@ -704,6 +757,20 @@ function PassesRegistry() {
           </div>
         </div>
       </Modal>
+
+ <PassesRegistryDetailView
+        isOpen={isDetailViewOpen}
+        onClose={() => {
+          setIsDetailViewOpen(false);
+          setSelectedRecordId(null);
+          setSelectedRecordDetails([]);
+          setSelectedMainData(null);
+        }}
+        details={selectedRecordDetails}
+        mainData={selectedMainData}
+      />
+
+
     </>
   );
 }

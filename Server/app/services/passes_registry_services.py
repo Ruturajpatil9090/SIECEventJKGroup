@@ -12,13 +12,13 @@ async def get_passes_registries(db: AsyncSession, event_code: int, skip: int = 0
     query = text("""
    SELECT        TOP (100) PERCENT dm.Deliverables, em.EventMaster_Name, pr.PassessRegistryId, pr.Deliverabled_Code, pr.Event_Code, pr.Elite_Passess, pr.Carporate_Passess, pr.Visitor_Passess, pr.Deligate_Name_Recieverd, 
                          pr.SponsorMasterId, pr.Deliverable_No, prd.PassessRegistryDetailId, prd.Pass_type, prd.Assigen_Name, prd.Mobile_No, prd.Email_Address, prd.Designation, prd.Remark, prd.PassessRegistryId AS detail_RegistryId, 
-                         dbo.Eve_SponsorMaster.Sponsor_Name
+                         dbo.Eve_SponsorMaster.Sponsor_Name,pr.Registration_Form_Sent
 FROM            dbo.Eve_PassesRegistry AS pr INNER JOIN
                          dbo.Eve_DeliverablesMaster AS dm ON pr.Deliverabled_Code = dm.id INNER JOIN
                          dbo.Eve_EventMaster AS em ON pr.Event_Code = em.EventMasterId INNER JOIN
                          dbo.Eve_SponsorMaster ON pr.SponsorMasterId = dbo.Eve_SponsorMaster.SponsorMasterId LEFT OUTER JOIN
                          dbo.Eve_PassessRegistryDetail AS prd ON pr.PassessRegistryId = prd.PassessRegistryId
-WHERE        (pr.Event_Code = 1)
+WHERE    pr.Event_Code = :event_code
 ORDER BY pr.PassessRegistryId DESC, prd.PassessRegistryDetailId
     """)
     
@@ -50,6 +50,7 @@ ORDER BY pr.PassessRegistryId DESC, prd.PassessRegistryDetailId
                     "EventMaster_Name": row_dict.get('EventMaster_Name'),
                     "Deliverables": row_dict.get('Deliverables'),
                     "Sponsor_Name": row_dict.get('Sponsor_Name'),
+                    "Registration_Form_Sent": row_dict.get('Registration_Form_Sent'),
                     "details": []
                 }
             
@@ -71,6 +72,24 @@ ORDER BY pr.PassessRegistryId DESC, prd.PassessRegistryDetailId
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching passes registries: {str(e)}")
+    
+
+async def get_passessRegistry_details(db: AsyncSession, PassessRegistryId: Optional[int] = None):
+    query = text("""
+SELECT        dbo.Eve_PassessRegistryDetail.Pass_type, dbo.Eve_PassessRegistryDetail.Assigen_Name, dbo.Eve_PassessRegistryDetail.Mobile_No, dbo.Eve_PassessRegistryDetail.Email_Address, 
+                         dbo.Eve_PassessRegistryDetail.Designation, dbo.Eve_PassessRegistryDetail.Remark, dbo.Eve_PassesRegistry.Carporate_Passess, dbo.Eve_PassesRegistry.Visitor_Passess, dbo.Eve_PassesRegistry.Elite_Passess, 
+                         dbo.Eve_PassesRegistry.PassessRegistryId, dbo.Eve_PassesRegistry.Deligate_Name_Recieverd, dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_EventMaster.EventMaster_Name, 
+                         dbo.Eve_PassesRegistry.Registration_Form_Sent
+FROM            dbo.Eve_PassesRegistry INNER JOIN
+                         dbo.Eve_SponsorMaster ON dbo.Eve_PassesRegistry.SponsorMasterId = dbo.Eve_SponsorMaster.SponsorMasterId INNER JOIN
+                         dbo.Eve_EventMaster ON dbo.Eve_PassesRegistry.Event_Code = dbo.Eve_EventMaster.EventMasterId LEFT OUTER JOIN
+                         dbo.Eve_PassessRegistryDetail ON dbo.Eve_PassesRegistry.PassessRegistryId = dbo.Eve_PassessRegistryDetail.PassessRegistryId
+WHERE    dbo.Eve_PassesRegistry.PassessRegistryId = :PassessRegistryId
+    """)
+    
+    result = await db.execute(query, {'PassessRegistryId': PassessRegistryId})
+    return result.mappings().all()
+
 
 async def get_passes_registry(db: AsyncSession, registry_id: int):
     result = await db.execute(

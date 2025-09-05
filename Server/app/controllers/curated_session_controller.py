@@ -15,7 +15,8 @@ from ..services.curated_session_service import (
     get_max_curated_session_id,
     get_curated_sessions_by_event_code,
     get_curated_sessions_by_sponsor,
-    get_curated_sessions_by_track
+    get_curated_sessions_by_track,
+    get_curatedsession_details
 )
 from ..models.database import get_db
 from app.websockets.connection_manager import manager
@@ -59,6 +60,29 @@ async def get_all_curated_sessions(
         results = await get_curated_sessions(db, None) 
     
     return results
+
+
+@router.get("/details/{CuratedSessionId}")
+async def read_CuratedSessionId_details(
+    CuratedSessionId: int,
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        registry_details = await get_curatedsession_details(db, CuratedSessionId=CuratedSessionId)
+        
+        if not registry_details:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"CuratedSession registry details not found for ID: {CuratedSessionId}"
+            )
+            
+        return registry_details
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error retrieving CuratedSession registry details: {str(e)}"
+        )
 
 @router.get("/getlastCuratedSessionId", response_model=int)
 async def get_max_curated_session_id_endpoint(

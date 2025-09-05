@@ -17,6 +17,8 @@ class EveMinisterialSession(Base):
     MinisterialSession_Bio = Column(String(255), nullable=True)
     Speaking_Date = Column(DateTime, nullable=True)
     Track = Column(String(255), nullable=True)
+    Invitation_Sent = Column(String(2), nullable=True)
+
 
     def __repr__(self):
         return f"<EveMinisterialSession {self.MinisterialSessionId}>"

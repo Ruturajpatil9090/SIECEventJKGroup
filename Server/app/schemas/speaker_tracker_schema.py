@@ -14,6 +14,7 @@ class SpeakerTrackerBase(BaseModel):
     Track: Optional[str] = None
     Deliverabled_Code: Optional[int] = None
     Deliverable_No: Optional[int] = None
+    Pitch_session_Topic: Optional[str] = None
 
 class SpeakerTrackerCreate(SpeakerTrackerBase):
     pass
@@ -25,6 +26,7 @@ class SpeakerTracker(SpeakerTrackerBase):
     SpeakerTrackerId: int
     EventMaster_Name: Optional[str] = None
     Sponsor_Name: Optional[str] = None
+    Pitch_session_Topic: Optional[str] = None
 
     class Config:
         from_attributes = True

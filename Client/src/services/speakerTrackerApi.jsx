@@ -17,6 +17,10 @@ export const speakerTrackerApi = createApi({
             query: (id) => `/speaker-trackers/${id}`,
             providesTags: ['SpeakerTracker']
         }),
+        getSpeakerTrackerDetailById: builder.query({
+            query: (id) => `/speaker-trackers/details/${id}`,
+            providesTags: ['SpeakerTracker']
+        }),
         getMaxSpeakerTrackerId: builder.query({
             query: () => '/speaker-trackers/getlastSpeakerTrackerId',
             providesTags: ['SpeakerTracker']
@@ -62,6 +66,7 @@ export const speakerTrackerApi = createApi({
 export const {
     useGetSpeakerTrackersQuery,
     useGetSpeakerTrackerByIdQuery,
+    useGetSpeakerTrackerDetailByIdQuery,
     useGetMaxSpeakerTrackerIdQuery,
     useGetSpeakerTrackersByEventCodeQuery,
     useGetSpeakerTrackersBySponsorQuery,

@@ -18,6 +18,10 @@ export const ministerialSessionApi = createApi({
             query: (id) => `/ministerial-sessions/${id}`,
             providesTags: ['MinisterialSession']
         }),
+        getMinisterialSessionDetailsById: builder.query({
+            query: (id) => `/ministerial-sessions/details/${id}`,
+            providesTags: ['MinisterialSession']
+        }),
         getMaxMinisterialSessionId: builder.query({
             query: () => '/ministerial-sessions/getlastMinisterialSessionId',
             providesTags: ['MinisterialSession']
@@ -63,6 +67,7 @@ export const ministerialSessionApi = createApi({
 export const {
     useGetMinisterialSessionsQuery,
     useGetMinisterialSessionByIdQuery,
+    useGetMinisterialSessionDetailsByIdQuery,
     useGetMaxMinisterialSessionIdQuery,
     useGetMinisterialSessionsByEventCodeQuery,
     useGetMinisterialSessionsBySponsorQuery,

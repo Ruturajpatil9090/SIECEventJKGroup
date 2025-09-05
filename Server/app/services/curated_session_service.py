@@ -42,6 +42,21 @@ async def get_curated_sessions(db: AsyncSession,event_code: Optional[int] = None
     result = await db.execute(query, {'event_code': event_code})
     return result.mappings().all()
 
+
+#GET All Ministrial Details with CuratedSessionId
+async def get_curatedsession_details(db: AsyncSession, CuratedSessionId: Optional[int] = None):
+    query = text("""
+SELECT        dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_EventMaster.EventMaster_Name, dbo.Eve_CuratedSession.CuratedSessionId, dbo.Eve_CuratedSession.Speaker_Name, dbo.Eve_CuratedSession.designation, 
+                         dbo.Eve_CuratedSession.Mobile_No, dbo.Eve_CuratedSession.Email_Address, dbo.Eve_CuratedSession.CuratedSession_Bio, dbo.Eve_CuratedSession.Speaking_Date, dbo.Eve_CuratedSession.Track
+FROM            dbo.Eve_CuratedSession INNER JOIN
+                         dbo.Eve_SponsorMaster ON dbo.Eve_CuratedSession.SponsorMasterId = dbo.Eve_SponsorMaster.SponsorMasterId INNER JOIN
+                         dbo.Eve_EventMaster ON dbo.Eve_CuratedSession.Event_Code = dbo.Eve_EventMaster.EventMasterId
+WHERE     dbo.Eve_CuratedSession.CuratedSessionId = :CuratedSessionId
+    """)
+    
+    result = await db.execute(query, {'CuratedSessionId': CuratedSessionId})
+    return result.mappings().all()
+
 async def create_curated_session(db: AsyncSession, session: CuratedSessionCreate,ws_manager: Optional[ConnectionManager] = None):
     db_session = EveCuratedSession(**session.model_dump())
     db.add(db_session)
