@@ -11,6 +11,7 @@ from ..models.ministerial_session_model import EveMinisterialSession
 from ..models.slot_master_model import SlotMaster
 from ..models.passes_registry_models import Eve_PassesRegistry
 from ..models.speaker_tracker_model import EveSpeakerTracker
+from ..models.secretarial_roundtable_model import EveSecretarialRoundTable
 from ..utils.file_upload import save_upload_file, delete_upload_file
 import os
 from ..websockets.connection_manager import ConnectionManager
@@ -90,7 +91,11 @@ SELECT        dbo.Eve_PassesRegistry.Elite_Passess, dbo.Eve_PassesRegistry.Visit
                          dbo.Eve_SpeakerTracker.Track AS SpeakerTrackerTrack, dbo.Eve_MinisterialSessions.designation AS MinistrialTrackerDesignation, dbo.Eve_MinisterialSessions.Mobile_No AS MinistrialMobileNo, 
                          dbo.Eve_MinisterialSessions.Email_Address AS MinistrialEmailId, dbo.Eve_MinisterialSessions.Track AS MinistrilaTrack, dbo.Eve_CuratedSession.designation AS CuratedDesignation, 
                          dbo.Eve_CuratedSession.Mobile_No AS CuratedMobileNo, dbo.Eve_CuratedSession.Email_Address AS CuratedEmailId, dbo.Eve_CuratedSession.Speaking_Date AS CuratedSpeakingdate, 
-                         dbo.Eve_CuratedSession.Track AS CuratedTrack
+                         dbo.Eve_CuratedSession.Track AS CuratedTrack, dbo.Eve_SecretarialRoundTable.Speaker_Name AS SecretarialRoundSpeakerName, dbo.Eve_SecretarialRoundTable.designation AS SecretarialRoundDesignation, 
+                         dbo.Eve_SecretarialRoundTable.Mobile_No AS SecretarialRoundMobileNo, dbo.Eve_SecretarialRoundTable.Email_Address AS SecretarialRoundEmailAddress, 
+                         dbo.Eve_SecretarialRoundTable.SecretarialRoundTable_Bio AS SecretarialRoundBio, dbo.Eve_SecretarialRoundTable.Speaking_Date AS SecretarialRoundSpeakingdate, 
+                         dbo.Eve_SecretarialRoundTable.Track AS SecretarialRoundTrack, dbo.Eve_SecretarialRoundTable.Invitation_Sent AS SecretarialRoundInvitationsent, 
+                         dbo.Eve_SecretarialRoundTable.Approval_Received AS SecretarialRoundApprovalReceived
 FROM            dbo.Eve_SponsorMaster INNER JOIN
                          dbo.Eve_PassesRegistry ON dbo.Eve_SponsorMaster.SponsorMasterId = dbo.Eve_PassesRegistry.SponsorMasterId INNER JOIN
                          dbo.Eve_MinisterialSessions ON dbo.Eve_SponsorMaster.SponsorMasterId = dbo.Eve_MinisterialSessions.SponsorMasterId INNER JOIN
@@ -99,6 +104,7 @@ FROM            dbo.Eve_SponsorMaster INNER JOIN
                          dbo.Eve_AwardRegistryTracker ON dbo.Eve_SponsorMaster.SponsorMasterId = dbo.Eve_AwardRegistryTracker.SponsorMasterId INNER JOIN
                          dbo.Eve_SpeakerTracker ON dbo.Eve_SponsorMaster.SponsorMasterId = dbo.Eve_SpeakerTracker.SponsorMasterId INNER JOIN
                          dbo.Eve_EventMaster ON dbo.Eve_SponsorMaster.Event_Code = dbo.Eve_EventMaster.EventMasterId LEFT OUTER JOIN
+                         dbo.Eve_SecretarialRoundTable ON dbo.Eve_SponsorMaster.SponsorMasterId = dbo.Eve_SecretarialRoundTable.SponsorMasterId LEFT OUTER JOIN
                          dbo.Eve_AwardMaster ON dbo.Eve_AwardRegistryTracker.Award_Code = dbo.Eve_AwardMaster.AwardId
 WHERE 
     dbo.Eve_SponsorMaster.Event_Code = :event_code 
@@ -384,15 +390,15 @@ async def create_sponsor(
 
         # Handle Deliverable_Code 22  (SpeakerTracker)
         elif detail_data.Deliverabled_Code == 22:
-            existing_speaker_tracker_stmt = select(EveSpeakerTracker).filter(
+            existing_secretarial_stmt = select(EveSpeakerTracker).filter(
                 EveSpeakerTracker.SponsorMasterId == db_sponsor.SponsorMasterId,
                 EveSpeakerTracker.Deliverabled_Code == 22
             )
-            existing_speaker_tracker_result = await db.execute(existing_speaker_tracker_stmt)
-            existing_speaker_tracker = existing_speaker_tracker_result.scalar_one_or_none()
+            existing_secretarial_result = await db.execute(existing_secretarial_stmt)
+            existing_secretarial_roundtable = existing_secretarial_result.scalar_one_or_none()
             
-            if not existing_speaker_tracker:
-                db_speaker_tracker = EveSpeakerTracker(
+            if not existing_secretarial_roundtable:
+                db_secretarial_tracker = EveSpeakerTracker(
                     Deliverabled_Code=detail_data.Deliverabled_Code,
                     Deliverable_No=detail_data.Deliverable_No,
                     SponsorMasterId=db_sponsor.SponsorMasterId,
@@ -405,7 +411,35 @@ async def create_sponsor(
                     Speaking_Date=None,
                     Track=""
                 )
-                db.add(db_speaker_tracker)
+                db.add(db_secretarial_tracker)
+                should_broadcast = True
+
+
+        elif detail_data.Deliverabled_Code == 41:
+            existing_secretarial_stmt = select(EveSecretarialRoundTable).filter(
+                EveSecretarialRoundTable.SponsorMasterId == db_sponsor.SponsorMasterId,
+                EveSecretarialRoundTable.Deliverabled_Code == 41
+            )
+            existing_secretarial_result = await db.execute(existing_secretarial_stmt)
+            existing_secretarial_roundtable = existing_secretarial_result.scalar_one_or_none()
+            
+            if not existing_secretarial_roundtable:
+                db_secretarial_tracker = EveSecretarialRoundTable(
+                    Deliverabled_Code=detail_data.Deliverabled_Code,
+                    Deliverable_No=detail_data.Deliverable_No,
+                    SponsorMasterId=db_sponsor.SponsorMasterId,
+                    Event_Code=sponsor_data.Event_Code,
+                    Speaker_Name="",
+                    designation="",
+                    Mobile_No="",
+                    Email_Address="",
+                    SecretarialRoundTable_Bio="",
+                    Speaking_Date=None,
+                    Track="",
+                    Invitation_Sent="",
+                    Approval_Received=""
+                )
+                db.add(db_secretarial_tracker)
                 should_broadcast = True
 
     
@@ -510,6 +544,14 @@ async def update_sponsor(
             )
         )
         speaker_tracker = speaker_tracker_result.scalar_one_or_none()
+
+        EveSecretarialRoundTable_result = await db.execute(
+            select(EveSecretarialRoundTable).filter(
+                EveSecretarialRoundTable.SponsorMasterId == sponsor_id,
+                EveSecretarialRoundTable.Deliverabled_Code == 41
+            )
+        )
+        Secretarial_RoundTable = EveSecretarialRoundTable_result.scalar_one_or_none()
         
 
         expo_booth_assigned = expo_tracker and expo_tracker.Booth_Number_Assigned is not None and expo_tracker.Booth_Number_Assigned != 0
@@ -526,6 +568,7 @@ async def update_sponsor(
             )
 
         speaker_assigned = speaker_tracker and speaker_tracker.Speaker_Name is not None and speaker_tracker.Speaker_Name != ""
+        secretarial_assigned = Secretarial_RoundTable and Secretarial_RoundTable.Speaker_Name is not None and speaker_tracker.Speaker_Name != ""
         
         
         details_to_delete = []
@@ -535,6 +578,7 @@ async def update_sponsor(
         ministerial_trackers_to_delete = []
         passes_registry_to_delete = []
         speaker_trackers_to_delete = []
+        secretarial_to_delete = []
 
 
         
@@ -582,6 +626,14 @@ async def update_sponsor(
                         should_broadcast = True
                     else:
                         continue
+
+                elif detail_code == 41 and Secretarial_RoundTable:
+                    if not secretarial_assigned:
+                        secretarial_to_delete.append(Secretarial_RoundTable)
+                        details_to_delete.append(detail)
+                        should_broadcast = True
+                    else:
+                        continue
                 else:
                     details_to_delete.append(detail)
 
@@ -602,6 +654,9 @@ async def update_sponsor(
 
         for speaker_tracker_to_delete in speaker_trackers_to_delete:
             await db.delete(speaker_tracker_to_delete)
+
+        for secretarial_to_delete in secretarial_to_delete:
+            await db.delete(secretarial_to_delete)
         
         for detail in details_to_delete:
             await db.delete(detail)
@@ -742,14 +797,14 @@ async def update_sponsor(
                         should_broadcast = True
 
                 elif detail_code == 22:
-                    existing_speaker_tracker_stmt = select(EveSpeakerTracker).filter(
+                    existing_secretarial_stmt = select(EveSpeakerTracker).filter(
                         EveSpeakerTracker.SponsorMasterId == sponsor_id,
                         EveSpeakerTracker.Deliverabled_Code == 22
                     )
-                    existing_speaker_tracker_result = await db.execute(existing_speaker_tracker_stmt)
-                    existing_speaker_tracker = existing_speaker_tracker_result.scalar_one_or_none()
+                    existing_secretarial_result = await db.execute(existing_secretarial_stmt)
+                    existing_secretarial_tracker = existing_secretarial_result.scalar_one_or_none()
                     
-                    if not existing_speaker_tracker:
+                    if not existing_secretarial_tracker:
                         db_speaker_tracker = EveSpeakerTracker(
                             Deliverabled_Code=22,
                             Deliverable_No=new_detail_data.Deliverable_No,
@@ -762,6 +817,33 @@ async def update_sponsor(
                             Speaker_Bio="",
                             Speaking_Date=None,
                             Track=""
+                        )
+                        db.add(db_speaker_tracker)
+                        should_broadcast = True
+
+                elif detail_code == 41:
+                    existing_secretarial_stmt = select(EveSecretarialRoundTable).filter(
+                        EveSecretarialRoundTable.SponsorMasterId == sponsor_id,
+                        EveSecretarialRoundTable.Deliverabled_Code == 41
+                    )
+                    existing_secretarial_result = await db.execute(existing_secretarial_stmt)
+                    existing_secretarial_tracker = existing_secretarial_result.scalar_one_or_none()
+                    
+                    if not existing_secretarial_tracker:
+                        db_speaker_tracker = EveSecretarialRoundTable(
+                            Deliverabled_Code=41,
+                            Deliverable_No=new_detail_data.Deliverable_No,
+                            SponsorMasterId=sponsor_id,
+                            Event_Code=db_sponsor.Event_Code,
+                            Speaker_Name="",
+                            designation="",
+                            Mobile_No="",
+                            Email_Address="",
+                            SecretarialRoundTable_Bio="",
+                            Speaking_Date=None,
+                            Track="",
+                            Invitation_Sent="",
+                            Approval_Received=""
                         )
                         db.add(db_speaker_tracker)
                         should_broadcast = True
@@ -871,6 +953,16 @@ async def delete_sponsor(
             )
             for speaker_tracker in speaker_trackers.scalars().all():
                 await db.delete(speaker_tracker)
+
+
+            # Delete from EveSecretarialRoundTable
+            EveSecretarial_RoundTable = await db.execute(
+                select(EveSecretarialRoundTable)
+                .where(EveSecretarialRoundTable.SponsorMasterId == sponsor_id)
+            )
+            for secretarial_tracker in EveSecretarial_RoundTable.scalars().all():
+                await db.delete(secretarial_tracker)
+
             
             # Now delete the sponsor itself
             if db_sponsor.Sponsor_logo:

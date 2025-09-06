@@ -18,6 +18,8 @@ import { slotMasterApi } from '../services/slotMasterApi';
 import { passesRegistryApi } from '../services/passesRegistryApi';
 import { speakerTrackerApi } from '../services/speakerTrackerApi';
 import { accountMasterApi } from '../services/accountMasterApi';
+import { secretarialRoundtableApi } from '../services/secretarialRoundtableApi';
+
 // WebSocket URL
 // const WS_URL = "wss://events-api.chinimandi.com/wss";
 const WS_URL = "ws://localhost:8000/ws";
@@ -41,6 +43,7 @@ export const store = configureStore({
     [passesRegistryApi.reducerPath]: passesRegistryApi.reducer,
     [speakerTrackerApi.reducerPath]: speakerTrackerApi.reducer,
     [accountMasterApi.reducerPath]: accountMasterApi.reducer,
+    [secretarialRoundtableApi.reducerPath]: secretarialRoundtableApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -63,4 +66,5 @@ export const store = configureStore({
       .concat(passesRegistryApi.middleware)
       .concat(speakerTrackerApi.middleware)
       .concat(accountMasterApi.middleware)
+      .concat(secretarialRoundtableApi.middleware)
 });

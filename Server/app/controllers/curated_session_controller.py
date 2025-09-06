@@ -26,23 +26,6 @@ router = APIRouter(
     tags=["curated-sessions"]
 )
 
-# @router.get("/", response_model=List[CuratedSession])
-# async def get_all_curated_sessions(
-#     event_code: Optional[int] = Query(None),
-#     sponsor_id: Optional[int] = Query(None),
-#     track: Optional[str] = Query(None),
-#     db: AsyncSession = Depends(get_db)
-# ):
-#     if event_code:
-#         return await get_curated_sessions_by_event_code(db, event_code)
-#     elif sponsor_id:
-#         return await get_curated_sessions_by_sponsor(db, sponsor_id)
-#     elif track:
-#         return await get_curated_sessions_by_track(db, track)
-#     else:
-#         results = await get_curated_sessions(db)
-#         return results
-
 @router.get("/", response_model=List[CuratedSession])
 async def get_all_curated_sessions(
     event_code: Optional[int] = Query(None),

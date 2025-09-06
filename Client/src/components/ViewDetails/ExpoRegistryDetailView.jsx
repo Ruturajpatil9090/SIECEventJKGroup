@@ -29,7 +29,6 @@ function ExpoRegistryDetailView({ isOpen, onClose, details, mainData }) {
         );
     }
 
-    // Parse booth numbers if available
     const boothNumbers = expoDetails.Booth_Number_Assigned
         ? expoDetails.Booth_Number_Assigned.split(',').map(num => num.trim())
         : [];

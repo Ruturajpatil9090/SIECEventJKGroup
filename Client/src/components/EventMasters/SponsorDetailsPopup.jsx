@@ -307,6 +307,51 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                         </div>
 
                                     </div>
+
+                                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-5 rounded-xl border border-orange-200">
+                                        <div className="flex items-center mb-3">
+                                            <div className="bg-purple-100 p-2 rounded-full mr-3">
+                                                <MegaphoneIcon className="h-5 w-5 text-purple-600" />
+                                            </div>
+                                            <label className="text-sm font-medium text-orange-700">Secretarial RoundTable Sessions</label>
+                                        </div>
+
+                                        <div>
+                                            <div className="flex items-center space-x-2">
+                                                <UserIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.SecretarialRoundSpeakerName || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <TicketIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.SecretarialRoundDesignation || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <PhoneIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.SecretarialRoundMobileNo || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <EnvelopeIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.SecretarialRoundEmailAddress || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <HashtagIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.SecretarialRoundTrack || ''}</p>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <HashtagIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.SecretarialRoundInvitationsent || ''}</p>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <HashtagIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.SecretarialRoundApprovalReceived || ''}</p>
+                                            </div>
+                                        </div>
+
+                                    </div>
                                 </div>
                             </div>
 

@@ -15,6 +15,7 @@ import { awardMasterApi } from "../services/awardMasterApi";
 import { slotMasterApi } from '../services/slotMasterApi';
 import { passesRegistryApi } from '../services/passesRegistryApi';
 import { speakerTrackerApi } from '../services/speakerTrackerApi';
+import { secretarialRoundtableApi } from '../services/secretarialRoundtableApi';
 
 export const listenerMiddleware = createListenerMiddleware();
 
@@ -47,6 +48,9 @@ listenerMiddleware.startListening({
             );
             listenerApi.dispatch(
                 speakerTrackerApi.util.invalidateTags(['SpeakerTracker'])
+            );
+            listenerApi.dispatch(
+                secretarialRoundtableApi.util.invalidateTags(['SecretarialRoundtable'])
             );
         }
         else if (action.payload === "refresh_ministerial_sessions") {
@@ -151,7 +155,14 @@ listenerMiddleware.startListening({
                 sponsorMasterApi.util.invalidateTags(['SponsorMaster'])
             );
         }
-
+        else if (action.payload === "refresh_secretarial_roundtables") {
+            console.log("Received refresh signal. Invalidating Secretarial Roundtable cache.");
+            listenerApi.dispatch(
+                secretarialRoundtableApi.util.invalidateTags(['SecretarialRoundtable'])
+            );
+            listenerApi.dispatch(
+                sponsorMasterApi.util.invalidateTags(['SponsorMaster'])
+            );
+        }
     },
-
 });
