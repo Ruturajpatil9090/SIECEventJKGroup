@@ -36,7 +36,7 @@ function ExpoRegistryTracker() {
         Deliverable_No: '',
         SponsorMasterId: '',
         Event_Code: '',
-        Booth_to_be_provided: '',
+        Booth_to_be_provided: 'N',
         Booth_Assigned: '',
         Booth_Number_Assigned: [],
         Logo_Details_Received: '',
@@ -378,7 +378,7 @@ function ExpoRegistryTracker() {
             Deliverable_No: '',
             SponsorMasterId: '',
             Event_Code: '',
-            Booth_to_be_provided: '',
+            Booth_to_be_provided: 'N',
             Booth_Assigned: '',
             Booth_Number_Assigned: [],
             Logo_Details_Received: '',
@@ -588,11 +588,11 @@ function ExpoRegistryTracker() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Booth to be Provided</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Logo Details Received</label>
                             <Select
                                 options={yesNoOptions}
-                                value={selectedBoothToBeProvided}
-                                onChange={(option) => handleSelectChange('Booth_to_be_provided', option?.value || '')}
+                                value={selectedLogoDetailsReceived}
+                                onChange={(option) => handleSelectChange('Logo_Details_Received', option?.value || '')}
                                 placeholder="Select..."
                                 isSearchable
                                 className="basic-single"
@@ -602,11 +602,11 @@ function ExpoRegistryTracker() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Logo Details Received</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Booth to be Provided</label>
                             <Select
                                 options={yesNoOptions}
-                                value={selectedLogoDetailsReceived}
-                                onChange={(option) => handleSelectChange('Logo_Details_Received', option?.value || '')}
+                                value={selectedBoothToBeProvided}
+                                onChange={(option) => handleSelectChange('Booth_to_be_provided', option?.value || '')}
                                 placeholder="Select..."
                                 isSearchable
                                 className="basic-single"
@@ -626,11 +626,11 @@ function ExpoRegistryTracker() {
                                 className="basic-single"
                                 classNamePrefix="select"
                                 styles={{ control: (provided) => ({ ...provided, minHeight: '42px', borderColor: '#d1d5db', '&:hover': { borderColor: '#d1d5db' } }), option: (provided, state) => ({ ...provided, backgroundColor: state.isSelected ? '#2563eb' : 'white', color: state.isSelected ? 'white' : 'black', '&:hover': { backgroundColor: '#2563eb', color: 'white' } }) }}
+                                isDisabled={formData.Booth_to_be_provided === 'N'}
                             />
                         </div>
                     </div>
 
-                    {/* Conditional rendering based on formData.Booth_Assigned */}
                     {formData.Booth_Assigned === 'Y' && (
                         <div className="md:col-span-3">
                             <label className="block text-sm font-medium text-gray-700 mb-1">Booth Number Assigned (Multi-Select)</label>

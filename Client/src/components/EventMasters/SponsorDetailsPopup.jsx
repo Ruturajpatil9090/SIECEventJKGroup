@@ -11,7 +11,9 @@ import {
     HashtagIcon,
     CurrencyDollarIcon,
     ClockIcon,
-    BuildingStorefrontIcon
+    BuildingStorefrontIcon,
+    CheckBadgeIcon,
+    PaperAirplaneIcon
 } from '@heroicons/react/24/outline';
 
 
@@ -341,17 +343,88 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                                 <HashtagIcon className="h-5 w-5 text-gray-500" />
                                                 <p className="text-gray-900 font-medium">{detail.SecretarialRoundTrack || ''}</p>
                                             </div>
+
+
                                             <div className="flex items-center space-x-2">
-                                                <HashtagIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.SecretarialRoundInvitationsent || ''}</p>
+                                                <PaperAirplaneIcon className={`h-5 w-5 ${detail.SecretarialRoundInvitationsent === 'Y' ? 'text-green-500' : 'text-red-500'}`} />
+                                                <span className="text-sm font-medium text-gray-600">Invitation Sent:</span>
+                                                <p className="text-gray-900 font-medium">
+                                                    {detail.SecretarialRoundInvitationsent === 'Y' ? 'Yes' : 'No'}
+                                                </p>
                                             </div>
                                             <div className="flex items-center space-x-2">
+                                                <CheckBadgeIcon className={`h-5 w-5 ${detail.SecretarialRoundApprovalReceived === 'Y' ? 'text-green-500' : 'text-red-500'}`} />
+                                                <span className="text-sm font-medium text-gray-600">Approval Received:</span>
+                                                <p className="text-gray-900 font-medium">
+                                                    {detail.SecretarialRoundApprovalReceived === 'Y' ? 'Yes' : 'No'}
+                                                </p>
+                                            </div>
+
+
+
+
+
+
+                                        </div>
+
+                                    </div>
+
+
+
+
+                                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-5 rounded-xl border border-orange-200">
+                                        <div className="flex items-center mb-3">
+                                            <div className="bg-purple-100 p-2 rounded-full mr-3">
+                                                <MegaphoneIcon className="h-5 w-5 text-purple-600" />
+                                            </div>
+                                            <label className="text-sm font-medium text-orange-700">Networking Slot Tracker</label>
+                                        </div>
+
+                                        <div>
+                                            <div className="flex items-center space-x-2">
+                                                <UserIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.NetworkingSpeakername || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <TicketIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.NetworkingDesignation || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <PhoneIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.NetworkingMobileNo || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <EnvelopeIcon className="h-5 w-5 text-gray-500" />
+                                                <p className="text-gray-900 font-medium">{detail.NetworkingEmailAddress || ''}</p>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
                                                 <HashtagIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.SecretarialRoundApprovalReceived || ''}</p>
+                                                <p className="text-gray-900 font-medium">{detail.NetworkingTrack || ''}</p>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <PaperAirplaneIcon className={`h-5 w-5 ${detail.NetworkingInvitationSent === 'Y' ? 'text-green-500' : 'text-red-500'}`} />
+                                                <span className="text-sm font-medium text-gray-600">Invitation Sent:</span>
+                                                <p className="text-gray-900 font-medium">
+                                                    {detail.NetworkingInvitationSent === 'Y' ? 'Yes' : 'No'}
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <CheckBadgeIcon className={`h-5 w-5 ${detail.NetworkingApproved === 'Y' ? 'text-green-500' : 'text-red-500'}`} />
+                                                <span className="text-sm font-medium text-gray-600">Approval Received:</span>
+                                                <p className="text-gray-900 font-medium">
+                                                    {detail.NetworkingApproved === 'Y' ? 'Yes' : 'No'}
+                                                </p>
                                             </div>
                                         </div>
 
                                     </div>
+
+
+
                                 </div>
                             </div>
 

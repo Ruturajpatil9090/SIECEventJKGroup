@@ -26,6 +26,7 @@ import {
 } from '../../services/sponsorMasterApi';
 import MinisterialSessionDetailView from '../ViewDetails/MinisterialSessionDetailView';
 import CreateNewButton from "../../common/Buttons/AddButton";
+import ExportButton from '../../common/FileExport/exportUtils';
 
 function MinisterialSessionTracker() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -616,6 +617,18 @@ function MinisterialSessionTracker() {
                             autoComplete='off'
                             data-gramm="false"
                             className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                        />
+                    </div>
+
+                    <div className="flex justify-end mt-2">
+                        <ExportButton
+                            data={formData}
+                            sponsors={sponsors}
+                            onSuccess={(message) => showNotification(message, 'success')}
+                            onError={(message) => showNotification(message, 'error')}
+                            fileNamePrefix="Ministerial Session Bio"
+                            requiredFields={['SponsorMasterId', 'designation', 'MinisterialSession_Bio']}
+                            buttonText="Export Bio"
                         />
                     </div>
 

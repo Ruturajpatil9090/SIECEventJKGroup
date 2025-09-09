@@ -358,18 +358,18 @@ function SponsorMaster() {
             accessor: 'category_name',
             cellRenderer: (value, row) => row.CategoryMaster_Code ? `${row.CategoryMaster_Code} - ${value}` : 'N/A'
         },
-        {
-            header: 'Sub Category',
-            accessor: 'CategorySub_Name',
-            cellRenderer: (value, row) => row.CategorySubMaster_Code ? `${row.CategorySubMaster_Code} - ${value}` : 'N/A'
-        },
+        // {
+        //     header: 'Sub Category',
+        //     accessor: 'CategorySub_Name',
+        //     cellRenderer: (value, row) => row.CategorySubMaster_Code ? `${row.CategorySubMaster_Code} - ${value}` : 'N/A'
+        // },
         {
             header: 'User Name',
             accessor: 'User_Name',
             cellRenderer: (value, row) => `${row.User_Id} - ${value}`
         },
-        { header: 'Contact Person', accessor: 'Contact_Person' },
-        { header: 'Contact Email', accessor: 'Contact_Email' },
+        // { header: 'Contact Person', accessor: 'Contact_Person' },
+        // { header: 'Contact Email', accessor: 'Contact_Email' },
         { header: 'Sponsorship Amount', accessor: 'Sponsorship_Amount' },
         { header: 'Received Amount', accessor: 'Sponsorship_Amount_Advance' },
         { header: 'Pending Amount', accessor: 'Pending_Amount' },
@@ -750,9 +750,10 @@ function SponsorMaster() {
                                 name="Sponsor_Name"
                                 value={formData.Sponsor_Name}
                                 autoComplete='off'
-                                onChange={(e) => setFormData(prev => ({ ...prev, Sponsor_Name: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                // onChange={(e) => setFormData(prev => ({ ...prev, Sponsor_Name: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md cursor-not-allowed"
                                 required
+                                disabled
                             />
                         </div>
 

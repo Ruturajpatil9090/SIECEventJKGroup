@@ -16,6 +16,7 @@ import { slotMasterApi } from '../services/slotMasterApi';
 import { passesRegistryApi } from '../services/passesRegistryApi';
 import { speakerTrackerApi } from '../services/speakerTrackerApi';
 import { secretarialRoundtableApi } from '../services/secretarialRoundtableApi';
+import { networkingSlotApi } from '../services/networkingSlotApi';
 
 export const listenerMiddleware = createListenerMiddleware();
 
@@ -51,6 +52,9 @@ listenerMiddleware.startListening({
             );
             listenerApi.dispatch(
                 secretarialRoundtableApi.util.invalidateTags(['SecretarialRoundtable'])
+            );
+             listenerApi.dispatch(
+                networkingSlotApi.util.invalidateTags(['NetworkingSlot'])
             );
         }
         else if (action.payload === "refresh_ministerial_sessions") {
@@ -159,6 +163,15 @@ listenerMiddleware.startListening({
             console.log("Received refresh signal. Invalidating Secretarial Roundtable cache.");
             listenerApi.dispatch(
                 secretarialRoundtableApi.util.invalidateTags(['SecretarialRoundtable'])
+            );
+            listenerApi.dispatch(
+                sponsorMasterApi.util.invalidateTags(['SponsorMaster'])
+            );
+        }
+         else if (action.payload === "refresh_networking_slots") {
+            console.log("Received refresh signal. Invalidating Networking Slot cache.");
+            listenerApi.dispatch(
+                networkingSlotApi.util.invalidateTags(['NetworkingSlot'])
             );
             listenerApi.dispatch(
                 sponsorMasterApi.util.invalidateTags(['SponsorMaster'])

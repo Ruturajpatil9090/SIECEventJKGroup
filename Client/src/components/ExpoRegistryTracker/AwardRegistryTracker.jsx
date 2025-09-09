@@ -300,6 +300,16 @@ function AwardRegistryTracker() {
 
     if (isError) return <div>Error loading award registry</div>;
 
+    const getAvailableAwardOptions = () => {
+        if (!formData.Event_Code) return awardOptions;
+
+        const takenAwardCodes = tableData
+            .filter(row => row.Event_Code === formData.Event_Code && row.SponsorMasterId !== formData.SponsorMasterId)
+            .map(row => row.Award_Code);
+
+        return awardOptions.map(option => ({ ...option, isDisabled: takenAwardCodes.includes(option.value) }));
+    };
+
     return (
         <>
             {notification.show && (
@@ -442,7 +452,7 @@ function AwardRegistryTracker() {
                         />
                     </div>
 
-                    <div>
+                    {/* <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Award Type</label>
                         <Select
                             options={awardOptions}
@@ -469,6 +479,42 @@ function AwardRegistryTracker() {
                                     '&:hover': {
                                         backgroundColor: '#2563eb',
                                         color: 'white'
+                                    }
+                                })
+                            }}
+                        />
+                    </div> */}
+
+
+                     <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Award Type</label>
+                        <Select
+                            options={getAvailableAwardOptions()}
+                            value={selectedAward}
+                            onChange={handleAwardChange}
+                            placeholder="Select an award type..."
+                            isSearchable
+                            required
+                            className="basic-single"
+                            classNamePrefix="select"
+                            styles={{
+                            
+                                option: (provided, state) => ({
+                                    ...provided,
+                                    backgroundColor: state.isSelected
+                                        ? '#2563eb'
+                                        : state.isDisabled
+                                            ? '#f3f4f6'
+                                            : 'white',
+                                    color: state.isSelected
+                                        ? 'white'
+                                        : state.isDisabled
+                                            ? '#9ca3af'
+                                            : 'black',
+                                    cursor: state.isDisabled ? 'not-allowed' : 'pointer',
+                                    '&:hover': {
+                                        backgroundColor: state.isDisabled ? '#f3f4f6' : '#2563eb',
+                                        color: state.isDisabled ? '#9ca3af' : 'white'
                                     }
                                 })
                             }}

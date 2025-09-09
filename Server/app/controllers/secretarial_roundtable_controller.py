@@ -34,7 +34,7 @@ async def get_all_secretarial_roundtables(
     db: AsyncSession = Depends(get_db)
 ):
     if event_code:
-        results = await get_secretarial_roundtables_by_event_code(db, event_code)
+        results = await get_secretarial_roundtables(db, event_code)
     elif sponsor_id:
         results = await get_secretarial_roundtables_by_sponsor(db, sponsor_id)
     elif track:

@@ -22,6 +22,7 @@ import {
 } from '../../services/sponsorMasterApi';
 import SpeakerTrackerDetailView from '../ViewDetails/SpeakerTrackerDetailView';
 import CreateNewButton from "../../common/Buttons/AddButton";
+import ExportButton from '../../common/FileExport/exportUtils';
 
 function SpeakerTracker() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -605,6 +606,18 @@ function SpeakerTracker() {
                             className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
                         />
                     </div>
+
+                           <div className="flex justify-end mt-2">
+                                            <ExportButton
+                                                data={formData}
+                                                sponsors={sponsors}
+                                                onSuccess={(message) => showNotification(message, 'success')}
+                                                onError={(message) => showNotification(message, 'error')}
+                                                fileNamePrefix="Speaker Tracker Bio"
+                                                requiredFields={['SponsorMasterId', 'Designation', 'Speaker_Bio']}
+                                                buttonText="Export Bio"
+                                            />
+                                        </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 

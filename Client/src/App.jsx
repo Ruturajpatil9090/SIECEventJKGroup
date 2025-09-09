@@ -248,6 +248,7 @@ import SpeakerTracker from "./components/ExpoRegistryTracker/SpeakerTracker";
 import Dashboard from "./Pages/Dashboard/Dashboard";
 import EventList from "./Pages/Login/EventList";
 import SecretarialRoundTableTracker from "./components/ExpoRegistryTracker/SecretarialRoundTableTracker"
+import NetworkingSlotTracker from "./components/ExpoRegistryTracker/NetworkingSlot";
 import { decryptData } from "./common/Functions/DecryptData";
 
 const Layout = () => {
@@ -313,7 +314,8 @@ const Layout = () => {
     "/speaker-tracker",
     "/dashboard",
     "/event-list",
-    "/SecretarialRoundTable"
+    "/SecretarialRoundTable",
+    "/NetworkingSlotTracker"
   ];
 
   const userRoutes = [
@@ -326,7 +328,8 @@ const Layout = () => {
     "/speaker-tracker",
     "/dashboard",
     "/passess-registry",
-    "/SecretarialRoundTable"
+    "/SecretarialRoundTable",
+    "/NetworkingSlotTracker"
   ];
 
   const allowedRoutes = userType === 'A' ? adminRoutes : userRoutes;
@@ -451,6 +454,11 @@ const Layout = () => {
              <Route path="/SecretarialRoundTable" element={
               <ProtectedRoute>
                 <SecretarialRoundTableTracker />
+              </ProtectedRoute>
+            } />
+            <Route path="/NetworkingSlotTracker" element={
+              <ProtectedRoute>
+                <NetworkingSlotTracker />
               </ProtectedRoute>
             } />
           </Routes>

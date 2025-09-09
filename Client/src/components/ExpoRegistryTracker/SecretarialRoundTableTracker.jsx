@@ -26,6 +26,7 @@ import {
 } from '../../services/sponsorMasterApi';
 import SecretarialRoundTableDetailView from '../ViewDetails/SecretarialRoundTableDetailView';
 import CreateNewButton from "../../common/Buttons/AddButton";
+import ExportButton from '../../common/FileExport/exportUtils';
 
 function SecretarialRoundTableTracker() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -220,13 +221,13 @@ function SecretarialRoundTableTracker() {
                     >
                         <PencilSquareIcon className="h-5 w-5" />
                     </button>
-                    <button
+                    {/* <button
                         className="p-2 text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors duration-200"
                         onClick={() => openDeleteConfirmModal(row.SecretarialRoundTableId)}
                         title="Delete"
                     >
                         <Trash2 className="h-5 w-5" />
-                    </button>
+                    </button> */}
                 </div>
             )
         }
@@ -401,7 +402,7 @@ function SecretarialRoundTableTracker() {
             </p>
         </div>
     </div>;
-    
+
     if (isError) return <div>Error loading secretarial roundtables</div>;
 
     return (
@@ -421,7 +422,7 @@ function SecretarialRoundTableTracker() {
             )}
 
             <TableUtility
-             // headerContent={<CreateNewButton onClick={handleAddNew} />}
+                // headerContent={<CreateNewButton onClick={handleAddNew} />}
                 title="Secretarial RoundTable Sessions"
                 columns={columns}
                 data={tableData}
@@ -653,6 +654,18 @@ function SecretarialRoundTableTracker() {
                             autoComplete='off'
                             data-gramm="false"
                             className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                        />
+                    </div>
+
+                    <div className="flex justify-end mt-2">
+                        <ExportButton
+                            data={formData}
+                            sponsors={sponsors}
+                            onSuccess={(message) => showNotification(message, 'success')}
+                            onError={(message) => showNotification(message, 'error')}
+                            fileNamePrefix="Secretarial RoundTable Bio"
+                            requiredFields={['SponsorMasterId', 'designation', 'SecretarialRoundTable_Bio']}
+                            buttonText="Export Bio"
                         />
                     </div>
 

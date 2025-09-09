@@ -165,8 +165,16 @@ class SponsorCompleteDetails(BaseModel):
     SecretarialRoundTrack: Optional[str] = None
     SecretarialRoundInvitationsent: Optional[str] = None
     SecretarialRoundApprovalReceived: Optional[str] = None
+    NetworkingSpeakername: Optional[str] = None
+    NetworkingDesignation: Optional[str] = None
+    NetworkingMobileNo: Optional[str] = None
+    NetworkingEmailAddress: Optional[str] = None
+    NetworkingBio: Optional[str] = None
+    NetworkingTrack: Optional[str] = None
+    NetworkingInvitationSent: Optional[str] = None
+    NetworkingApproved: Optional[str] = None
 
-
+    
 class SponsorUserDetails(BaseModel):
     User_Name: str
     Sponsor_Name: str
