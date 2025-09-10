@@ -595,6 +595,7 @@ function SecretarialRoundTableTracker() {
                                 required
                                 className="basic-single"
                                 classNamePrefix="select"
+                                isDisabled={formData.Invitation_Sent === 'N'}
                                 styles={{
                                     control: (provided) => ({
                                         ...provided,

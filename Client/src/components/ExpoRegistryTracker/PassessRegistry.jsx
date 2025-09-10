@@ -51,16 +51,16 @@ function PassesRegistry() {
   });
   const [detailEditIndex, setDetailEditIndex] = useState(null);
 
-//Detail popup view open 
+  //Detail popup view open 
   const [isDetailViewOpen, setIsDetailViewOpen] = useState(false);
   const [selectedRecordId, setSelectedRecordId] = useState(null);
   const [selectedRecordDetails, setSelectedRecordDetails] = useState([]);
   const [selectedMainData, setSelectedMainData] = useState(null);
 
 
-  const { data: detailData, isLoading: isDetailLoading, refetch: refetchDetails } = 
+  const { data: detailData, isLoading: isDetailLoading, refetch: refetchDetails } =
     useGetPassesRegistryDetailsByIdQuery(selectedRecordId, {
-      skip: !selectedRecordId 
+      skip: !selectedRecordId
     });
 
 
@@ -71,7 +71,7 @@ function PassesRegistry() {
   };
 
 
-   useEffect(() => {
+  useEffect(() => {
     if (detailData && selectedRecordId) {
       setSelectedRecordDetails(detailData);
     }
@@ -584,7 +584,6 @@ function PassesRegistry() {
 
           </div>
 
-
           <hr className="my-3 " />
 
           <div className="pt-4 " style={{ marginTop: "-80px" }}>
@@ -758,7 +757,7 @@ function PassesRegistry() {
         </div>
       </Modal>
 
- <PassesRegistryDetailView
+      <PassesRegistryDetailView
         isOpen={isDetailViewOpen}
         onClose={() => {
           setIsDetailViewOpen(false);
@@ -769,8 +768,6 @@ function PassesRegistry() {
         details={selectedRecordDetails}
         mainData={selectedMainData}
       />
-
-
     </>
   );
 }

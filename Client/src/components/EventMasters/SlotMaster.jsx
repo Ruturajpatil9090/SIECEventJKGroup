@@ -234,7 +234,11 @@ function SlotMaster() {
                 }}
                 title={editId ? 'Edit Slot' : 'Add New Slot'}
             >
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.target.type !== 'textarea') {
+                        e.preventDefault();
+                    }
+                }} className="space-y-4">
                     <div className="grid grid-cols-1 gap-4">
                         {editId && (
                             <div>

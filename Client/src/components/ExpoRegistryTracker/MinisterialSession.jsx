@@ -43,7 +43,8 @@ function MinisterialSessionTracker() {
         MinisterialSession_Bio: '',
         Speaking_Date: getCurrentDate(),
         Track: '',
-        Invitation_Sent: 'N'
+        Invitation_Sent: 'N',
+        Approval_Received: 'N'
     });
     const [editId, setEditId] = useState(null);
     const [notification, setNotification] = useState({
@@ -170,6 +171,12 @@ function MinisterialSessionTracker() {
         { value: 'N', label: 'No' }
     ];
 
+    const approvalReceivedOption = [
+        { value: 'Y', label: 'Yes' },
+        { value: 'N', label: 'No' }
+    ];
+
+
     const columns = [
         {
             header: 'Ministerial Session ID',
@@ -191,14 +198,27 @@ function MinisterialSessionTracker() {
             header: 'Designation',
             accessor: 'designation',
         },
+        {
+            header: 'Invitation Sent',
+            accessor: 'Invitation_Sent',
+        },
+        {
+            header: 'Approval Status',
+            accessor: 'Approval_Received',
+            cellRenderer: (row) => (
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${row.Approval_Received === 'Y'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                    {row.Approval_Received === 'Y' ? 'Approved' : 'Pending'}
+                </span>
+            )
+        },
         // {
         //     header: 'Ministry',
         //     accessor: 'Track',
         // },
         // {
-        //     header: 'Invitation Sent',
-        //     accessor: 'Invitation_Sent',
-        // },
         // {
         //     header: 'Speaking Date',
         //     accessor: 'Speaking_Date',
@@ -271,6 +291,13 @@ function MinisterialSessionTracker() {
         }));
     };
 
+    const handleSelectApprovalChange = (selectApproval) => {
+        setFormData(prev => ({
+            ...prev,
+            Approval_Received: selectApproval ? selectApproval.value : ''
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -284,7 +311,8 @@ function MinisterialSessionTracker() {
                 MinisterialSession_Bio: formData.MinisterialSession_Bio,
                 Speaking_Date: formData.Speaking_Date,
                 Track: formData.Track,
-                Invitation_Sent: formData.Invitation_Sent
+                Invitation_Sent: formData.Invitation_Sent,
+                Approval_Received: formData.Approval_Received
             };
 
             if (editId) {
@@ -322,7 +350,8 @@ function MinisterialSessionTracker() {
             MinisterialSession_Bio: row.MinisterialSession_Bio || '',
             Speaking_Date: row.Speaking_Date ? getCurrentDate() : getCurrentDate(),
             Track: row.Track || '',
-            Invitation_Sent: row.Invitation_Sent || ''
+            Invitation_Sent: row.Invitation_Sent || '',
+            Approval_Received: row.Approval_Received || 'N'
         });
         setEditId(row.MinisterialSessionId);
         setIsModalOpen(true);
@@ -361,7 +390,8 @@ function MinisterialSessionTracker() {
             MinisterialSession_Bio: '',
             Speaking_Date: getCurrentDate(),
             Track: '',
-            Invitation_Sent: 'N'
+            Invitation_Sent: 'N',
+            Approval_Received: 'N'
         });
         setEditId(null);
     };
@@ -386,6 +416,10 @@ function MinisterialSessionTracker() {
 
     const selectInvitationsent = invitationSentOption.find(option =>
         option.value === formData.Invitation_Sent
+    );
+
+    const selectApproval = approvalReceivedOption.find(option =>
+        option.value === formData.Approval_Received
     );
 
     if (isTableLoading || isEventsLoading || isSponsorsLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -433,7 +467,11 @@ function MinisterialSessionTracker() {
                 title={editId ? 'Edit Ministerial Session' : 'Add New Ministerial Session'}
                 width="800px"
             >
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.target.type !== 'textarea') {
+                        e.preventDefault();
+                    }
+                }} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -545,40 +583,78 @@ function MinisterialSessionTracker() {
                         </div>
 
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Invitation Sent</label>
-                            <Select
-                                options={invitationSentOption}
-                                value={selectInvitationsent}
-                                onChange={handleSelectInvitationChange}
-                                placeholder="Select a Invitation..."
-                                isSearchable
-                                required
-                                className="basic-single"
-                                classNamePrefix="select"
-                                styles={{
-                                    control: (provided) => ({
-                                        ...provided,
-                                        minHeight: '42px',
-                                        borderColor: '#d1d5db',
-                                        '&:hover': {
-                                            borderColor: '#d1d5db'
-                                        }
-                                    }),
-                                    option: (provided, state) => ({
-                                        ...provided,
-                                        backgroundColor: state.isSelected ? '#2563eb' : 'white',
-                                        color: state.isSelected ? 'white' : 'black',
-                                        '&:hover': {
-                                            backgroundColor: '#2563eb',
-                                            color: 'white'
-                                        }
-                                    })
-                                }}
-                            />
-                        </div>
-                    </div>
 
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Invitation Sent</label>
+                                <Select
+                                    options={invitationSentOption}
+                                    value={selectInvitationsent}
+                                    onChange={handleSelectInvitationChange}
+                                    placeholder="Select a Invitation..."
+                                    isSearchable
+                                    required
+                                    className="basic-single"
+                                    classNamePrefix="select"
+                                    styles={{
+                                        control: (provided) => ({
+                                            ...provided,
+                                            minHeight: '42px',
+                                            borderColor: '#d1d5db',
+                                            '&:hover': {
+                                                borderColor: '#d1d5db'
+                                            }
+                                        }),
+                                        option: (provided, state) => ({
+                                            ...provided,
+                                            backgroundColor: state.isSelected ? '#2563eb' : 'white',
+                                            color: state.isSelected ? 'white' : 'black',
+                                            '&:hover': {
+                                                backgroundColor: '#2563eb',
+                                                color: 'white'
+                                            }
+                                        })
+                                    }}
+                                />
+                            </div>
+
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Approval Received</label>
+                                <Select
+                                    options={approvalReceivedOption}
+                                    value={selectApproval}
+                                    onChange={handleSelectApprovalChange}
+                                    placeholder="Select approval status..."
+                                    isSearchable
+                                    required
+                                    className="basic-single"
+                                    classNamePrefix="select"
+                                    isDisabled={formData.Invitation_Sent === 'N'}
+                                    styles={{
+                                        control: (provided) => ({
+                                            ...provided,
+                                            minHeight: '42px',
+                                            borderColor: '#d1d5db',
+                                            '&:hover': {
+                                                borderColor: '#d1d5db'
+                                            }
+                                        }),
+                                        option: (provided, state) => ({
+                                            ...provided,
+                                            backgroundColor: state.isSelected ? '#2563eb' : 'white',
+                                            color: state.isSelected ? 'white' : 'black',
+                                            '&:hover': {
+                                                backgroundColor: '#2563eb',
+                                                color: 'white'
+                                            }
+                                        })
+                                    }}
+                                />
+                            </div>
+                        </div>
+
+                    </div>
 
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

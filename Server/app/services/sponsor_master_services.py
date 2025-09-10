@@ -152,10 +152,13 @@ async def get_event_dashboard_stats(db: AsyncSession, event_code: int) -> Dict[s
             WHERE Event_Code = :event_code AND Speaker_Name IS NOT NULL AND Speaker_Name <> ''
         """),
         "booth_assigned_count": text("""
-            SELECT COUNT(*) AS count 
+            SELECT SUM(
+            LEN(Booth_Number_Assigned) - LEN(REPLACE(Booth_Number_Assigned, ',', '')) + 1
+            ) AS booth_count
             FROM dbo.Eve_ExpoRegistryTracker 
             WHERE Event_Code = :event_code 
-            AND (Booth_Number_Assigned IS NOT NULL AND Booth_Number_Assigned <> '')
+            AND Booth_Number_Assigned IS NOT NULL 
+            AND Booth_Number_Assigned <> ''
         """),
         "sponsor_details": text("""
 SELECT        dbo.tbluser.User_Name, dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_SponsorMaster.Sponsorship_Amount, dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance, 
@@ -193,6 +196,75 @@ FROM            dbo.Eve_SponsorMaster INNER JOIN
         },
         "sponsor_details": results.get("sponsor_details", [])
     }
+
+
+
+async def get_user_dashboard_stats(db: AsyncSession, event_code: int, user_id: int) -> Dict[str, Any]:
+    queries = {
+        "sponsor_count": text("""
+            SELECT COUNT(*) AS count 
+            FROM dbo.Eve_SponsorMaster 
+            WHERE Event_Code = :event_code AND User_Id = :user_id
+        """),
+        "award_record_count": text("""
+            SELECT COUNT(*) AS count 
+            FROM dbo.Eve_AwardRegistryTracker 
+            WHERE Award_Code > 0 AND Event_Code = :event_code
+        """),
+        "ministerial_speakers_count": text("""
+            SELECT COUNT(*) AS count 
+            FROM dbo.Eve_MinisterialSessions 
+            WHERE Event_Code = :event_code AND Speaker_Name IS NOT NULL AND Speaker_Name <> ''
+        """),
+        "curated_speakers_count": text("""
+            SELECT COUNT(*) AS count 
+            FROM dbo.Eve_CuratedSession 
+            WHERE Event_Code = :event_code AND Speaker_Name IS NOT NULL AND Speaker_Name <> ''
+        """),
+        "speaker_tracker_count": text("""
+            SELECT COUNT(*) AS count 
+            FROM dbo.Eve_SpeakerTracker 
+            WHERE Event_Code = :event_code AND Speaker_Name IS NOT NULL AND Speaker_Name <> ''
+        """),
+        "booth_assigned_count": text("""
+            SELECT SUM(
+    LEN(Booth_Number_Assigned) - LEN(REPLACE(Booth_Number_Assigned, ',', '')) + 1
+) AS booth_count
+FROM dbo.Eve_ExpoRegistryTracker 
+WHERE Event_Code = :event_code 
+AND Booth_Number_Assigned IS NOT NULL 
+AND Booth_Number_Assigned <> ''
+        """),
+        "sponsor_details": text("""
+            SELECT dbo.tbluser.User_Name, dbo.Eve_SponsorMaster.Sponsor_Name, 
+                   dbo.Eve_SponsorMaster.Sponsorship_Amount, 
+                   dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance, 
+                   dbo.Eve_SponsorMaster.Sponsorship_Amount - ISNULL(dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance, 0) AS Pending_Amount, 
+                   dbo.Eve_SponsorMaster.Proposal_Sent, dbo.Eve_SponsorMaster.Approval_Received, 
+                   dbo.Eve_SponsorMaster.Contact_Phone, dbo.Eve_SponsorMaster.Contact_Email, 
+                   dbo.Eve_SponsorMaster.Contact_Person, dbo.Eve_SponsorMaster.User_Id, 
+                   dbo.Eve_CategoryMaster.category_name
+            FROM dbo.Eve_SponsorMaster 
+            INNER JOIN dbo.tbluser ON dbo.Eve_SponsorMaster.User_Id = dbo.tbluser.User_Id 
+            INNER JOIN dbo.Eve_CategoryMaster ON dbo.Eve_SponsorMaster.CategoryMaster_Code = dbo.Eve_CategoryMaster.CategoryId
+            WHERE dbo.Eve_SponsorMaster.Event_Code = :event_code AND dbo.Eve_SponsorMaster.User_Id = :user_id
+        """)
+    }
+    
+    results = {}
+    
+    for key, query in queries.items():
+        if "sponsor" in key: 
+            result = await db.execute(query, {"event_code": event_code, "user_id": user_id})
+        else:
+            result = await db.execute(query, {"event_code": event_code})
+        
+        if key == "sponsor_details":
+            results[key] = [dict(row._mapping) for row in result.fetchall()]
+        else:
+            results[key] = result.scalar() or 0
+    
+    return results
 
 
 async def get_sponsor_details_by_user_id(db: AsyncSession, user_id: int):

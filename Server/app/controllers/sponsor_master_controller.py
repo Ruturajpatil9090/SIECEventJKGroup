@@ -19,7 +19,8 @@ from ..services.sponsor_master_services import (
     get_all_sponsor_with_details,
     get_sponsor_complete_details,
     get_event_dashboard_stats,
-    get_sponsor_details_by_user_id
+    get_sponsor_details_by_user_id,
+    get_user_dashboard_stats
 )
 from ..models.database import get_db
 import json
@@ -111,6 +112,22 @@ async def get_event_dashboard_stats_endpoint(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching dashboard stats: {str(e)}")
+    
+
+@router.get("/user-dashboard-stats")
+async def get_user_dashboard_stats_endpoint(
+    event_code: int,
+    user_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        stats = await get_user_dashboard_stats(db, event_code, user_id)
+        return {
+            "success": True,
+            "data": stats
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching user dashboard stats: {str(e)}")
 
 
 # @router.get("/sponsor-details", response_model=List[SponsorCompleteDetails])

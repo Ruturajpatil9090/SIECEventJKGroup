@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { decryptData } from "../common/Functions/DecryptData";
 const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL
 
 export const sponsorMasterApi = createApi({
@@ -46,6 +47,12 @@ export const sponsorMasterApi = createApi({
             providesTags: ['SponsorMaster']
         }),
 
+        getUserDashboardStats: builder.query({
+            query: ({ event_code, user_id }) => {
+                return `/sponsors/user-dashboard-stats/?event_code=${event_code}&user_id=${user_id}`;
+            },
+            providesTags: ['SponsorMaster']
+        }),
         getDataByUserId: builder.query({
             query: (user_id) => {
                 return `/sponsors/getDataByUserId/${user_id}`;
@@ -106,6 +113,7 @@ export const {
     useGetMaxSponsorIdQuery,
     useGetSponsorCompleteDetailsQuery,
     useGetDashboardStatsQuery,
+    useGetUserDashboardStatsQuery,
     useAddSponsorMutation,
     useUpdateSponsorMutation,
     useDeleteSponsorMutation,

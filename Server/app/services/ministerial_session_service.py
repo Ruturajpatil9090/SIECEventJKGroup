@@ -32,7 +32,8 @@ async def get_ministerial_sessions(db: AsyncSession,event_code: Optional[int] = 
             ms.Track,
             em.EventMaster_Name,
             sm.Sponsor_Name,
-            ms.Invitation_Sent
+            ms.Invitation_Sent,
+            ms.Approval_Received
         FROM Eve_MinisterialSessions ms
         LEFT JOIN Eve_EventMaster em ON ms.Event_Code = em.EventMasterId
         LEFT JOIN Eve_SponsorMaster sm ON ms.SponsorMasterId = sm.SponsorMasterId

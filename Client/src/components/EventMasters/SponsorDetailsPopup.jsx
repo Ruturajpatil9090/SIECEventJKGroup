@@ -201,6 +201,7 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                     Speakers Information
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {/* Ministerial RoundTable Speaker Section */}
                                     <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-5 rounded-xl border border-blue-200">
                                         <div className="flex items-center mb-3">
                                             <div className="bg-blue-100 p-2 rounded-full mr-3">
@@ -209,34 +210,45 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                             <label className="text-sm font-medium text-blue-700">Ministerial RoundTable Speaker</label>
                                         </div>
 
-
                                         <div>
-                                            <div className="flex items-center space-x-2">
-                                                <UserIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.MinistrialSpeakername || ''}</p>
-                                            </div>
+                                            {detail.MinistrialSpeakername && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <UserIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.MinistrialSpeakername}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <TicketIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.MinistrialTrackerDesignation || ''}</p>
-                                            </div>
+                                            {detail.MinistrialTrackerDesignation && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <TicketIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.MinistrialTrackerDesignation}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <PhoneIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.MinistrialMobileNo || ''}</p>
-                                            </div>
+                                            {detail.MinistrialMobileNo && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <PhoneIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.MinistrialMobileNo}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <EnvelopeIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.MinistrialEmailId || ''}</p>
-                                            </div>
+                                            {detail.MinistrialEmailId && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <EnvelopeIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.MinistrialEmailId}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <HashtagIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.MinistrilaTrack || ''}</p>
-                                            </div>
+                                            {detail.MinistrilaTrack && (
+                                                <div className="flex items-center space-x-2">
+                                                    <HashtagIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.MinistrilaTrack}</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
+
+                                    {/* Curated Session Speaker Section */}
                                     <div className="bg-gradient-to-br from-green-50 to-green-100 p-5 rounded-xl border border-green-200">
                                         <div className="flex items-center mb-3">
                                             <div className="bg-green-100 p-2 rounded-full mr-3">
@@ -245,34 +257,45 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                             <label className="text-sm font-medium text-green-700">Curated Session Speaker</label>
                                         </div>
 
-
                                         <div>
-                                            <div className="flex items-center space-x-2">
-                                                <UserIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.CuratedSpeakername || ''}</p>
-                                            </div>
+                                            {detail.CuratedSpeakername && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <UserIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.CuratedSpeakername}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <TicketIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.CuratedDesignation || ''}</p>
-                                            </div>
+                                            {detail.CuratedDesignation && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <TicketIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.CuratedDesignation}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <PhoneIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.CuratedMobileNo || ''}</p>
-                                            </div>
+                                            {detail.CuratedMobileNo && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <PhoneIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.CuratedMobileNo}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <EnvelopeIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.CuratedEmailId || ''}</p>
-                                            </div>
+                                            {detail.CuratedEmailId && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <EnvelopeIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.CuratedEmailId}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <HashtagIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.CuratedTrack === 'E' ? "Ethanol" : "Bioenergy" || ''}</p>
-                                            </div>
+                                            {detail.CuratedTrack && (
+                                                <div className="flex items-center space-x-2">
+                                                    <HashtagIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.CuratedTrack === 'E' ? "Ethanol" : "Bioenergy"}</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
+
+                                    {/* Speaker Tracker Sponsors Section */}
                                     <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-5 rounded-xl border border-purple-200">
                                         <div className="flex items-center mb-3">
                                             <div className="bg-purple-100 p-2 rounded-full mr-3">
@@ -282,32 +305,41 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                         </div>
 
                                         <div>
-                                            <div className="flex items-center space-x-2">
-                                                <UserIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.SpeakerTrackerSpeakerName || ''}</p>
-                                            </div>
+                                            {detail.SpeakerTrackerSpeakerName && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <UserIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.SpeakerTrackerSpeakerName}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <TicketIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.SpeakerTrackerDesignation || ''}</p>
-                                            </div>
+                                            {detail.SpeakerTrackerDesignation && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <TicketIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.SpeakerTrackerDesignation}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <PhoneIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.SpeakerTrackerMobile_No || ''}</p>
-                                            </div>
+                                            {detail.SpeakerTrackerMobile_No && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <PhoneIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.SpeakerTrackerMobile_No}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <EnvelopeIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.SpeakerTrackerEmailId || ''}</p>
-                                            </div>
+                                            {detail.SpeakerTrackerEmailId && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <EnvelopeIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.SpeakerTrackerEmailId}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <HashtagIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.SpeakerTrackerTrack === 'E' ? "Ethanol" : "Bioenergy" || ''}</p>
-                                            </div>
+                                            {detail.SpeakerTrackerTrack && (
+                                                <div className="flex items-center space-x-2">
+                                                    <HashtagIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.SpeakerTrackerTrack === 'E' ? "Ethanol" : "Bioenergy"}</p>
+                                                </div>
+                                            )}
                                         </div>
-
                                     </div>
 
                                     <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-5 rounded-xl border border-orange-200">
@@ -319,39 +351,49 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                         </div>
 
                                         <div>
-                                            <div className="flex items-center space-x-2">
-                                                <UserIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.SecretarialRoundSpeakerName || ''}</p>
-                                            </div>
+                                            {detail.SecretarialRoundSpeakerName && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <UserIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.SecretarialRoundSpeakerName}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <TicketIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.SecretarialRoundDesignation || ''}</p>
-                                            </div>
+                                            {detail.SecretarialRoundDesignation && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <TicketIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.SecretarialRoundDesignation}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <PhoneIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.SecretarialRoundMobileNo || ''}</p>
-                                            </div>
+                                            {detail.SecretarialRoundMobileNo && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <PhoneIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.SecretarialRoundMobileNo}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <EnvelopeIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.SecretarialRoundEmailAddress || ''}</p>
-                                            </div>
+                                            {detail.SecretarialRoundEmailAddress && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <EnvelopeIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.SecretarialRoundEmailAddress}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <HashtagIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.SecretarialRoundTrack || ''}</p>
-                                            </div>
+                                            {detail.SecretarialRoundTrack && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <HashtagIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.SecretarialRoundTrack}</p>
+                                                </div>
+                                            )}
 
-
-                                            <div className="flex items-center space-x-2">
+                                            <div className="flex items-center space-x-2 mb-2">
                                                 <PaperAirplaneIcon className={`h-5 w-5 ${detail.SecretarialRoundInvitationsent === 'Y' ? 'text-green-500' : 'text-red-500'}`} />
                                                 <span className="text-sm font-medium text-gray-600">Invitation Sent:</span>
                                                 <p className="text-gray-900 font-medium">
                                                     {detail.SecretarialRoundInvitationsent === 'Y' ? 'Yes' : 'No'}
                                                 </p>
                                             </div>
+
                                             <div className="flex items-center space-x-2">
                                                 <CheckBadgeIcon className={`h-5 w-5 ${detail.SecretarialRoundApprovalReceived === 'Y' ? 'text-green-500' : 'text-red-500'}`} />
                                                 <span className="text-sm font-medium text-gray-600">Approval Received:</span>
@@ -359,59 +401,62 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                                     {detail.SecretarialRoundApprovalReceived === 'Y' ? 'Yes' : 'No'}
                                                 </p>
                                             </div>
-
-
-
-
-
-
                                         </div>
-
                                     </div>
 
 
-
-
-                                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-5 rounded-xl border border-orange-200">
+                                    <div className="bg-gradient-to-br from-pink-50 to-pink-100 p-5 rounded-xl border border-pink-200">
                                         <div className="flex items-center mb-3">
-                                            <div className="bg-purple-100 p-2 rounded-full mr-3">
-                                                <MegaphoneIcon className="h-5 w-5 text-purple-600" />
+                                            <div className="bg-pink-100 p-2 rounded-full mr-3">
+                                                <MegaphoneIcon className="h-5 w-5 text-pink-600" />
                                             </div>
-                                            <label className="text-sm font-medium text-orange-700">Networking Slot Tracker</label>
+                                            <label className="text-sm font-medium text-pink-700">Networking Slot Tracker</label>
                                         </div>
 
                                         <div>
-                                            <div className="flex items-center space-x-2">
-                                                <UserIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.NetworkingSpeakername || ''}</p>
-                                            </div>
+                                            {detail.NetworkingSpeakername && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <UserIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.NetworkingSpeakername}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <TicketIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.NetworkingDesignation || ''}</p>
-                                            </div>
+                                            {detail.NetworkingDesignation && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <TicketIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.NetworkingDesignation}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <PhoneIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.NetworkingMobileNo || ''}</p>
-                                            </div>
+                                            {detail.NetworkingMobileNo && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <PhoneIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.NetworkingMobileNo}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <EnvelopeIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.NetworkingEmailAddress || ''}</p>
-                                            </div>
+                                            {detail.NetworkingEmailAddress && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <EnvelopeIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.NetworkingEmailAddress}</p>
+                                                </div>
+                                            )}
 
-                                            <div className="flex items-center space-x-2">
-                                                <HashtagIcon className="h-5 w-5 text-gray-500" />
-                                                <p className="text-gray-900 font-medium">{detail.NetworkingTrack || ''}</p>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
+                                            {detail.NetworkingTrack && (
+                                                <div className="flex items-center space-x-2 mb-2">
+                                                    <HashtagIcon className="h-5 w-5 text-gray-500" />
+                                                    <p className="text-gray-900 font-medium">{detail.NetworkingTrack}</p>
+                                                </div>
+                                            )}
+
+                                            <div className="flex items-center space-x-2 mb-2">
                                                 <PaperAirplaneIcon className={`h-5 w-5 ${detail.NetworkingInvitationSent === 'Y' ? 'text-green-500' : 'text-red-500'}`} />
                                                 <span className="text-sm font-medium text-gray-600">Invitation Sent:</span>
                                                 <p className="text-gray-900 font-medium">
                                                     {detail.NetworkingInvitationSent === 'Y' ? 'Yes' : 'No'}
                                                 </p>
                                             </div>
+
                                             <div className="flex items-center space-x-2">
                                                 <CheckBadgeIcon className={`h-5 w-5 ${detail.NetworkingApproved === 'Y' ? 'text-green-500' : 'text-red-500'}`} />
                                                 <span className="text-sm font-medium text-gray-600">Approval Received:</span>
@@ -420,9 +465,7 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                                 </p>
                                             </div>
                                         </div>
-
                                     </div>
-
 
 
                                 </div>

@@ -241,7 +241,11 @@ function AwardMaster() {
                 }}
                 title={editId ? 'Edit Award' : 'Add New Award'}
             >
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.target.type !== 'textarea') {
+                        e.preventDefault();
+                    }
+                }} className="space-y-4">
                     <div className="grid grid-cols-1 gap-4">
                         <div>
                             <label htmlFor="AwardId" className="block text-sm font-medium text-gray-700 mb-1">

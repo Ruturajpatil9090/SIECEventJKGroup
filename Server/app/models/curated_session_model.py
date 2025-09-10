@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime,Text
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -14,7 +14,7 @@ class EveCuratedSession(Base):
     designation = Column(String(255), nullable=True)
     Mobile_No = Column(String(50), nullable=True)
     Email_Address = Column(String(50), nullable=True)
-    CuratedSession_Bio = Column(String(255), nullable=True)
+    CuratedSession_Bio = Column(Text, nullable=True)
     Speaking_Date = Column(DateTime, nullable=True)
     Track = Column(String(2), nullable=True)
 

@@ -509,6 +509,11 @@ function SponsorMaster() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+         if (selectedDeliverablesInModal.length === 0) {
+            alert('Please select at least one deliverable.');
+            return;
+        }
+
         let currentUser = null;
         try {
             const encryptedUserData = sessionStorage.getItem('user_data');
@@ -788,6 +793,7 @@ function SponsorMaster() {
                                 placeholder="Select a category..."
                                 isSearchable
                                 required
+                                isDisabled={editId}
                             />
                         </div>
 
@@ -804,6 +810,7 @@ function SponsorMaster() {
                                 autoComplete='off'
                                 placeholder="Select a sub category..."
                                 isSearchable
+                                isDisabled={editId}
                             />
                         </div>
 

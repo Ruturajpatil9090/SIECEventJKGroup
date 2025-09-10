@@ -427,7 +427,11 @@ function CuratedSessionTracker() {
                 title={editId ? 'Edit Curated Session' : 'Add New Curated Session'}
                 width="800px"
             >
-                <form onSubmit={handleSubmit} className="space-y-3">
+                <form onSubmit={handleSubmit} onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.target.type !== 'textarea') {
+                        e.preventDefault();
+                    }
+                }} className="space-y-3">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">

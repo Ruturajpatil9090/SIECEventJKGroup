@@ -196,8 +196,8 @@ function NetworkingSlotTracker() {
             accessor: 'Approval_Received',
             cellRenderer: (row) => (
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${row.Approval_Received === 'Y'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-yellow-100 text-yellow-800'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-yellow-100 text-yellow-800'
                     }`}>
                     {row.Approval_Received === 'Y' ? 'Approved' : 'Pending'}
                 </span>
@@ -425,8 +425,8 @@ function NetworkingSlotTracker() {
             )}
 
             <TableUtility
-                headerContent={<CreateNewButton onClick={handleAddNew} />}
-                title="Networking Slots"
+                // headerContent={<CreateNewButton onClick={handleAddNew} />}
+                title="Networking Slots Trackers"
                 columns={columns}
                 data={tableData}
                 pageSize={10}
@@ -441,7 +441,11 @@ function NetworkingSlotTracker() {
                 title={editId ? 'Edit Networking Slot' : 'Add New Networking Slot'}
                 width="800px"
             >
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.target.type !== 'textarea') {
+                        e.preventDefault();
+                    }
+                }} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -598,6 +602,7 @@ function NetworkingSlotTracker() {
                                 required
                                 className="basic-single"
                                 classNamePrefix="select"
+                                isDisabled={formData.Invitation_Sent === 'N'}
                                 styles={{
                                     control: (provided) => ({
                                         ...provided,

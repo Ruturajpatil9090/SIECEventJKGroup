@@ -32,8 +32,6 @@ function LoginPage() {
                 User_Password: password.trim()
             }).unwrap();
 
-            console.log('Login successful:', response);
-
             const userData = {
                 user_type: response.user_type,
                 user_name: response.user_name,
@@ -44,6 +42,7 @@ function LoginPage() {
             const encryptedData = encryptData(userData);
             sessionStorage.setItem('user_data', encryptedData);
             sessionStorage.setItem('access_token', encryptData(response.access_token));
+             sessionStorage.setItem('user_id', response.user_id);
 
             navigate('/event-list');
 

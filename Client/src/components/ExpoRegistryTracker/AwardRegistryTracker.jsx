@@ -343,7 +343,11 @@ function AwardRegistryTracker() {
                 title={editId ? 'Edit Award Registry' : 'Add New Award Registry'}
                 size="lg"
             >
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.target.type !== 'textarea') {
+                        e.preventDefault();
+                    }
+                }} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -357,7 +361,6 @@ function AwardRegistryTracker() {
                                 readOnly
                             />
                         </div>
-
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Event Code</label>
@@ -455,7 +458,7 @@ function AwardRegistryTracker() {
                     {/* <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Award Type</label>
                         <Select
-                            options={awardOptions}
+                            options={getAvailableAwardOptions()}
                             value={selectedAward}
                             onChange={handleAwardChange}
                             placeholder="Select an award type..."
@@ -464,21 +467,23 @@ function AwardRegistryTracker() {
                             className="basic-single"
                             classNamePrefix="select"
                             styles={{
-                                control: (provided) => ({
-                                    ...provided,
-                                    minHeight: '42px',
-                                    borderColor: '#d1d5db',
-                                    '&:hover': {
-                                        borderColor: '#d1d5db'
-                                    }
-                                }),
+                                        
                                 option: (provided, state) => ({
                                     ...provided,
-                                    backgroundColor: state.isSelected ? '#2563eb' : 'white',
-                                    color: state.isSelected ? 'white' : 'black',
+                                    backgroundColor: state.isSelected
+                                        ? '#2563eb'
+                                        : state.isDisabled
+                                            ? '#f3f4f6'
+                                            : 'white',
+                                    color: state.isSelected
+                                        ? 'white'
+                                        : state.isDisabled
+                                            ? '#9ca3af'
+                                            : 'black',
+                                    cursor: state.isDisabled ? 'not-allowed' : 'pointer',
                                     '&:hover': {
-                                        backgroundColor: '#2563eb',
-                                        color: 'white'
+                                        backgroundColor: state.isDisabled ? '#f3f4f6' : '#2563eb',
+                                        color: state.isDisabled ? '#9ca3af' : 'white'
                                     }
                                 })
                             }}
@@ -486,7 +491,8 @@ function AwardRegistryTracker() {
                     </div> */}
 
 
-                     <div>
+
+                    <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Award Type</label>
                         <Select
                             options={getAvailableAwardOptions()}
@@ -497,8 +503,10 @@ function AwardRegistryTracker() {
                             required
                             className="basic-single"
                             classNamePrefix="select"
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
                             styles={{
-                            
+                                menuPortal: base => ({ ...base, zIndex: 9999 }),
                                 option: (provided, state) => ({
                                     ...provided,
                                     backgroundColor: state.isSelected

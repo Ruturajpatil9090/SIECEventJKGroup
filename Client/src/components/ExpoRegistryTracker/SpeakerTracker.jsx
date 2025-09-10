@@ -157,8 +157,6 @@ function SpeakerTracker() {
     }, [formData.Event_Code, events, formData.Speaking_Date]);
 
 
-
-
     const handleAddNew = async () => {
         setEditId(null);
         resetForm();
@@ -443,7 +441,11 @@ function SpeakerTracker() {
                 title={editId ? 'Edit Speaker Tracker' : 'Add New Speaker Tracker'}
                 width="800px"
             >
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.target.type !== 'textarea') {
+                        e.preventDefault();
+                    }
+                }} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -607,17 +609,17 @@ function SpeakerTracker() {
                         />
                     </div>
 
-                           <div className="flex justify-end mt-2">
-                                            <ExportButton
-                                                data={formData}
-                                                sponsors={sponsors}
-                                                onSuccess={(message) => showNotification(message, 'success')}
-                                                onError={(message) => showNotification(message, 'error')}
-                                                fileNamePrefix="Speaker Tracker Bio"
-                                                requiredFields={['SponsorMasterId', 'Designation', 'Speaker_Bio']}
-                                                buttonText="Export Bio"
-                                            />
-                                        </div>
+                    <div className="flex justify-end mt-2">
+                        <ExportButton
+                            data={formData}
+                            sponsors={sponsors}
+                            onSuccess={(message) => showNotification(message, 'success')}
+                            onError={(message) => showNotification(message, 'error')}
+                            fileNamePrefix="Speaker Tracker Bio"
+                            requiredFields={['SponsorMasterId', 'Designation', 'Speaker_Bio']}
+                            buttonText="Export Bio"
+                        />
+                    </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
@@ -640,18 +642,6 @@ function SpeakerTracker() {
                                 </p>
                             )}
                         </div>
-
-
-                        {/* <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Speaking Date</label>
-                            <input
-                                type="date"
-                                name="Speaking_Date"
-                                value={formData.Speaking_Date}
-                                onChange={handleInputChange}
-                                className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
-                            />
-                        </div> */}
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Track</label>

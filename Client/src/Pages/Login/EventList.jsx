@@ -2,12 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetEventMastersQuery } from '../../services/eventMasterApi';
 import { Calendar, ArrowRight, Loader, ChevronDown, ChevronRight, Folder, FolderOpen } from 'lucide-react';
+import { decryptData } from '../../common/Functions/DecryptData';
 
 function EventList() {
   const { data: events = [], isLoading, isError } = useGetEventMastersQuery();
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [expandedSuperEvents, setExpandedSuperEvents] = useState({});
   const navigate = useNavigate();
+
+  // Function to get user data from sessionStorage
+  const getUserData = () => {
+    try {
+      const encryptedUserData = sessionStorage.getItem('user_data');
+      if (encryptedUserData) {
+        return decryptData(encryptedUserData);
+      }
+    } catch (error) {
+      console.error("Error decrypting user data:", error);
+    }
+    return null;
+  };
+
 
   useEffect(() => {
     if (events.length > 0) {
@@ -59,7 +74,16 @@ function EventList() {
   const handleEventSelect = (event) => {
     setSelectedEvent(event);
     sessionStorage.setItem("Event_Code", event.EventMasterId);
-    navigate('/dashboard');
+    const userData = getUserData();
+    const userType = userData?.user_type || '';
+
+    if (userType === 'A') {
+      navigate('/dashboard');
+    } else if (userType === 'U') {
+      navigate('/userdashboard');
+    } else {
+      navigate('/userdashboard');
+    }
   };
 
   const toggleSuperEvent = (superEventId) => {

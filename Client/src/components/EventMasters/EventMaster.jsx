@@ -236,15 +236,15 @@ function EventMaster() {
     );
 
     if (isTableLoading || isEventSupersLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-            <div className="text-center space-y-4">
-                <div className="w-12 h-12 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin mx-auto" />
+        <div className="text-center space-y-4">
+            <div className="w-12 h-12 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin mx-auto" />
 
-                <p className="text-gray-700 text-lg font-medium">
-                    Loading
-                    <span className="inline-block animate-pulse ml-1 text-blue-600">...</span>
-                </p>
-            </div>
-        </div>;
+            <p className="text-gray-700 text-lg font-medium">
+                Loading
+                <span className="inline-block animate-pulse ml-1 text-blue-600">...</span>
+            </p>
+        </div>
+    </div>;
     if (isError) return <div className="text-center py-8 text-red-600">Error loading events. Please try again.</div>;
 
     return (
@@ -279,7 +279,11 @@ function EventMaster() {
                 }}
                 title={editId ? 'Edit Event' : 'Add New Event'}
             >
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.target.type !== 'textarea') {
+                        e.preventDefault();
+                    }
+                }} className="space-y-4">
                     <div className="grid grid-cols-1 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
