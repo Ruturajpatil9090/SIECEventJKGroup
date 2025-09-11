@@ -13,7 +13,7 @@ from ..models.passes_registry_models import Eve_PassesRegistry
 from ..models.speaker_tracker_model import EveSpeakerTracker
 from ..models.networking_slot_model import EveNetworkingSlot
 from ..models.secretarial_roundtable_model import EveSecretarialRoundTable
-from ..utils.file_upload import save_upload_file, delete_upload_file
+from ..utils.file_upload import save_upload_file, delete_upload_file,save_upload_document,save_upload_video
 import os
 from ..websockets.connection_manager import ConnectionManager
 
@@ -65,7 +65,7 @@ SELECT   dbo.Eve_SponsorMaster.SponsorMasterId, dbo.Eve_SponsorMaster.Doc_Date, 
                          dbo.Eve_SponsorMaster.Modified_By, dbo.Eve_SponsorMaster.User_Id, dbo.Eve_SponsorMasterDetail.SponsorDetailId, dbo.Eve_SponsorMasterDetail.ID, dbo.Eve_SponsorMasterDetail.Deliverabled_Code, 
                          dbo.Eve_SponsorMasterDetail.Deliverable_No, dbo.Eve_SponsorMasterDetail.SponsorMasterId AS Expr1, dbo.Eve_EventMaster.EventMaster_Name, dbo.Eve_CategoryMaster.category_name, 
                          COALESCE(dbo.Eve_CategorySubMaster.CategorySub_Name, 'No Subcategory') AS CategorySub_Name, 
-                         dbo.tbluser.User_Name, dbo.Eve_SponsorMaster.Sponsorship_Amount - dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance AS Pending_Amount
+                         dbo.tbluser.User_Name, dbo.Eve_SponsorMaster.Sponsorship_Amount - dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance AS Pending_Amount,dbo.Eve_SponsorMaster.Sponsor_video, dbo.Eve_SponsorMaster.Sponsor_pdf
 FROM            dbo.Eve_SponsorMaster 
 INNER JOIN dbo.Eve_SponsorMasterDetail ON dbo.Eve_SponsorMaster.SponsorMasterId = dbo.Eve_SponsorMasterDetail.SponsorMasterId 
 INNER JOIN dbo.Eve_EventMaster ON dbo.Eve_SponsorMaster.Event_Code = dbo.Eve_EventMaster.EventMasterId 
@@ -168,14 +168,31 @@ FROM            dbo.Eve_SponsorMaster INNER JOIN
                          dbo.tbluser ON dbo.Eve_SponsorMaster.User_Id = dbo.tbluser.User_Id INNER JOIN
                          dbo.Eve_CategoryMaster ON dbo.Eve_SponsorMaster.CategoryMaster_Code = dbo.Eve_CategoryMaster.CategoryId
             WHERE dbo.Eve_SponsorMaster.Event_Code = :event_code
+        """),
+
+          "booth_assignments": text("""
+            SELECT        
+                dbo.Eve_ExpoRegistryTracker.Booth_Number_Assigned, 
+                dbo.Eve_SponsorMaster.SponsorMasterId, 
+                dbo.Eve_SponsorMaster.Sponsor_Name
+            FROM            
+                dbo.Eve_ExpoRegistryTracker 
+            INNER JOIN
+                dbo.Eve_SponsorMaster 
+                ON dbo.Eve_ExpoRegistryTracker.SponsorMasterId = dbo.Eve_SponsorMaster.SponsorMasterId
+            WHERE        
+                dbo.Eve_ExpoRegistryTracker.Event_Code = :event_code
+                AND dbo.Eve_ExpoRegistryTracker.Booth_Number_Assigned IS NOT NULL 
+                AND dbo.Eve_ExpoRegistryTracker.Booth_Number_Assigned <> ''
         """)
+
     }
     
     results = {}
     
     for key, query in queries.items():
         try:
-            if key == "sponsor_details":
+            if key in ["sponsor_details", "booth_assignments"]:
                 result = await db.execute(query, {"event_code": event_code})
                 results[key] = result.mappings().all()
             else:
@@ -192,9 +209,10 @@ FROM            dbo.Eve_SponsorMaster INNER JOIN
             "ministerial_speakers": results.get("ministerial_speakers_count", 0),
             "curated_speakers": results.get("curated_speakers_count", 0),
             "speaker_tracker": results.get("speaker_tracker_count", 0),
-            "booths_assigned": results.get("booth_assigned_count", 0)
+            "booths_assigned": results.get("booth_assigned_count", 0),
         },
-        "sponsor_details": results.get("sponsor_details", [])
+        "sponsor_details": results.get("sponsor_details", []),
+        "booth_assignments": results.get("booth_assignments", [])
     }
 
 
@@ -228,12 +246,12 @@ async def get_user_dashboard_stats(db: AsyncSession, event_code: int, user_id: i
         """),
         "booth_assigned_count": text("""
             SELECT SUM(
-    LEN(Booth_Number_Assigned) - LEN(REPLACE(Booth_Number_Assigned, ',', '')) + 1
-) AS booth_count
-FROM dbo.Eve_ExpoRegistryTracker 
-WHERE Event_Code = :event_code 
-AND Booth_Number_Assigned IS NOT NULL 
-AND Booth_Number_Assigned <> ''
+                LEN(Booth_Number_Assigned) - LEN(REPLACE(Booth_Number_Assigned, ',', '')) + 1
+            ) AS booth_count
+            FROM dbo.Eve_ExpoRegistryTracker 
+            WHERE Event_Code = :event_code 
+            AND Booth_Number_Assigned IS NOT NULL 
+            AND Booth_Number_Assigned <> ''
         """),
         "sponsor_details": text("""
             SELECT dbo.tbluser.User_Name, dbo.Eve_SponsorMaster.Sponsor_Name, 
@@ -311,15 +329,30 @@ async def create_sponsor(
     db: AsyncSession, 
     sponsor_data: SponsorMasterCreate, 
     logo_file = None,
+    pdf_file=None,
+    video_file=None,
     ws_manager: Optional[ConnectionManager] = None
 ):
     logo_path = None
     if logo_file:
         logo_path = await save_upload_file(logo_file)
+
+
+    pdf_path = None
+    if pdf_file:
+        pdf_path = await save_upload_document(pdf_file)
+
+    video_path = None
+    if video_file:
+        video_path = await save_upload_video(video_file)  
     
     sponsor_dict = sponsor_data.model_dump(exclude={'details'})
     if logo_path:
         sponsor_dict['Sponsor_logo'] = logo_path
+    if pdf_path:
+        sponsor_dict['Sponsor_pdf'] = pdf_path
+    if video_path:
+        sponsor_dict['Sponsor_video'] = video_path
     
     db_sponsor = Eve_SponsorMaster(**sponsor_dict)
     db.add(db_sponsor)
@@ -564,6 +597,8 @@ async def update_sponsor(
     sponsor_id: int, 
     sponsor_data: SponsorMasterUpdate, 
     logo_file = None,
+    pdf_file=None,
+    video_file=None,
     ws_manager: Optional[ConnectionManager] = None
 ):
     db_sponsor = await get_sponsor(db, sponsor_id)
@@ -578,9 +613,32 @@ async def update_sponsor(
         if old_logo_path:
             delete_upload_file(old_logo_path)
 
+
+        # Handle PDF
+    pdf_path = None
+    old_pdf_path = db_sponsor.Sponsor_pdf
+    if pdf_file:
+        pdf_path = await save_upload_document(pdf_file)
+        if old_pdf_path:
+            delete_upload_file(old_pdf_path)
+
+    # Handle video
+    video_path = None
+    old_video_path = db_sponsor.Sponsor_video
+    if video_file:
+        video_path = await save_upload_video(video_file)
+        if old_video_path:
+            delete_upload_file(old_video_path)
+
+
     update_data = sponsor_data.model_dump(exclude_unset=True, exclude={"details"})
     if logo_path:
         update_data['Sponsor_logo'] = logo_path
+
+    if pdf_path:
+        update_data["Sponsor_pdf"] = pdf_path
+    if video_path:
+        update_data["Sponsor_video"] = video_path
     
     should_broadcast = False
 

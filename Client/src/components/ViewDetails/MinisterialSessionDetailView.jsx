@@ -69,6 +69,24 @@ function MinisterialSessionDetailView({ isOpen, onClose, details, mainData }) {
                 )}
               </span>
             </div>
+
+     <div>
+              <p className="text-sm font-medium text-gray-600">Approval Status</p>
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${sessionDetails.Approval_Received === 'Y'
+                ? 'bg-green-100 text-green-800'
+                : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                {sessionDetails.Approval_Received === 'Y' ? 'Approved' : 'Pending'}
+                {sessionDetails.Approval_Received === 'Y' ? (
+                  <CheckBadgeIcon className="h-4 w-4 ml-1" />
+                ) : (
+                  <XMarkIcon className="h-4 w-4 ml-1" />
+                )}
+              </span>
+            </div>
+
+
+
           </div>
         </div>
 

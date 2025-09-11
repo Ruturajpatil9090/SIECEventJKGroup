@@ -10,6 +10,8 @@ class Eve_SponsorMaster(Base):
     Doc_Date = Column(DateTime)
     Sponsor_Name = Column(String(255), nullable=False)
     Sponsor_logo = Column(String(255), nullable=True)
+    Sponsor_pdf = Column(String(255), nullable=True)
+    Sponsor_video = Column(String(255), nullable=True)
     Event_Code = Column(Integer)
     CategoryMaster_Code = Column(Integer)
     CategorySubMaster_Code = Column(Integer)

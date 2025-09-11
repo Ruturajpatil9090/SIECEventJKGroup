@@ -31,6 +31,7 @@ import CreateNewButton from "../../common/Buttons/AddButton";
 import SponsorDetailsPopup from './SponsorDetailsPopup';
 import { decryptData } from "../../common/Functions/DecryptData"
 
+
 const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL
 
 const CustomOption = (props) => {
@@ -107,6 +108,18 @@ function SponsorMaster() {
     const [selectedDeliverablesInModal, setSelectedDeliverablesInModal] = useState([]);
     const [logoFile, setLogoFile] = useState(null);
     const [logoPreviewUrl, setLogoPreviewUrl] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Add these state variables near your existing state declarations
+    const [pdfFile, setPdfFile] = useState(null);
+    const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
+    const [videoFile, setVideoFile] = useState(null);
+    const [videoPreviewUrl, setVideoPreviewUrl] = useState(null);
+
+    // Add these state variables for preview management
+    const [showPdfPreview, setShowPdfPreview] = useState(false);
+    const [showVideoPreview, setShowVideoPreview] = useState(false);
+    const [showImagePreview, setShowImagePreview] = useState(false);
 
     const { data: tableData = [], isLoading: isTableLoading, isError, refetch } = useGetSponsorsQuery({ event_code: sessionStorage.getItem("Event_Code") });
     const { data: events = [], isLoading: isEventsLoading } = useGetEventMastersQuery();
@@ -249,6 +262,7 @@ function SponsorMaster() {
         return () => clearTimeout(timeoutId);
     }, [formData.Event_Code, formData.CategoryMaster_Code, formData.CategorySubMaster_Code, editId, triggerGetFilteredDeliverables]);
 
+
     useEffect(() => {
         if (editId && isModalOpen) {
             const selectedRow = tableData.find(row => row.SponsorMasterId === editId);
@@ -258,11 +272,29 @@ function SponsorMaster() {
                     ? selectedRow.details.map(d => d.Deliverabled_Code)
                     : [];
                 setSelectedDeliverablesInModal(existingDeliverableCodes);
+
+                // Reset files
                 setLogoFile(null);
+                setPdfFile(null);
+                setVideoFile(null);
+
+                // Set preview URLs
                 if (selectedRow.Sponsor_logo) {
                     setLogoPreviewUrl(`${API_BASE_URL}sponsors/logo/${getFileName(selectedRow.Sponsor_logo)}`);
                 } else {
                     setLogoPreviewUrl(null);
+                }
+
+                if (selectedRow.Sponsor_pdf) {
+                    setPdfPreviewUrl(`${API_BASE_URL}sponsors/pdf/${getFileName(selectedRow.Sponsor_pdf)}`);
+                } else {
+                    setPdfPreviewUrl(null);
+                }
+
+                if (selectedRow.Sponsor_video) {
+                    setVideoPreviewUrl(`${API_BASE_URL}sponsors/video/${getFileName(selectedRow.Sponsor_video)}`);
+                } else {
+                    setVideoPreviewUrl(null);
                 }
 
                 if (selectedRow.Ac_Code) {
@@ -272,6 +304,7 @@ function SponsorMaster() {
             }
         }
     }, [editId, isModalOpen, tableData, accountOptions]);
+
 
     useEffect(() => {
         if (logoFile) {
@@ -507,10 +540,26 @@ function SponsorMaster() {
     };
 
     const handleSubmit = async (e) => {
+
         e.preventDefault();
 
-         if (selectedDeliverablesInModal.length === 0) {
+        setIsSubmitting(true);
+
+        if (selectedDeliverablesInModal.length === 0) {
             alert('Please select at least one deliverable.');
+            return;
+        }
+
+        if (logoFile && logoFile.size > 5 * 1024 * 1024) {
+            alert('Logo file size must be less than 5MB');
+            return;
+        }
+        if (pdfFile && pdfFile.size > 5 * 1024 * 1024) {
+            alert('PDF file size must be less than 5MB');
+            return;
+        }
+        if (videoFile && videoFile.size > 5 * 1024 * 1024) {
+            alert('Video file size must be less than 5MB');
             return;
         }
 
@@ -555,8 +604,26 @@ function SponsorMaster() {
             sponsorDataToSend.Sponsor_logo = null;
         }
 
+
+
+        if (pdfFile) {
+            delete sponsorDataToSend.Sponsor_pdf;
+        } else if (formData.Sponsor_pdf === null && editId) {
+            sponsorDataToSend.Sponsor_pdf = null;
+        }
+
+        if (videoFile) {
+            delete sponsorDataToSend.Sponsor_video;
+        } else if (formData.Sponsor_video === null && editId) {
+            sponsorDataToSend.Sponsor_video = null;
+        }
+
+
         try {
-            const payload = { sponsorData: sponsorDataToSend, logoFile };
+            const payload = {
+                sponsorData: sponsorDataToSend, logoFile, pdfFile,
+                videoFile
+            };
 
             if (editId) {
                 await updateSponsor({ id: editId, ...payload }).unwrap();
@@ -568,6 +635,9 @@ function SponsorMaster() {
             refetch();
         } catch (error) {
             console.error('Failed to save sponsor:', error);
+        }
+        finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -603,16 +673,41 @@ function SponsorMaster() {
         setEditId(null);
         setLogoFile(null);
         setLogoPreviewUrl(null);
+        setPdfFile(null);
+        setPdfPreviewUrl(null);
+        setVideoFile(null);
+        setVideoPreviewUrl(null);
         setAccountSearchTerm('');
         setDisplayedAccountOptions([]);
         setAccountPage(1);
         setHasMoreAccounts(true);
+        setIsSubmitting(false);
     };
 
     const handleFileChange = (e) => {
         const file = e.target.files ? e.target.files[0] : null;
         setLogoFile(file);
     };
+
+
+    const handlePdfFileChange = (e) => {
+        const file = e.target.files ? e.target.files[0] : null;
+        if (file && file.size > 5 * 1024 * 1024) {
+            alert('PDF file size must be less than 5MB');
+            return;
+        }
+        setPdfFile(file);
+    };
+
+    const handleVideoFileChange = (e) => {
+        const file = e.target.files ? e.target.files[0] : null;
+        if (file && file.size > 5 * 1024 * 1024) {
+            alert('Video file size must be less than 5MB');
+            return;
+        }
+        setVideoFile(file);
+    };
+
 
     const handleSelectAllDeliverables = (isChecked) => {
         if (isChecked) {
@@ -659,11 +754,41 @@ function SponsorMaster() {
 
     const allDeliverablesSelected = allDeliverables.length > 0 && selectedDeliverablesInModal.length === allDeliverables.length;
 
+
     const getFileName = (path) => {
         if (!path) return '';
         const normalizedPath = path.replace(/\\/g, '/');
-        return normalizedPath.split('/').pop();
+        const parts = normalizedPath.split('/');
+        return parts[parts.length - 1];
     };
+
+    // Add these utility functions
+    const getFileIcon = (fileName) => {
+        const extension = fileName?.split('.').pop()?.toLowerCase() || '';
+        const iconMap = {
+            'pdf': '📄',
+            'doc': '📝',
+            'docx': '📝',
+            'xls': '📊',
+            'xlsx': '📊',
+            'ppt': '📽️',
+            'pptx': '📽️',
+            'mp4': '🎬',
+            'webm': '🎬',
+            'ogg': '🎬',
+            'mov': '🎬'
+        };
+        return iconMap[extension] || '📁';
+    };
+
+    const formatFileSize = (bytes) => {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
 
     return (
         <>
@@ -1177,7 +1302,7 @@ function SponsorMaster() {
                         </div> */}
 
 
-                        <div>
+                        {/* <div>
                             <label htmlFor="logo" className="block text-sm font-medium text-gray-700 mb-1">Sponsor Logo</label>
                             {(logoPreviewUrl || formData.Sponsor_logo) && (
                                 <div className="flex items-center space-x-2 mb-2">
@@ -1202,7 +1327,313 @@ function SponsorMaster() {
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                             />
                             {!logoPreviewUrl && !formData.Sponsor_logo && <p className="mt-1 text-xs text-gray-500">No logo uploaded yet or cleared.</p>}
+                        </div> */}
+
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-1 sm:grid-cols-3">
+                        {/* Logo Upload Section */}
+                        <div>
+                            <label htmlFor="logo" className="block text-sm font-medium text-gray-700 mb-1">
+                                Sponsor Logo
+                            </label>
+                            {(logoPreviewUrl || formData.Sponsor_logo) && (
+                                <div className="flex items-center space-x-2 mb-2 p-2 bg-gray-50 rounded-md">
+                                    <img
+                                        src={logoPreviewUrl}
+                                        alt="Current Logo"
+                                        className="h-12 w-12 object-contain rounded-md border cursor-pointer"
+                                        onClick={() => setShowImagePreview(true)}
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = "https://placehold.co/48x48/CCCCCC/000000?text=No+Logo";
+                                        }}
+                                    />
+                                    <div className="flex flex-col flex-1">
+                                        <span className="text-sm text-gray-600 font-medium">
+                                            {logoFile ? logoFile.name : getFileName(formData.Sponsor_logo)}
+                                        </span>
+                                        {formData.Sponsor_logo && (
+                                            <div className="flex space-x-2 mt-1">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowImagePreview(true)}
+                                                    className="text-xs text-green-600 hover:text-green-800 underline"
+                                                >
+                                                    Download Logo
+                                                </button>
+                                                {/* <span className="text-gray-400">|</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => downloadFile(logoPreviewUrl, getFileName(formData.Sponsor_logo))}
+                                                className="text-xs text-green-600 hover:text-green-800 underline"
+                                            >
+                                                Download Logo
+                                            </button> */}
+                                            </div>
+                                        )}
+                                        {logoFile && (
+                                            <span className="text-xs text-gray-500">
+                                                Size: {formatFileSize(logoFile.size)}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Image Preview Modal */}
+                            {showImagePreview && formData.Sponsor_logo && (
+                                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+                                    <div className="bg-white rounded-lg max-w-4xl max-h-4xl">
+                                        <div className="flex justify-between items-center p-4 border-b">
+                                            <h3 className="text-lg font-semibold">Image Preview</h3>
+                                            <button
+                                                onClick={() => setShowImagePreview(false)}
+                                                className="text-gray-500 hover:text-gray-700"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                        <div className="p-4">
+                                            <img
+                                                src={logoPreviewUrl}
+                                                alt="Logo Preview"
+                                                className="max-w-full max-h-96 object-contain"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            <input
+                                id="logo"
+                                type="file"
+                                name="logo"
+                                accept="image/*"
+                                onChange={(e) => {
+                                    const file = e.target.files ? e.target.files[0] : null;
+                                    if (file && file.size > 5 * 1024 * 1024) {
+                                        alert('Logo file size must be less than 5MB');
+                                        return;
+                                    }
+                                    setLogoFile(file);
+                                }}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            />
+                            {!logoPreviewUrl && !formData.Sponsor_logo && (
+                                <p className="mt-1 text-xs text-gray-500">No logo uploaded yet. Max size: 5MB</p>
+                            )}
+                            {logoFile && (
+                                <p className="mt-1 text-xs text-green-600">
+                                    Ready to upload ({formatFileSize(logoFile.size)})
+                                </p>
+                            )}
+
+                            {/* {logoFile && !formData.Sponsor_logo && (
+                                <div className="mt-2 cursor-pointer" onClick={() => setShowImagePreview(true)}>
+                                    <img
+                                        src={URL.createObjectURL(logoFile)}
+                                        alt="Logo preview"
+                                        className="w-32 h-32 object-contain rounded border"
+                                        onLoad={(e) => URL.revokeObjectURL(e.target.src)}
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">Click to preview</p>
+                                </div>
+                            )} */}
                         </div>
+
+
+                        {/* PDF Upload Section */}
+                        <div>
+                            <label htmlFor="pdf" className="block text-sm font-medium text-gray-700 mb-1">
+                                Sponsor PDF Document
+                            </label>
+                            {(pdfPreviewUrl || formData.Sponsor_pdf) && (
+                                <div className="flex items-center space-x-2 mb-2 p-2 bg-gray-50 rounded-md">
+                                    <div className="h-12 w-12 bg-red-100 flex items-center justify-center rounded-md border">
+                                        <span className="text-2xl">{getFileIcon(formData.Sponsor_pdf || pdfFile?.name)}</span>
+                                    </div>
+                                    <div className="flex flex-col flex-1">
+                                        <span className="text-sm text-gray-600 font-medium">
+                                            {pdfFile ? pdfFile.name : getFileName(formData.Sponsor_pdf)}
+                                        </span>
+                                        {formData.Sponsor_pdf && (
+                                            <div className="flex space-x-2 mt-1">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPdfPreview(true)}
+                                                    className="text-xs text-green-600 hover:text-green-800 underline"
+                                                >
+                                                    Download PDF
+                                                </button>
+                                                {/* <span className="text-gray-400">|</span> */}
+                                                {/* <button
+                                                    type="button"
+                                                    onClick={() => downloadFile(pdfPreviewUrl, getFileName(formData.Sponsor_pdf))}
+                                                    className="text-xs text-green-600 hover:text-green-800 underline"
+                                                >
+                                                    Download PDF
+                                                </button> */}
+                                            </div>
+                                        )}
+                                        {pdfFile && (
+                                            <span className="text-xs text-gray-500">
+                                                Size: {formatFileSize(pdfFile.size)}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {showPdfPreview && formData.Sponsor_pdf && (
+                                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+                                    <div className="bg-white rounded-lg w-11/12 h-5/6 max-w-6xl">
+                                        <div className="flex justify-between items-center p-4 border-b">
+                                            <h3 className="text-lg font-semibold">PDF Preview</h3>
+                                            <button
+                                                onClick={() => setShowPdfPreview(false)}
+                                                className="text-gray-500 hover:text-gray-700"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                        <div className="h-full p-4">
+                                            <iframe
+                                                src={pdfPreviewUrl}
+                                                className="w-full h-full border rounded"
+                                                title="PDF Preview"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            <input
+                                id="pdf"
+                                type="file"
+                                name="pdf"
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                                onChange={handlePdfFileChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
+                            />
+                            {!pdfPreviewUrl && !formData.Sponsor_pdf && (
+                                <p className="mt-1 text-xs text-gray-500">No PDF uploaded yet. Max size: 5MB</p>
+                            )}
+                            {pdfFile && (
+                                <p className="mt-1 text-xs text-green-600">
+                                    Ready to upload ({formatFileSize(pdfFile.size)})
+                                </p>
+                            )}
+                        </div>
+
+
+                        {/* Video Upload Section */}
+                        <div>
+                            <label htmlFor="video" className="block text-sm font-medium text-gray-700 mb-1">
+                                Sponsor Video
+                            </label>
+                            {(videoPreviewUrl || formData.Sponsor_video) && (
+                                <div className="flex items-center space-x-2 mb-2 p-2 bg-gray-50 rounded-md">
+                                    <div className="h-12 w-12 bg-purple-100 flex items-center justify-center rounded-md border">
+                                        <span className="text-2xl">{getFileIcon(formData.Sponsor_video || videoFile?.name)}</span>
+                                    </div>
+                                    <div className="flex flex-col flex-1">
+                                        <span className="text-sm text-gray-600 font-medium">
+                                            {videoFile ? videoFile.name : getFileName(formData.Sponsor_video)}
+                                        </span>
+                                        {formData.Sponsor_video && (
+                                            <div className="flex space-x-2 mt-1">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowVideoPreview(true)}
+                                                    className="text-xs text-green-600 hover:text-green-800 underline"
+                                                >
+                                                    Download Video
+                                                </button>
+                                                {/* <span className="text-gray-400">|</span> */}
+                                                {/* <button
+                                                    type="button"
+                                                    onClick={() => downloadFile(videoPreviewUrl, getFileName(formData.Sponsor_video))}
+                                                    className="text-xs text-green-600 hover:text-green-800 underline"
+                                                >
+                                                    Download Video
+                                                </button> */}
+                                            </div>
+                                        )}
+                                        {videoFile && (
+                                            <span className="text-xs text-gray-500">
+                                                Size: {formatFileSize(videoFile.size)}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {showVideoPreview && formData.Sponsor_video && (
+                                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+                                    <div className="bg-white rounded-lg w-11/12 h-5/6 max-w-4xl">
+                                        <div className="flex justify-between items-center p-4 border-b">
+                                            <h3 className="text-lg font-semibold">Video Preview</h3>
+                                            <button
+                                                onClick={() => setShowVideoPreview(false)}
+                                                className="text-gray-500 hover:text-gray-700"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                        <div className="h-full p-4">
+                                            <video
+                                                className="w-full h-full object-contain"
+                                                controls
+                                                autoPlay
+                                            >
+                                                <source src={videoPreviewUrl} type="video/mp4" />
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            <input
+                                id="video"
+                                type="file"
+                                name="video"
+                                accept="video/*"
+                                onChange={handleVideoFileChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                            />
+                            {!videoPreviewUrl && !formData.Sponsor_video && (
+                                <p className="mt-1 text-xs text-gray-500">No video uploaded yet. Max size: 5MB</p>
+                            )}
+                            {videoFile && (
+                                <p className="mt-1 text-xs text-green-600">
+                                    Ready to upload ({formatFileSize(videoFile.size)})
+                                </p>
+                            )}
+
+                            {formData.Sponsor_video && !showVideoPreview && (
+                                <div className="mt-2 cursor-pointer" onClick={() => setShowVideoPreview(true)}>
+                                    <div className="relative">
+                                        <video
+                                            className="w-32 h-20 object-cover rounded border"
+                                            muted
+                                            onMouseEnter={(e) => e.target.play()}
+                                            onMouseLeave={(e) => {
+                                                e.target.pause();
+                                                e.target.currentTime = 0;
+                                            }}
+                                        >
+                                            <source src={videoPreviewUrl} type="video/mp4" />
+                                        </video>
+                                        <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                            <span className="text-white text-sm">Click to preview</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
                     </div>
 
                     <div className="border-t pt-4 mt-4">
@@ -1256,7 +1687,7 @@ function SponsorMaster() {
                         </div>
                     </div>
 
-                    <div className="flex justify-end space-x-3 pt-4">
+                    {/* <div className="flex justify-end space-x-3 pt-4">
                         <button
                             type="button"
                             onClick={() => { setIsModalOpen(false); resetForm(); }}
@@ -1269,6 +1700,32 @@ function SponsorMaster() {
                             className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
                         >
                             {editId ? 'Update' : 'Save'}
+                        </button>
+                    </div> */}
+
+
+                    <div className="flex justify-end space-x-3 pt-4">
+                        <button
+                            type="button"
+                            onClick={() => { setIsModalOpen(false); resetForm(); }}
+                            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                            disabled={isSubmitting}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? (
+                                <div className="flex items-center">
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                    {editId ? 'Updating...' : 'Saving...'}
+                                </div>
+                            ) : (
+                                editId ? 'Update' : 'Save'
+                            )}
                         </button>
                     </div>
                 </form>

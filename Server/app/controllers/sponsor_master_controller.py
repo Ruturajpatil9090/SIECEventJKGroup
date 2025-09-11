@@ -47,6 +47,8 @@ async def get_sponsormaster_with_details(
             grouped_results[cat_deliverable_id] = {
               "Sponsor_Name": row['Sponsor_Name'],
                 "Sponsor_logo": row['Sponsor_logo'],
+                "Sponsor_pdf": row['Sponsor_pdf'],
+                "Sponsor_video": row['Sponsor_video'],
                 "Doc_Date": row['Doc_Date'].isoformat() if row['Doc_Date'] else None,
                 "Event_Code": row['Event_Code'],
                 "CategoryMaster_Code": row['CategoryMaster_Code'],
@@ -168,13 +170,15 @@ async def get_max_sponsor_id_endpoint(
 async def create_sponsor_endpoint(
     sponsor_data: str = Form(...),
     logo: Optional[UploadFile] = File(None),
+    pdf:  Optional[UploadFile] = File(None),
+    video:Optional[UploadFile] = File(None),
     db: AsyncSession = Depends(get_db)
 ):
     try:
         sponsor_dict = json.loads(sponsor_data)
         sponsor_create = SponsorMasterCreate(**sponsor_dict)
         
-        return await create_sponsor(db, sponsor_create, logo,ws_manager=manager)
+        return await create_sponsor(db, sponsor_create, logo,pdf,video,ws_manager=manager)
     except json.JSONDecodeError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -205,6 +209,8 @@ async def update_existing_sponsor(
     sponsor_id: int,
     sponsor_data: str = Form(...),
     logo: Optional[UploadFile] = File(None),
+    pdf:  Optional[UploadFile] = File(None),
+    video:Optional[UploadFile] = File(None),
     db: AsyncSession = Depends(get_db),
 ):
     try:
@@ -216,6 +222,8 @@ async def update_existing_sponsor(
             sponsor_id=sponsor_id, 
             sponsor_data=sponsor_update,
             logo_file=logo,
+            pdf_file=pdf,
+            video_file=video,
             ws_manager=manager
         )
         if updated_sponsor is None:
@@ -264,3 +272,50 @@ async def get_sponsor_logo(filename: str):
         )
     
     return FileResponse(file_path)
+
+
+
+
+
+
+
+
+import os
+import mimetypes
+from fastapi.responses import FileResponse
+
+
+@router.get("/pdf/{filename}")
+async def get_sponsor_pdf(filename: str):
+    file_path = f"uploads/docs/{filename}"
+    
+    if not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document not found"
+        )
+    
+    mime_type, _ = mimetypes.guess_type(file_path)
+    if not mime_type:
+        mime_type = "application/octet-stream"  
+    
+    return FileResponse(
+        file_path,
+        media_type=mime_type,
+        filename=filename
+    )
+
+
+@router.get("/video/{filename}")
+async def get_sponsor_video(filename: str):
+    file_path = f"uploads/videos/{filename}"
+
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Video not found")
+    
+    mime_type, _ = mimetypes.guess_type(file_path)
+    if not mime_type:
+        mime_type = "application/octet-stream"
+    
+    return FileResponse(file_path, media_type=mime_type, filename=filename)
+ 

@@ -22,8 +22,8 @@ import { secretarialRoundtableApi } from '../services/secretarialRoundtableApi';
 import { networkingSlotApi } from '../services/networkingSlotApi';
 
 // WebSocket URL
-// const WS_URL = "wss://events-api.chinimandi.com/wss";
-const WS_URL = "ws://localhost:8000/ws";
+const WS_URL = "wss://events-api.chinimandi.com/wss";
+// const WS_URL = "ws://localhost:8000/ws";
 
 export const store = configureStore({
   reducer: {

@@ -208,7 +208,7 @@ function UserDashboard() {
             {/* <DollarSign className="h-8 w-8 mr-2" /> */}
             <h2 className="text-xl font-semibold">Total Sponsorship Value</h2>
           </div>
-          <p className="text-4xl font-bold mb-2">₹{metricsData.totalRevenue.toLocaleString()}</p>
+          <p className="text-4xl font-bold mb-2">₹ {metricsData.totalRevenue.toLocaleString()}</p>
           <p className="text-sm opacity-90">{sponsors.length} sponsors</p>
         </div>
         

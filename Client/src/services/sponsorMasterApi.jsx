@@ -60,12 +60,14 @@ export const sponsorMasterApi = createApi({
             providesTags: ['SponsorMaster']
         }),
         addSponsor: builder.mutation({
-            queryFn: async ({ sponsorData, logoFile }, _queryApi, _extraOptions, baseQuery) => {
+            queryFn: async ({ sponsorData, logoFile,pdfFile, videoFile }, _queryApi, _extraOptions, baseQuery) => {
                 const formData = new FormData();
                 formData.append("sponsor_data", JSON.stringify(sponsorData));
                 if (logoFile) {
                     formData.append("logo", logoFile);
                 }
+                if (pdfFile) formData.append("pdf", pdfFile);
+                if (videoFile) formData.append("video", videoFile);
 
                 const result = await baseQuery({
                     url: '/sponsors',
@@ -79,12 +81,15 @@ export const sponsorMasterApi = createApi({
         }),
 
         updateSponsor: builder.mutation({
-            queryFn: async ({ id, sponsorData, logoFile }, _queryApi, _extraOptions, baseQuery) => {
+            queryFn: async ({ id, sponsorData, logoFile,pdfFile, videoFile }, _queryApi, _extraOptions, baseQuery) => {
                 const formData = new FormData();
                 formData.append("sponsor_data", JSON.stringify(sponsorData));
                 if (logoFile) {
                     formData.append("logo", logoFile);
                 }
+                if (pdfFile) formData.append("pdf", pdfFile);
+                if (videoFile) formData.append("video", videoFile);
+
 
                 const result = await baseQuery({
                     url: `/sponsors/${id}`,

@@ -27,7 +27,7 @@ function AssignedSponsorPopup({ userId, onClose }) {
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center">
         <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading user data...</p>
+          <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
     );
@@ -97,9 +97,50 @@ function AssignedSponsorPopup({ userId, onClose }) {
   );
 }
 
+function BoothAssignmentsPopup({ boothAssignments, onClose }) {
+  return (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl max-h-[80vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">Booth Assignments</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+        {boothAssignments && boothAssignments.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Sponsor Name</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Booth Numbers</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total Booths</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {boothAssignments.map((assignment, index) => (
+                  <tr key={`${assignment.SponsorMasterId}-${index}`}>
+                    <td className="px-4 py-2 whitespace-nowrap font-medium">{assignment.Sponsor_Name}</td>
+                    <td className="px-4 py-2 whitespace-nowrap">{assignment.Booth_Number_Assigned}</td>
+                    <td className="px-4 py-2 whitespace-nowrap text-center">
+                      <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                        {assignment.Booth_Number_Assigned.split(',').length}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-center text-gray-500">No booth assignments found.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Dashboard() {
-
-
   const getUserData = () => {
     try {
       const encryptedUserData = sessionStorage.getItem('user_data');
@@ -114,24 +155,22 @@ function Dashboard() {
 
   const userData = getUserData();
   const userType = userData?.user_type || '';
-  // const isAdminUser = userType === 'A';
-
 
   const { data: dashboardData, error, isLoading } = useGetDashboardStatsQuery({ event_code: sessionStorage.getItem("Event_Code") });
-
-  console.log("dashboardData", dashboardData)
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-  const [showPopup, setShowPopup] = useState(false);
+  const [showSponsorPopup, setShowSponsorPopup] = useState(false);
+  const [showBoothPopup, setShowBoothPopup] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
 
   const navigate = useNavigate();
 
   const stats = dashboardData?.data?.stats || {};
   const sponsorDetails = dashboardData?.data?.sponsor_details || [];
+  const boothAssignments = dashboardData?.data?.booth_assignments || [];
 
   const metricsData = useMemo(() => {
     const totalRevenue = sponsorDetails.reduce((sum, sponsor) => sum + (sponsor.Sponsorship_Amount || 0), 0);
@@ -204,14 +243,22 @@ function Dashboard() {
   const statusOptions = ['All', 'Confirmed', 'Pending'];
   const categoryOptions = ['All', ...new Set(sponsors.map(s => s.category_name).filter(Boolean))];
 
-  const handleShowPopup = (userId) => {
+  const handleShowSponsorPopup = (userId) => {
     setSelectedUserId(userId);
-    setShowPopup(true);
+    setShowSponsorPopup(true);
   };
 
-  const handleClosePopup = () => {
-    setShowPopup(false);
+  const handleCloseSponsorPopup = () => {
+    setShowSponsorPopup(false);
     setSelectedUserId(null);
+  };
+
+  const handleShowBoothPopup = () => {
+    setShowBoothPopup(true);
+  };
+
+  const handleCloseBoothPopup = () => {
+    setShowBoothPopup(false);
   };
 
   if (isLoading) {
@@ -284,7 +331,11 @@ function Dashboard() {
           </div>
           <p className="text-3xl font-bold text-gray-800">{stats.speaker_tracker || 0}</p>
         </Link>
-        <Link className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col" to="/exporegistry-tracker">
+        <div
+          className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow cursor-pointer"
+          onClick={handleShowBoothPopup}
+          title="Click to view booth assignments"
+        >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-700">Booths Assigned</h2>
             <div className="p-2 bg-indigo-100 rounded-lg">
@@ -292,14 +343,13 @@ function Dashboard() {
             </div>
           </div>
           <p className="text-3xl font-bold text-gray-800">{stats.booths_assigned || 0}</p>
-        </Link>
+        </div>
       </div>
-
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 rounded-xl text-white">
           <h2 className="text-xl font-semibold mb-2">Total Sponsorship Revenue</h2>
-          <p className="text-4xl font-bold mb-4">₹{metricsData.totalRevenue.toLocaleString()}</p>
+          <p className="text-4xl font-bold mb-4">₹ {metricsData.totalRevenue.toLocaleString()}</p>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-700 mb-4">Sponsorship Status</h2>
@@ -370,10 +420,10 @@ function Dashboard() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
+                <th className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                <th className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
                 <th
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                   onClick={() => handleSort('Sponsor_Name')}
                 >
                   <div className="flex items-center">
@@ -383,10 +433,10 @@ function Dashboard() {
                     )}
                   </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Person</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                <th className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Person</th>
+                <th className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                 <th
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                   onClick={() => handleSort('Sponsorship_Amount')}
                 >
                   <div className="flex items-center">
@@ -397,7 +447,7 @@ function Dashboard() {
                   </div>
                 </th>
                 <th
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                   onClick={() => handleSort('Sponsorship_Amount')}
                 >
                   <div className="flex items-center">
@@ -408,7 +458,7 @@ function Dashboard() {
                   </div>
                 </th>
                 <th
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                   onClick={() => handleSort('Sponsorship_Amount')}
                 >
                   <div className="flex items-center">
@@ -425,43 +475,41 @@ function Dashboard() {
               {filteredSponsors.map((sponsor) => (
                 <tr key={sponsor.SponsorMasterId} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-
                     <div className="flex items-center gap-2">
                       <button
-                        className="p-2 text-green-600 bg-green-50 rounded-md hover:bg-green-100 transition-colors duration-200"
-                        onClick={() => handleShowPopup(sponsor.User_Id)}
+                        className="p-1 text-green-600 bg-green-50 rounded-md hover:bg-green-100 transition-colors duration-200"
+                        onClick={() => handleShowSponsorPopup(sponsor.User_Id)}
                         title="View Details"
                       >
                         <EyeIcon className="h-5 w-5" />
                       </button>
-
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-1 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <div className="font-medium text-blue-600">{sponsor.User_Name}</div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-1 py-4 whitespace-nowrap">
                     <div className="font-medium text-gray-900">{sponsor.Sponsor_Name}</div>
                     <div className="text-sm text-gray-500">{sponsor.Contact_Email}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-1 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{sponsor.Contact_Person}</div>
                     <div className="text-sm text-gray-500">{sponsor.Contact_Phone}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-1 py-4 whitespace-nowrap">
                     <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
                       {sponsor.category_name}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 py-4 whitespace-nowrap">
                     <div className="text-sm font-semibold text-gray-900">₹ {formatReadableAmount(sponsor.Sponsorship_Amount)}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-1 py-4 whitespace-nowrap">
                     <div className="text-sm font-semibold text-green-600">₹ {formatReadableAmount(sponsor.Sponsorship_Amount_Advance)}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-1 py-4 whitespace-nowrap">
                     <div className="text-sm font-semibold text-red-600">₹ {formatReadableAmount(sponsor.Pending_Amount)}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -481,8 +529,15 @@ function Dashboard() {
         )}
       </div>
 
-      {showPopup && selectedUserId && (
-        <AssignedSponsorPopup userId={selectedUserId} onClose={handleClosePopup} />
+      {showSponsorPopup && selectedUserId && (
+        <AssignedSponsorPopup userId={selectedUserId} onClose={handleCloseSponsorPopup} />
+      )}
+
+      {showBoothPopup && (
+        <BoothAssignmentsPopup
+          boothAssignments={boothAssignments}
+          onClose={handleCloseBoothPopup}
+        />
       )}
     </div>
   );

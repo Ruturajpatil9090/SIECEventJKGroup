@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from .models.database import engine, Base
 from .controllers import auth_controller,deliverables_controller,category_controller,category_sub_controller,event_super_controller,event_controller,CategoryWiseDeliverables_controller,sponsor_master_controller,user_master_controller,expo_registry_tracker_controller,websocket_controller,Award_master_controller,award_registry_tracker_controller,curated_session_controller,ministerial_session_controller,slot_master_controller,passes_registry_controller,speaker_tracker_controller,account_master_controller,secretarial_roundtable_controller,networking_slot_controller
 import asyncio
@@ -9,6 +10,11 @@ app = FastAPI()
 
 # Create upload directory
 os.makedirs("uploads/sponsor_logos", exist_ok=True)
+
+# Serve sponsor PDFs/documents
+app.mount("/sponsors/pdf", StaticFiles(directory="uploads/docs"), name="pdf")
+
+app.mount("/sponsors/video", StaticFiles(directory="uploads/Video"), name="video")
 
 # CORS settings
 app.add_middleware(

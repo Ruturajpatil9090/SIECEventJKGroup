@@ -22,6 +22,8 @@ class SponsorDetail(SponsorDetailBase):
 class SponsorMasterBase(BaseModel):
     Sponsor_Name: str
     Sponsor_logo: Optional[str] = None
+    Sponsor_logo: Optional[str] = None
+    Sponsor_pdf:  Optional[str] = None
     Doc_Date: Optional[str] = None
     Event_Code: Optional[int] = None
     CategoryMaster_Code: Optional[int] = None
@@ -68,6 +70,8 @@ class SponsorMasterCreate(SponsorMasterBase):
 class SponsorMasterUpdate(BaseModel):
     Sponsor_Name: Optional[str] = None
     Sponsor_logo: Optional[str] = None
+    Sponsor_logo: Optional[str] = None
+    Sponsor_pdf:  Optional[str] = None
     Doc_Date: Optional[str] = None
     Event_Code: Optional[int] = None
     CategoryMaster_Code: Optional[int] = None
