@@ -37,7 +37,6 @@ async def read_passes_registries(
     return registries
 
 
-#GET All Individual details from the Passes Registry with there details also.
 @router.get("/details/{PassessRegistryId}")
 async def read_passess_registry_details(
     PassessRegistryId: int,
@@ -131,7 +130,6 @@ async def delete_passes_registry_endpoint(
         )
     return {"message": "Passes registry deleted successfully"}
 
-# Alternative endpoint using JSON string for form data compatibility
 @router.post("/json", response_model=PassRegistry, status_code=status.HTTP_201_CREATED)
 async def create_passes_registry_json_endpoint(
     registry_data: str,

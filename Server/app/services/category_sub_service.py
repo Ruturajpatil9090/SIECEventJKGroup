@@ -22,10 +22,6 @@ async def get_category_sub(db: AsyncSession, category_sub_id: int):
     )
     return result.scalars().first()
 
-# async def get_all_category_subs(db: AsyncSession):
-#     result = await db.execute(select(CategorySubMaster))
-#     return result.scalars().all()
-
 async def get_all_category_subs(db: AsyncSession, skip: int = 0, limit: int = 100):
     result = await db.execute(
         select(CategorySubMaster)

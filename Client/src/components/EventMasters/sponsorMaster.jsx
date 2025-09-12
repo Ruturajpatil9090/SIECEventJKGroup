@@ -110,13 +110,10 @@ function SponsorMaster() {
     const [logoPreviewUrl, setLogoPreviewUrl] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Add these state variables near your existing state declarations
     const [pdfFile, setPdfFile] = useState(null);
     const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
     const [videoFile, setVideoFile] = useState(null);
     const [videoPreviewUrl, setVideoPreviewUrl] = useState(null);
-
-    // Add these state variables for preview management
     const [showPdfPreview, setShowPdfPreview] = useState(false);
     const [showVideoPreview, setShowVideoPreview] = useState(false);
     const [showImagePreview, setShowImagePreview] = useState(false);
@@ -273,12 +270,10 @@ function SponsorMaster() {
                     : [];
                 setSelectedDeliverablesInModal(existingDeliverableCodes);
 
-                // Reset files
                 setLogoFile(null);
                 setPdfFile(null);
                 setVideoFile(null);
 
-                // Set preview URLs
                 if (selectedRow.Sponsor_logo) {
                     setLogoPreviewUrl(`${API_BASE_URL}sponsors/logo/${getFileName(selectedRow.Sponsor_logo)}`);
                 } else {
@@ -723,7 +718,7 @@ function SponsorMaster() {
         details: Array.isArray(item.details) ? item.details : []
     }));
 
-    const isLoading = isTableLoading || isEventsLoading || isCategoriesLoading || isSubCategoriesLoading || isDeliverablesLoading || isMaxIdLoading || isAccountLoading;
+    const isLoading = isTableLoading || isEventsLoading || isCategoriesLoading || isSubCategoriesLoading || isDeliverablesLoading || isMaxIdLoading ;
     const isErrorOccurred = isError;
 
 
@@ -806,7 +801,7 @@ function SponsorMaster() {
                     setIsModalOpen(false);
                     resetForm();
                 }}
-                title={editId ? 'Edit Sponsor' : 'Add New Sponsor'}
+                title={editId ? 'Update Sponsor' : 'Create New Sponsor'}
                 size="2xl"
                 width="1500px"
                 createdBy={formData.Created_By}
@@ -1332,7 +1327,6 @@ function SponsorMaster() {
                     </div>
 
                     <div className="grid grid-cols-1 gap-1 sm:grid-cols-3">
-                        {/* Logo Upload Section */}
                         <div>
                             <label htmlFor="logo" className="block text-sm font-medium text-gray-700 mb-1">
                                 Sponsor Logo
@@ -1362,14 +1356,6 @@ function SponsorMaster() {
                                                 >
                                                     Download Logo
                                                 </button>
-                                                {/* <span className="text-gray-400">|</span>
-                                            <button
-                                                type="button"
-                                                onClick={() => downloadFile(logoPreviewUrl, getFileName(formData.Sponsor_logo))}
-                                                className="text-xs text-green-600 hover:text-green-800 underline"
-                                            >
-                                                Download Logo
-                                            </button> */}
                                             </div>
                                         )}
                                         {logoFile && (
@@ -1428,22 +1414,8 @@ function SponsorMaster() {
                                     Ready to upload ({formatFileSize(logoFile.size)})
                                 </p>
                             )}
-
-                            {/* {logoFile && !formData.Sponsor_logo && (
-                                <div className="mt-2 cursor-pointer" onClick={() => setShowImagePreview(true)}>
-                                    <img
-                                        src={URL.createObjectURL(logoFile)}
-                                        alt="Logo preview"
-                                        className="w-32 h-32 object-contain rounded border"
-                                        onLoad={(e) => URL.revokeObjectURL(e.target.src)}
-                                    />
-                                    <p className="text-xs text-gray-500 mt-1">Click to preview</p>
-                                </div>
-                            )} */}
                         </div>
 
-
-                        {/* PDF Upload Section */}
                         <div>
                             <label htmlFor="pdf" className="block text-sm font-medium text-gray-700 mb-1">
                                 Sponsor PDF Document
@@ -1466,14 +1438,6 @@ function SponsorMaster() {
                                                 >
                                                     Download PDF
                                                 </button>
-                                                {/* <span className="text-gray-400">|</span> */}
-                                                {/* <button
-                                                    type="button"
-                                                    onClick={() => downloadFile(pdfPreviewUrl, getFileName(formData.Sponsor_pdf))}
-                                                    className="text-xs text-green-600 hover:text-green-800 underline"
-                                                >
-                                                    Download PDF
-                                                </button> */}
                                             </div>
                                         )}
                                         {pdfFile && (
@@ -1527,7 +1491,6 @@ function SponsorMaster() {
                         </div>
 
 
-                        {/* Video Upload Section */}
                         <div>
                             <label htmlFor="video" className="block text-sm font-medium text-gray-700 mb-1">
                                 Sponsor Video
@@ -1550,14 +1513,6 @@ function SponsorMaster() {
                                                 >
                                                     Download Video
                                                 </button>
-                                                {/* <span className="text-gray-400">|</span> */}
-                                                {/* <button
-                                                    type="button"
-                                                    onClick={() => downloadFile(videoPreviewUrl, getFileName(formData.Sponsor_video))}
-                                                    className="text-xs text-green-600 hover:text-green-800 underline"
-                                                >
-                                                    Download Video
-                                                </button> */}
                                             </div>
                                         )}
                                         {videoFile && (
@@ -1686,23 +1641,6 @@ function SponsorMaster() {
                             )}
                         </div>
                     </div>
-
-                    {/* <div className="flex justify-end space-x-3 pt-4">
-                        <button
-                            type="button"
-                            onClick={() => { setIsModalOpen(false); resetForm(); }}
-                            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-                        >
-                            {editId ? 'Update' : 'Save'}
-                        </button>
-                    </div> */}
-
 
                     <div className="flex justify-end space-x-3 pt-4">
                         <button

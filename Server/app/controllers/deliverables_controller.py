@@ -74,18 +74,6 @@ async def update_existing_deliverable(
         raise HTTPException(status_code=404, detail="Deliverable not found")
     return updated_deliverable
 
-# @router.delete("/{deliverable_id}")
-# async def delete_existing_deliverable(
-#     deliverable_id: int,
-#     db: AsyncSession = Depends(get_db),
-#     # current_user: User = Depends(get_current_user)
-# ):
-#     success = await delete_deliverable(db=db, deliverable_id=deliverable_id)
-#     if not success:
-#         raise HTTPException(status_code=404, detail="Deliverable not found")
-#     return {"message": "Deliverable deleted successfully"}
-
-
 @router.delete("/{deliverable_id}")
 async def delete_deliverable_endpoint(deliverable_id: int, db: AsyncSession = Depends(get_db)):
     try:
@@ -93,7 +81,6 @@ async def delete_deliverable_endpoint(deliverable_id: int, db: AsyncSession = De
         if success:
             return {"message": "Deliverable deleted successfully"}
         else:
-            # Check if the deliverable exists
             db_deliverable = await get_deliverable(db, deliverable_id)
             if not db_deliverable:
                 raise HTTPException(

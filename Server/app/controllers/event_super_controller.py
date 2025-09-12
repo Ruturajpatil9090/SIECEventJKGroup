@@ -75,20 +75,6 @@ async def update_existing_event_super(
         )
     return updated_event_super
 
-# @router.delete("/{event_super_id}")
-# async def delete_existing_event_super(
-#     event_super_id: int,
-#     db: AsyncSession = Depends(get_db),
-# ):
-#     success = await delete_event_super(db=db, event_super_id=event_super_id)
-#     if not success:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail="EventSuper not found"
-#         )
-#     return {"message": "EventSuper deleted successfully"}
-
-
 @router.delete("/{event_super_id}")
 async def delete_event_super_endpoint(event_super_id: int, db: AsyncSession = Depends(get_db)):
     success = await delete_event_super(db, event_super_id,ws_manager=manager)

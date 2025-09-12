@@ -132,16 +132,6 @@ async def get_user_dashboard_stats_endpoint(
         raise HTTPException(status_code=500, detail=f"Error fetching user dashboard stats: {str(e)}")
 
 
-# @router.get("/sponsor-details", response_model=List[SponsorCompleteDetails])
-# async def get_sponsor_complete_details_endpoint(
-#     sponsor_master_id: int,
-#     event_code: int = Query(...), 
-#     db: AsyncSession = Depends(get_db)
-# ):
-#     results = await get_sponsor_complete_details(db, event_code, sponsor_master_id)
-#     return results
-
-
 @router.get("/getDataByUserId/{user_id}", response_model=List[SponsorUserDetails])
 async def get_sponsor_details_by_user_id_endpoint(
     user_id: int,

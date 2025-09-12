@@ -26,33 +26,6 @@ async def get_sponsors(db: AsyncSession, skip: int = 0, limit: int = 100):
     )
     return result.scalars().all()
 
-# async def get_all_sponsor_with_details(db: AsyncSession,event_code: int,  skip: int = 0, limit: int = 100):
-#     query = text("""
-# SELECT   dbo.Eve_SponsorMaster.SponsorMasterId, dbo.Eve_SponsorMaster.Doc_Date, dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_SponsorMaster.Sponsor_logo, dbo.Eve_SponsorMaster.Event_Code, 
-#                          dbo.Eve_SponsorMaster.CategoryMaster_Code, dbo.Eve_SponsorMaster.CategorySubMaster_Code, dbo.Eve_SponsorMaster.Proposal_Sent, dbo.Eve_SponsorMaster.Approval_Received, 
-#                          dbo.Eve_SponsorMaster.Sponsorship_Amount, dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance, dbo.Eve_SponsorMaster.Payment_Status, dbo.Eve_SponsorMaster.Proforma_Invoice_Sent, 
-#                          dbo.Eve_SponsorMaster.Final_Invoice_Sent, dbo.Eve_SponsorMaster.GST_Details_Received, dbo.Eve_SponsorMaster.Contact_Person, dbo.Eve_SponsorMaster.Contact_Email, dbo.Eve_SponsorMaster.Contact_Phone, 
-#                          dbo.Eve_SponsorMaster.Notes, dbo.Eve_SponsorMaster.Address, dbo.Eve_SponsorMaster.CIN, dbo.Eve_SponsorMaster.Sponsor_Deliverables_Tracker, dbo.Eve_SponsorMaster.Website, 
-#                          dbo.Eve_SponsorMaster.Awards_Registry_Tracker, dbo.Eve_SponsorMaster.Category_Sponsors, dbo.Eve_SponsorMaster.Designation, dbo.Eve_SponsorMaster.Expo_Registry, dbo.Eve_SponsorMaster.GST, 
-#                          dbo.Eve_SponsorMaster.Passes_Registry_Tracker, dbo.Eve_SponsorMaster.Sponsor_Speakers, dbo.Eve_SponsorMaster.Networking_Table_Slots_Tracker, dbo.Eve_SponsorMaster.Created_By, 
-#                          dbo.Eve_SponsorMaster.Modified_By, dbo.Eve_SponsorMaster.User_Id, dbo.Eve_SponsorMasterDetail.SponsorDetailId, dbo.Eve_SponsorMasterDetail.ID, dbo.Eve_SponsorMasterDetail.Deliverabled_Code, 
-#                          dbo.Eve_SponsorMasterDetail.Deliverable_No, dbo.Eve_SponsorMasterDetail.SponsorMasterId AS Expr1, dbo.Eve_EventMaster.EventMaster_Name, dbo.Eve_CategoryMaster.category_name, 
-#                          dbo.Eve_CategorySubMaster.CategorySub_Name, dbo.tbluser.User_Name, dbo.Eve_SponsorMaster.Sponsorship_Amount - dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance AS Pending_Amount
-# FROM            dbo.Eve_SponsorMaster INNER JOIN
-#                          dbo.Eve_SponsorMasterDetail ON dbo.Eve_SponsorMaster.SponsorMasterId = dbo.Eve_SponsorMasterDetail.SponsorMasterId INNER JOIN
-#                          dbo.Eve_EventMaster ON dbo.Eve_SponsorMaster.Event_Code = dbo.Eve_EventMaster.EventMasterId INNER JOIN
-#                          dbo.Eve_CategoryMaster ON dbo.Eve_SponsorMaster.CategoryMaster_Code = dbo.Eve_CategoryMaster.CategoryId INNER JOIN
-#                          dbo.Eve_CategorySubMaster ON dbo.Eve_SponsorMaster.CategorySubMaster_Code = dbo.Eve_CategorySubMaster.CategorySubMasterId INNER JOIN
-#                          dbo.tbluser ON dbo.Eve_SponsorMaster.User_Id = dbo.tbluser.User_Id
-#                    WHERE dbo.Eve_SponsorMaster.Event_Code = :event_code
-# ORDER BY dbo.Eve_SponsorMaster.SponsorMasterId DESC
-#     """)
-    
-#     result = await db.execute(query, {"event_code": event_code,"skip": skip, "limit": limit})
-#     return result.mappings().all()
-
-
-
 async def get_all_sponsor_with_details(db: AsyncSession, event_code: int, skip: int = 0, limit: int = 100):
     query = text("""
 SELECT   dbo.Eve_SponsorMaster.SponsorMasterId, dbo.Eve_SponsorMaster.Doc_Date, dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_SponsorMaster.Sponsor_logo, dbo.Eve_SponsorMaster.Event_Code, 
@@ -78,7 +51,6 @@ ORDER BY dbo.Eve_SponsorMaster.SponsorMasterId DESC
     
     result = await db.execute(query, {"event_code": event_code, "skip": skip, "limit": limit})
     return result.mappings().all()
-
 
 
 async def get_sponsor_complete_details(db: AsyncSession, event_code: int, sponsor_master_id: int):
@@ -120,8 +92,6 @@ WHERE
         "sponsor_master_id": sponsor_master_id
     })
     return result.mappings().all()
-
-
 
 
 async def get_event_dashboard_stats(db: AsyncSession, event_code: int) -> Dict[str, Any]:
@@ -214,7 +184,6 @@ FROM            dbo.Eve_SponsorMaster INNER JOIN
         "sponsor_details": results.get("sponsor_details", []),
         "booth_assignments": results.get("booth_assignments", [])
     }
-
 
 
 async def get_user_dashboard_stats(db: AsyncSession, event_code: int, user_id: int) -> Dict[str, Any]:
@@ -322,7 +291,6 @@ async def get_max_sponsor_id(db: AsyncSession):
         select(func.max(Eve_SponsorMaster.SponsorMasterId))
     )
     return result.scalar() or 0
-
 
 
 async def create_sponsor(
@@ -590,8 +558,6 @@ async def create_sponsor(
     return db_sponsor  
 
 
-
-
 async def update_sponsor(
     db: AsyncSession, 
     sponsor_id: int, 
@@ -613,8 +579,6 @@ async def update_sponsor(
         if old_logo_path:
             delete_upload_file(old_logo_path)
 
-
-        # Handle PDF
     pdf_path = None
     old_pdf_path = db_sponsor.Sponsor_pdf
     if pdf_file:
@@ -622,7 +586,6 @@ async def update_sponsor(
         if old_pdf_path:
             delete_upload_file(old_pdf_path)
 
-    # Handle video
     video_path = None
     old_video_path = db_sponsor.Sponsor_video
     if video_file:
@@ -742,7 +705,6 @@ async def update_sponsor(
         secretarial_assigned = Secretarial_RoundTable and Secretarial_RoundTable.Speaker_Name is not None and speaker_tracker.Speaker_Name != ""
         networking_assigned = NetworkingSlot_tracker and NetworkingSlot_tracker.Speaker_Name is not None and speaker_tracker.Speaker_Name != ""
         
-        
         details_to_delete = []
         expo_trackers_to_delete = []
         award_trackers_to_delete = []
@@ -753,8 +715,6 @@ async def update_sponsor(
         secretarial_to_delete = []
         networking_to_delete = []
 
-
-        
         for detail_code, detail in current_detail_dict.items():
             if detail_code not in incoming_detail_codes:
                 if detail_code == 31 and expo_tracker:
@@ -1077,9 +1037,7 @@ async def delete_sponsor(
 ):
     db_sponsor = await get_sponsor(db, sponsor_id)
     if db_sponsor:
-        # Delete related entries from all tracker tables first
         try:
-            # Delete from ExpoRegistryTracker
             expo_trackers = await db.execute(
                 select(ExpoRegistryTracker)
                 .where(ExpoRegistryTracker.SponsorMasterId == sponsor_id)
@@ -1177,7 +1135,6 @@ async def delete_sponsor(
             
         except Exception as e:
             await db.rollback()
-            # Log the error or handle it appropriately
             print(f"Error deleting sponsor and related entries: {e}")
             return False
     

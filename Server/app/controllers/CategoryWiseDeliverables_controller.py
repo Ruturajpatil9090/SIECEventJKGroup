@@ -25,15 +25,6 @@ router = APIRouter(
     tags=["categorywisedeliverables"]
 )
 
-# @router.get("/", response_model=List[Deliverable])
-# async def read_deliverables(
-#     skip: int = 0,
-#     limit: int = 100,
-#     db: AsyncSession = Depends(get_db),
-# ):
-#     deliverables = await get_deliverables(db, skip=skip, limit=limit)
-#     return deliverables
-
 
 @router.get("/")
 async def get_category_wise_deliverables_with_details(

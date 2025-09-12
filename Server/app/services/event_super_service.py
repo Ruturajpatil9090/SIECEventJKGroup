@@ -51,15 +51,6 @@ async def update_event_super(db: AsyncSession, event_super_id: int, event_super:
         await ws_manager.broadcast(message="refresh_event_super")
     return await get_event_super(db, event_super_id)
 
-# async def delete_event_super(db: AsyncSession, event_super_id: int):
-#     db_event_super = await get_event_super(db, event_super_id)
-#     if not db_event_super:
-#         return False
-    
-#     await db.delete(db_event_super)
-#     await db.commit()
-#     return True
-
 
 async def delete_event_super(db: AsyncSession, event_super_id: int,ws_manager: Optional[ConnectionManager] = None):
     db_event_super = await get_event_super(db, event_super_id)

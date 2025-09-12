@@ -5,17 +5,14 @@ from app.schemas.Award_master_schemas import AwardUpdate, AwardCreate
 from typing import Optional
 from ..websockets.connection_manager import ConnectionManager
 
-
 async def get_Award_master_by_id(db: AsyncSession, award_id: int):
     result = await db.execute(select(AwardMaster).where(AwardMaster.AwardId == award_id))
     return result.scalar_one_or_none()
-
 
 async def get_max_Award_master(db: AsyncSession):
     result = await db.execute(select(func.max(AwardMaster.AwardId)))
     max_id = result.scalar()
     return max_id if max_id is not None else 0
-
 
 async def get_Award_master(db: AsyncSession, skip: int = 0, limit: int = 100):
     result = await db.execute(
@@ -25,7 +22,6 @@ async def get_Award_master(db: AsyncSession, skip: int = 0, limit: int = 100):
         .limit(limit)
     )
     return result.scalars().all()
-
 
 async def create_Award_Master(db: AsyncSession, award: AwardCreate,ws_manager: Optional[ConnectionManager] = None):
     max_id = await get_max_Award_master(db)
@@ -43,7 +39,6 @@ async def create_Award_Master(db: AsyncSession, award: AwardCreate,ws_manager: O
         await ws_manager.broadcast(message="refresh_award_master")
     return db_award
 
-
 async def update_Award_Master(db: AsyncSession, award_id: int, award: AwardUpdate,ws_manager: Optional[ConnectionManager] = None):
     update_data = award.model_dump(exclude_unset=True)
 
@@ -57,7 +52,6 @@ async def update_Award_Master(db: AsyncSession, award_id: int, award: AwardUpdat
         await ws_manager.broadcast(message="refresh_award_master")
 
     return await get_Award_master_by_id(db, award_id)
-
 
 
 async def delete_Award_Master(db: AsyncSession, award_id: int,ws_manager: Optional[ConnectionManager] = None):

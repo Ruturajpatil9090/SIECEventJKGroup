@@ -45,7 +45,6 @@ async def get_speaker_trackers(db: AsyncSession,event_code: Optional[int] = None
 
 
 #GET All Speaker Details with SpeakerTrackerId
-
 async def get_speakertrackers_details(db: AsyncSession, SpeakerTrackerId: Optional[int] = None):
     query = text("""
 SELECT        dbo.Eve_EventMaster.EventMaster_Name, dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_SpeakerTracker.Speaker_Name, dbo.Eve_SpeakerTracker.Designation, dbo.Eve_SpeakerTracker.Mobile_No, 

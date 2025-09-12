@@ -72,7 +72,6 @@ function AwardMaster() {
         setIsModalOpen(true);
     };
 
-    // Build dropdown options for EventSuper
     const eventSuperOptions = eventSupers.map(item => ({
         value: item.EventSuperId.toString(),
         label: `${item.EventSuperId} - ${item.EventSuper_Name}`
@@ -135,7 +134,6 @@ function AwardMaster() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // Ensure EventSuperId is number
             const payload = {
                 ...formData,
                 EventSuperId: Number(formData.EventSuperId)

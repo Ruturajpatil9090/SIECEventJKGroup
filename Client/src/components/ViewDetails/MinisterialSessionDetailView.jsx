@@ -70,7 +70,7 @@ function MinisterialSessionDetailView({ isOpen, onClose, details, mainData }) {
               </span>
             </div>
 
-     <div>
+            <div>
               <p className="text-sm font-medium text-gray-600">Approval Status</p>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${sessionDetails.Approval_Received === 'Y'
                 ? 'bg-green-100 text-green-800'
@@ -84,9 +84,6 @@ function MinisterialSessionDetailView({ isOpen, onClose, details, mainData }) {
                 )}
               </span>
             </div>
-
-
-
           </div>
         </div>
 

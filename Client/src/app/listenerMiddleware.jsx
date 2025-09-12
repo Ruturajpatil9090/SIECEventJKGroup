@@ -53,7 +53,7 @@ listenerMiddleware.startListening({
             listenerApi.dispatch(
                 secretarialRoundtableApi.util.invalidateTags(['SecretarialRoundtable'])
             );
-             listenerApi.dispatch(
+            listenerApi.dispatch(
                 networkingSlotApi.util.invalidateTags(['NetworkingSlot'])
             );
         }
@@ -168,7 +168,7 @@ listenerMiddleware.startListening({
                 sponsorMasterApi.util.invalidateTags(['SponsorMaster'])
             );
         }
-         else if (action.payload === "refresh_networking_slots") {
+        else if (action.payload === "refresh_networking_slots") {
             console.log("Received refresh signal. Invalidating Networking Slot cache.");
             listenerApi.dispatch(
                 networkingSlotApi.util.invalidateTags(['NetworkingSlot'])

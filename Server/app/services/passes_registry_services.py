@@ -155,8 +155,6 @@ async def update_passes_registry(
     for field, value in update_data.items():
         setattr(db_registry, field, value)
 
-    
-    # Process details
     created_details = []
     updated_details = []
     deleted_details = []

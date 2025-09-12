@@ -1,20 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
-import CryptoJS from 'crypto-js';
 import { useUpdateUserPasswordMutation } from '../../services/userMasterApi';
-
-const ENCRYPTION_KEY = import.meta.env.VITE_REACT_APP_API_ENCRYPTION_KEY;
-
-const decryptData = (encryptedData) => {
-    try {
-        const bytes = CryptoJS.AES.decrypt(encryptedData, ENCRYPTION_KEY);
-        const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-        return JSON.parse(decrypted);
-    } catch (error) {
-        console.error('Decryption error:', error);
-        return null;
-    }
-};
+import { decryptData } from "../../common/Functions/DecryptData"
 
 const Toast = ({ message, type, onClose }) => {
     useEffect(() => {
@@ -28,8 +15,8 @@ const Toast = ({ message, type, onClose }) => {
     return (
         <div className="fixed top-4 right-4 z-50 animate-fade-in">
             <div className={`flex items-center p-4 rounded-lg shadow-lg ${type === 'success'
-                    ? 'bg-green-100 border border-green-200 text-green-800'
-                    : 'bg-red-100 border border-red-200 text-red-800'
+                ? 'bg-green-100 border border-green-200 text-green-800'
+                : 'bg-red-100 border border-red-200 text-red-800'
                 }`}>
                 {type === 'success' ? (
                     <CheckCircle className="w-5 h-5 mr-2" />
@@ -97,7 +84,6 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
                         confirm_password: formData.confirm_password
                     }).unwrap();
 
-                    // Reset form and show success message
                     setFormData({
                         current_password: '',
                         new_password: '',
@@ -106,10 +92,9 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
 
                     showToast('Password changed successfully!', 'success');
 
-                    // Close modal after a short delay
                     setTimeout(() => {
                         onClose();
-                    }, 1000);
+                    },500);
                 }
             }
         } catch (error) {

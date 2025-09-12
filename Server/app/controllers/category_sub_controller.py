@@ -37,16 +37,6 @@ async def create_subcategory(
             detail=f"Error creating subcategory: {str(e)}"
         )
 
-# @router.get("/", response_model=List[CategorySubResponse])
-# async def read_categories(
-#     skip: int = 0,
-#     limit: int = 100,
-#     db: AsyncSession = Depends(get_db),
-# ):
-#     categories = await get_all_category_subs(db, skip=skip, limit=limit)
-#     return categories
-
-
 @router.get("/", response_model=List[CategorySubResponse])
 async def get_all_Categories_data(db: AsyncSession = Depends(get_db)):
     results = await get_all_Categories(db)

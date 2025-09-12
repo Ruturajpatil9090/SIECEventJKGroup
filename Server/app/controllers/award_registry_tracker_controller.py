@@ -25,23 +25,6 @@ router = APIRouter(
     tags=["award-registry"]
 )
 
-# @router.get("/", response_model=List[AwardRegistryTracker])
-# async def get_all_award_registry_data(
-#     event_code: Optional[int] = Query(None),
-#     sponsor_id: Optional[int] = Query(None),
-#     deliverable_code: Optional[int] = Query(None),
-#     db: AsyncSession = Depends(get_db)
-# ):
-#     if event_code:
-#         return await get_award_trackers_by_event_code(db, int(event_code))
-#     elif sponsor_id:
-#         return await get_award_trackers_by_sponsor(db, sponsor_id)
-#     elif deliverable_code:
-#         return await get_award_trackers_by_deliverable(db, deliverable_code)
-#     else:
-#         results = await get_award_registry_trackers(db)
-#         return results
-
 @router.get("/", response_model=List[AwardRegistryTracker])
 async def get_all_award_registry_data(
     event_code: Optional[int] = Query(None),

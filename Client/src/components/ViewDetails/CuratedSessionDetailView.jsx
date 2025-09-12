@@ -31,7 +31,6 @@ function CuratedSessionDetailView({ isOpen, onClose, details, mainData }) {
     );
   }
 
-  // Map track codes to readable labels
   const trackLabels = {
     'E': 'Ethanol & Bioenergy',
     'S': 'Sugar'
@@ -40,7 +39,6 @@ function CuratedSessionDetailView({ isOpen, onClose, details, mainData }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Curated Session Details" size="2xl">
       <div className="space-y-6">
-        {/* Header Section */}
         <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-lg border border-purple-100">
           <div className="flex justify-between items-start mb-4">
             <h3 className="font-semibold text-lg text-gray-800 flex items-center">
@@ -48,7 +46,7 @@ function CuratedSessionDetailView({ isOpen, onClose, details, mainData }) {
               Curated Session Information
             </h3>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p className="text-sm font-medium text-gray-600">Session ID</p>
@@ -71,40 +69,36 @@ function CuratedSessionDetailView({ isOpen, onClose, details, mainData }) {
           </div>
         </div>
 
-        {/* Tab Navigation */}
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8">
             <button
               onClick={() => setActiveTab('details')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'details'
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'details'
                   ? 'border-purple-500 text-purple-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
             >
               Speaker Details
             </button>
             <button
               onClick={() => setActiveTab('bio')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'bio'
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'bio'
                   ? 'border-purple-500 text-purple-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
             >
               Biography
             </button>
           </nav>
         </div>
 
-        {/* Tab Content */}
         {activeTab === 'details' ? (
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <h3 className="font-semibold text-lg text-gray-800 mb-6 flex items-center">
               <UserIcon className="h-5 w-5 mr-2 text-purple-600" />
               Speaker Information
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex items-start">
                 <UserIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
@@ -113,7 +107,7 @@ function CuratedSessionDetailView({ isOpen, onClose, details, mainData }) {
                   <p className="text-sm text-gray-900">{sessionDetails.Speaker_Name || 'Not specified'}</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start">
                 <BriefcaseIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
                 <div>
@@ -121,7 +115,7 @@ function CuratedSessionDetailView({ isOpen, onClose, details, mainData }) {
                   <p className="text-sm text-gray-900">{sessionDetails.designation || 'Not specified'}</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start">
                 <PhoneIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
                 <div>
@@ -129,7 +123,7 @@ function CuratedSessionDetailView({ isOpen, onClose, details, mainData }) {
                   <p className="text-sm text-gray-900">{sessionDetails.Mobile_No || 'Not provided'}</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start">
                 <EnvelopeIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
                 <div>
@@ -137,15 +131,14 @@ function CuratedSessionDetailView({ isOpen, onClose, details, mainData }) {
                   <p className="text-sm text-gray-900 break-all">{sessionDetails.Email_Address || 'Not provided'}</p>
                 </div>
               </div>
-              
-              
+
               <div className="flex items-start">
                 <CalendarIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
                 <div>
                   <p className="text-sm font-medium text-gray-600">Speaking Date</p>
                   <p className="text-sm text-gray-900">
-                    {sessionDetails.Speaking_Date 
-                      ? new Date(sessionDetails.Speaking_Date).toLocaleDateString() 
+                    {sessionDetails.Speaking_Date
+                      ? new Date(sessionDetails.Speaking_Date).toLocaleDateString()
                       : 'Not scheduled'
                     }
                   </p>
@@ -159,7 +152,7 @@ function CuratedSessionDetailView({ isOpen, onClose, details, mainData }) {
               <DocumentTextIcon className="h-5 w-5 mr-2 text-purple-600" />
               Speaker Biography
             </h3>
-            
+
             <div className="prose prose-sm max-w-none">
               {sessionDetails.CuratedSession_Bio ? (
                 <div className="whitespace-pre-wrap text-gray-900">

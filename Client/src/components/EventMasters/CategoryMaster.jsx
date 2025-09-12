@@ -36,7 +36,6 @@ function CategoryMaster() {
     const [updateCategory] = useUpdateCategoryMasterMutation();
     const [deleteCategory] = useDeleteCategoryMasterMutation();
 
-
     const showNotification = (message, type = 'success') => {
         setNotification({ show: true, message, type });
         setTimeout(() => {

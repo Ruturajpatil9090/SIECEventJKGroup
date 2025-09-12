@@ -10,7 +10,6 @@ function EventList() {
   const [expandedSuperEvents, setExpandedSuperEvents] = useState({});
   const navigate = useNavigate();
 
-  // Function to get user data from sessionStorage
   const getUserData = () => {
     try {
       const encryptedUserData = sessionStorage.getItem('user_data');
@@ -35,7 +34,6 @@ function EventList() {
         }
       });
 
-      // Also expand the ungrouped section if it exists
       const hasUngrouped = events.some(event => !event.EventSuperId || event.EventSuperId === 0);
       if (hasUngrouped) {
         initialExpandedState['ungrouped'] = true;

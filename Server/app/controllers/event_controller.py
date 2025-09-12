@@ -20,15 +20,6 @@ router = APIRouter(
     tags=["event-masters"]
 )
 
-# @router.get("/", response_model=List[EventMaster])
-# async def read_event_masters(
-#     skip: int = 0,
-#     limit: int = 100,
-#     db: AsyncSession = Depends(get_db),
-# ):
-#     event_masters = await get_event_masters(db, skip=skip, limit=limit)
-#     return event_masters
-
 @router.get("/", response_model=List[EventMaster])
 async def get_all_events_data(db: AsyncSession = Depends(get_db)):
     results = await get_all_events(db)

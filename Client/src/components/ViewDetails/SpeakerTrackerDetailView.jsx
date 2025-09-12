@@ -31,7 +31,6 @@ function SpeakerTrackerDetailView({ isOpen, onClose, details, mainData }) {
         );
     }
 
-    // Map track codes to readable labels
     const trackLabels = {
         'E': 'Ethanol & Bioenergy',
         'S': 'Sugar'
@@ -75,8 +74,8 @@ function SpeakerTrackerDetailView({ isOpen, onClose, details, mainData }) {
                         <button
                             onClick={() => setActiveTab('details')}
                             className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'details'
-                                    ? 'border-orange-500 text-orange-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                ? 'border-orange-500 text-orange-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                 }`}
                         >
                             Speaker Details
@@ -84,8 +83,8 @@ function SpeakerTrackerDetailView({ isOpen, onClose, details, mainData }) {
                         <button
                             onClick={() => setActiveTab('bio')}
                             className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'bio'
-                                    ? 'border-orange-500 text-orange-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                ? 'border-orange-500 text-orange-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                 }`}
                         >
                             Biography
@@ -93,8 +92,8 @@ function SpeakerTrackerDetailView({ isOpen, onClose, details, mainData }) {
                         <button
                             onClick={() => setActiveTab('session')}
                             className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'session'
-                                    ? 'border-orange-500 text-orange-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                ? 'border-orange-500 text-orange-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                 }`}
                         >
                             Session Info
@@ -102,7 +101,6 @@ function SpeakerTrackerDetailView({ isOpen, onClose, details, mainData }) {
                     </nav>
                 </div>
 
-                {/* Tab Content */}
                 {activeTab === 'details' ? (
                     <div className="bg-white rounded-lg border border-gray-200 p-6">
                         <h3 className="font-semibold text-lg text-gray-800 mb-6 flex items-center">

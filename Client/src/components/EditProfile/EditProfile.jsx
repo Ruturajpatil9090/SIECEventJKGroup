@@ -4,7 +4,6 @@ import { useState } from "react";
 export default function EditProfile() {
     const [activeTab, setActiveTab] = useState("user");
     const [formData, setFormData] = useState({
-        // User Information
         photo: null,
         firstName: "",
         lastName: "",

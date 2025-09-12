@@ -395,30 +395,6 @@ function AwardRegistryTracker() {
                                 }}
                             />
                         </div>
-
-                        {/* <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Deliverable Code</label>
-                            <input
-                                type="number"
-                                name="Deliverabled_Code"
-                                value={formData.Deliverabled_Code}
-                                onChange={handleInputChange}
-                                autoComplete='off'
-                                className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Deliverable No</label>
-                            <input
-                                type="number"
-                                name="Deliverable_No"
-                                value={formData.Deliverable_No}
-                                onChange={handleInputChange}
-                                autoComplete='off'
-                                className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
-                            />
-                        </div> */}
                     </div>
 
                     <div>
@@ -454,43 +430,6 @@ function AwardRegistryTracker() {
                             }}
                         />
                     </div>
-
-                    {/* <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Award Type</label>
-                        <Select
-                            options={getAvailableAwardOptions()}
-                            value={selectedAward}
-                            onChange={handleAwardChange}
-                            placeholder="Select an award type..."
-                            isSearchable
-                            required
-                            className="basic-single"
-                            classNamePrefix="select"
-                            styles={{
-                                        
-                                option: (provided, state) => ({
-                                    ...provided,
-                                    backgroundColor: state.isSelected
-                                        ? '#2563eb'
-                                        : state.isDisabled
-                                            ? '#f3f4f6'
-                                            : 'white',
-                                    color: state.isSelected
-                                        ? 'white'
-                                        : state.isDisabled
-                                            ? '#9ca3af'
-                                            : 'black',
-                                    cursor: state.isDisabled ? 'not-allowed' : 'pointer',
-                                    '&:hover': {
-                                        backgroundColor: state.isDisabled ? '#f3f4f6' : '#2563eb',
-                                        color: state.isDisabled ? '#9ca3af' : 'white'
-                                    }
-                                })
-                            }}
-                        />
-                    </div> */}
-
-
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Award Type</label>

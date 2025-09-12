@@ -20,7 +20,7 @@ const createWebSocketMiddleware = (wsUrl) => {
 
             ws.onclose = () => {
                 console.log('WebSocket disconnected. Attempting to reconnect...');
-                setTimeout(connect, 5000); 
+                setTimeout(connect, 5000);
             };
 
             ws.onerror = (error) => {

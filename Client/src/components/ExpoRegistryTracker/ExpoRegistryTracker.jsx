@@ -37,7 +37,7 @@ function ExpoRegistryTracker() {
         SponsorMasterId: '',
         Event_Code: '',
         Booth_to_be_provided: 'N',
-        Booth_Assigned: '',
+        Booth_Assigned: 'N',
         Booth_Number_Assigned: [],
         Logo_Details_Received: '',
         Notes_Comments: ''
@@ -220,7 +220,6 @@ function ExpoRegistryTracker() {
     const handleSelectChange = (name, value) => {
         let newFormData = { ...formData, [name]: value };
 
-        // If 'Booth_Assigned' is set to 'No', clear the assigned booths
         if (name === 'Booth_Assigned' && value === 'N') {
             newFormData = { ...newFormData, Booth_Number_Assigned: [] };
         }
@@ -379,7 +378,7 @@ function ExpoRegistryTracker() {
             SponsorMasterId: '',
             Event_Code: '',
             Booth_to_be_provided: 'N',
-            Booth_Assigned: '',
+            Booth_Assigned: 'N',
             Booth_Number_Assigned: [],
             Logo_Details_Received: '',
             Notes_Comments: ''
@@ -505,7 +504,7 @@ function ExpoRegistryTracker() {
                 <span className="inline-block animate-pulse ml-1 text-blue-600">...</span>
             </p>
         </div>
-    </div>;
+    </div>
     if (isError) return <div>Error loading expo registry</div>;
 
     return (

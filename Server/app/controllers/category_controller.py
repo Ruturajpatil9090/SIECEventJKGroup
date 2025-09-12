@@ -75,20 +75,6 @@ async def update_existing_category(
         )
     return updated_category
 
-# @router.delete("/{category_id}")
-# async def delete_existing_category(
-#     category_id: int,
-#     db: AsyncSession = Depends(get_db),
-# ):
-#     success = await delete_category(db=db, category_id=category_id)
-#     if not success:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail="Category not found"
-#         )
-#     return {"message": "Category deleted successfully"}
-
-
 @router.delete("/{category_id}")
 async def delete_category_endpoint(category_id: int, db: AsyncSession = Depends(get_db)):
     try:

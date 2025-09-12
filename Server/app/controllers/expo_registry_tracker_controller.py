@@ -72,7 +72,7 @@ async def get_all_Categories_data(
     db: AsyncSession = Depends(get_db)
 ):
     if event_code:
-        results = await get_expo_registry_trackers(db, int(event_code))  # Convert to int
+        results = await get_expo_registry_trackers(db, int(event_code))
     elif sponsor_id:
         results = await get_trackers_by_sponsor(db, sponsor_id)
     else:

@@ -16,7 +16,6 @@ import {
     PaperAirplaneIcon
 } from '@heroicons/react/24/outline';
 
-
 const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
 
     useEffect(() => {
@@ -137,7 +136,6 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                 </div>
                             </div>
 
-                            {/* Booth Information Section - Added Here */}
                             {detail.Booth_Number_Assigned && (
                                 <div className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-xl shadow-sm border border-gray-100">
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -201,7 +199,6 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                     Speakers Information
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    {/* Ministerial RoundTable Speaker Section */}
                                     <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-5 rounded-xl border border-blue-200">
                                         <div className="flex items-center mb-3">
                                             <div className="bg-blue-100 p-2 rounded-full mr-3">
@@ -248,7 +245,6 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                         </div>
                                     </div>
 
-                                    {/* Curated Session Speaker Section */}
                                     <div className="bg-gradient-to-br from-green-50 to-green-100 p-5 rounded-xl border border-green-200">
                                         <div className="flex items-center mb-3">
                                             <div className="bg-green-100 p-2 rounded-full mr-3">
@@ -295,7 +291,6 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                         </div>
                                     </div>
 
-                                    {/* Speaker Tracker Sponsors Section */}
                                     <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-5 rounded-xl border border-purple-200">
                                         <div className="flex items-center mb-3">
                                             <div className="bg-purple-100 p-2 rounded-full mr-3">
@@ -404,7 +399,6 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                         </div>
                                     </div>
 
-
                                     <div className="bg-gradient-to-br from-pink-50 to-pink-100 p-5 rounded-xl border border-pink-200">
                                         <div className="flex items-center mb-3">
                                             <div className="bg-pink-100 p-2 rounded-full mr-3">
@@ -466,8 +460,6 @@ const SponsorDetailsPopup = ({ isOpen, onClose, sponsorDetails }) => {
                                             </div>
                                         </div>
                                     </div>
-
-
                                 </div>
                             </div>
 

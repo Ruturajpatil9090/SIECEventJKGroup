@@ -52,15 +52,6 @@ async def update_category(db: AsyncSession, category_id: int, category: Category
         await ws_manager.broadcast(message="refresh_category")
     return await get_category(db, category_id)
 
-# async def delete_category(db: AsyncSession, category_id: int):
-#     db_category = await get_category(db, category_id)
-#     if not db_category:
-#         return False
-    
-#     await db.delete(db_category)
-#     await db.commit()
-#     return True
-
 
 async def delete_category(db: AsyncSession, category_id: int,ws_manager: Optional[ConnectionManager] = None):
     db_category = await get_category(db, category_id)

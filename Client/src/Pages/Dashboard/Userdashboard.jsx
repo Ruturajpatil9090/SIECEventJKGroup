@@ -25,7 +25,7 @@ import { decryptData } from '../../common/Functions/DecryptData';
 
 
 function UserDashboard() {
-  const { data: dashboardData, error, isLoading } = useGetUserDashboardStatsQuery({ event_code: sessionStorage.getItem("Event_Code"),user_id: sessionStorage.getItem("user_id") });
+  const { data: dashboardData, error, isLoading } = useGetUserDashboardStatsQuery({ event_code: sessionStorage.getItem("Event_Code"), user_id: sessionStorage.getItem("user_id") });
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -149,7 +149,7 @@ function UserDashboard() {
           </div>
           <p className="text-3xl font-bold text-gray-800">{stats.sponsor_count || 0}</p>
         </div>
-        
+
         {/* <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-700">Award Records</h2>
@@ -189,7 +189,7 @@ function UserDashboard() {
           </div>
           <p className="text-3xl font-bold text-gray-800">{stats.speaker_tracker_count || 0}</p>
         </div> */}
-        
+
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-700">Booths Assigned</h2>
@@ -211,7 +211,7 @@ function UserDashboard() {
           <p className="text-4xl font-bold mb-2">₹ {metricsData.totalRevenue.toLocaleString()}</p>
           <p className="text-sm opacity-90">{sponsors.length} sponsors</p>
         </div>
-        
+
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <div className="flex items-center mb-4">
             <CheckCircle className="h-6 w-6 text-green-600 mr-2" />
@@ -222,7 +222,7 @@ function UserDashboard() {
             {sponsors.length > 0 ? Math.round((metricsData.confirmedSponsors / sponsors.length) * 100) : 0}% success rate
           </p>
         </div>
-        
+
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <div className="flex items-center mb-4">
             <Clock className="h-6 w-6 text-yellow-600 mr-2" />
@@ -231,7 +231,7 @@ function UserDashboard() {
           <p className="text-3xl font-bold text-yellow-600">{metricsData.pendingSponsors}</p>
           <p className="text-sm text-gray-500 mt-2">Awaiting confirmation</p>
         </div>
-        
+
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <div className="flex items-center mb-4">
             <TrendingUp className="h-6 w-6 text-blue-600 mr-2" />

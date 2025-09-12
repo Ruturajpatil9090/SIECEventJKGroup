@@ -42,7 +42,7 @@ function LoginPage() {
             const encryptedData = encryptData(userData);
             sessionStorage.setItem('user_data', encryptedData);
             sessionStorage.setItem('access_token', encryptData(response.access_token));
-             sessionStorage.setItem('user_id', response.user_id);
+            sessionStorage.setItem('user_id', response.user_id);
 
             navigate('/event-list');
 

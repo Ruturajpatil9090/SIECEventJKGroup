@@ -59,8 +59,7 @@ async def read_SecretarialRoundTableId_details(
                 detail=f"Secretarial roundtable details not found for ID: {SecretarialRoundTableId}"
             )
             
-        return roundtable_details
-        
+        return roundtable_details        
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
