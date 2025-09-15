@@ -27,6 +27,9 @@ import NetworkingSlotTracker from "./components/ExpoRegistryTracker/NetworkingSl
 import Userdashboard from "./Pages/Dashboard/Userdashboard";
 import { decryptData } from "./common/Functions/DecryptData";
 
+//Task Management Routes
+import TaskDashboard from "./TaskManagement/TaskDashboard";
+
 const Layout = () => {
   const location = useLocation();
 
@@ -92,7 +95,10 @@ const Layout = () => {
     "/userdashboard",
     "/event-list",
     "/SecretarialRoundTable",
-    "/NetworkingSlotTracker"
+    "/NetworkingSlotTracker",
+
+    //Task Dashbaord
+    "taskdashboard"
   ];
 
   const userRoutes = [
@@ -107,7 +113,11 @@ const Layout = () => {
     "/userdashboard",
     "/passess-registry",
     "/SecretarialRoundTable",
-    "/NetworkingSlotTracker"
+    "/NetworkingSlotTracker",
+
+    //Task Dashbaord
+    "taskdashboard"
+
   ];
 
   const allowedRoutes = userType === 'A' ? adminRoutes : userRoutes;
@@ -125,11 +135,7 @@ const Layout = () => {
           <Routes>
             {userType === 'A' && (
               <>
-                <Route path="/editprofile" element={
-                  <ProtectedRoute>
-                    <EditProfile />
-                  </ProtectedRoute>
-                } />
+
                 <Route path="/testimonials" element={
                   <ProtectedRoute>
                     <Testimonials />
@@ -256,6 +262,9 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/taskdashboard" element={
+          <TaskDashboard />
+        } />
 
         <Route path="/*" element={
           <ProtectedRoute>

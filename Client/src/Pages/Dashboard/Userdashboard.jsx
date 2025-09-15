@@ -19,7 +19,6 @@ import {
 } from 'lucide-react';
 import { useGetUserDashboardStatsQuery } from '../../services/sponsorMasterApi';
 import { formatReadableAmount } from '../../common/Functions/FormatAmount';
-import { useNavigate, Link } from "react-router-dom";
 import { EyeIcon } from '@heroicons/react/24/outline';
 import { decryptData } from '../../common/Functions/DecryptData';
 
@@ -31,8 +30,6 @@ function UserDashboard() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-
-  const navigate = useNavigate();
 
   const stats = dashboardData?.data || {};
   const sponsorDetails = stats?.sponsor_details || [];

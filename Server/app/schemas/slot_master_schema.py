@@ -5,6 +5,8 @@ class SlotMasterBase(BaseModel):
     SlotMaster_Name: str
     SponsorMasterId: int
     SponsorMasterId: Optional[int] = None
+    Event_Code: Optional[int] = None
+    ID: Optional[int] = None
 
 class SlotMasterCreate(SlotMasterBase):
     pass

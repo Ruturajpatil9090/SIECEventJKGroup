@@ -72,6 +72,7 @@ function EventList() {
   const handleEventSelect = (event) => {
     setSelectedEvent(event);
     sessionStorage.setItem("Event_Code", event.EventMasterId);
+    sessionStorage.setItem("Event_Name", event.EventMaster_Name);
     const userData = getUserData();
     const userType = userData?.user_type || '';
 

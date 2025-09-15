@@ -6,10 +6,22 @@ export const slotMasterApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
     tagTypes: ['SlotMaster'],
     endpoints: (builder) => ({
-        getSlotMasters: builder.query({
-            query: () => '/slot-masters',
+        // getSlotMasters: builder.query({
+        //     query: () => '/slot-masters',
+        //     providesTags: ['SlotMaster']
+        // }),
+
+          getSlotMasters: builder.query({
+            query: (params = {}) => {
+                const event_code = params.event_code ?? sessionStorage.getItem("Event_Code");
+                return {
+                    url: '/slot-masters',
+                    params: event_code ? { event_code } : {}
+                };
+            },
             providesTags: ['SlotMaster']
         }),
+
         getSlotMastersBySponsorId: builder.query({
             query: (sponsorId) => `/slot-masters/by-sponsor/${sponsorId}`,
             providesTags: ['SlotMaster']

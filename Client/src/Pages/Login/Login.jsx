@@ -44,7 +44,7 @@ function LoginPage() {
             sessionStorage.setItem('access_token', encryptData(response.access_token));
             sessionStorage.setItem('user_id', response.user_id);
 
-            navigate('/event-list');
+            navigate('/taskdashboard');
 
         } catch (err) {
             console.error('Login failed:', err);

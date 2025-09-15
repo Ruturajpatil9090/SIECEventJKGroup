@@ -78,7 +78,7 @@ function ExpoRegistryTracker() {
         data: slots = [],
         isLoading: isSlotsLoading,
         refetch: refetchSlots
-    } = useGetSlotMastersQuery();
+    } = useGetSlotMastersQuery({ event_code: sessionStorage.getItem("Event_Code") });
 
     const [addExpoRegistry] = useAddExpoRegistryMutation();
     const [updateExpoRegistry] = useUpdateExpoRegistryMutation();
