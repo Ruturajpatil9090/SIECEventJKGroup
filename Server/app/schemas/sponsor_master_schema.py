@@ -21,6 +21,7 @@ class SponsorDetail(SponsorDetailBase):
 
 class SponsorMasterBase(BaseModel):
     Sponsor_Name: str
+    Doc_No: Optional[int] = None
     Sponsor_logo: Optional[str] = None
     Sponsor_logo: Optional[str] = None
     Sponsor_pdf:  Optional[str] = None
@@ -133,6 +134,7 @@ class SponsorMasterWithDetails(SponsorMasterBase):
 
 class SponsorCompleteDetails(BaseModel):
     SponsorMasterId: int
+    Doc_No: int
     Sponsor_Name: str
     Event_Code: int
     Contact_Person: Optional[str] = None

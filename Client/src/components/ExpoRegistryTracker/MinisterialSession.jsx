@@ -180,7 +180,7 @@ function MinisterialSessionTracker() {
     const columns = [
         {
             header: 'Ministerial Session ID',
-            accessor: 'MinisterialSessionId',
+            accessor: 'Doc_No',
         },
         {
             header: 'Event Name',
@@ -604,14 +604,18 @@ function MinisterialSessionTracker() {
                                             }
                                         }),
                                         option: (provided, state) => ({
-                                            ...provided,
-                                            backgroundColor: state.isSelected ? '#2563eb' : 'white',
-                                            color: state.isSelected ? 'white' : 'black',
-                                            '&:hover': {
-                                                backgroundColor: '#2563eb',
-                                                color: 'white'
-                                            }
-                                        })
+                                        ...provided,
+                                        backgroundColor: state.isFocused
+                                            ? '#8db1faff'
+                                            : state.isSelected
+                                                ? '#2563eb'
+                                                : 'white',
+                                        color: state.isSelected || state.isFocused ? 'white' : 'black',
+                                        '&:hover': {
+                                            backgroundColor: '#2563eb',
+                                            color: 'white'
+                                        }
+                                    })
                                     }}
                                 />
                             </div>
@@ -639,14 +643,18 @@ function MinisterialSessionTracker() {
                                             }
                                         }),
                                         option: (provided, state) => ({
-                                            ...provided,
-                                            backgroundColor: state.isSelected ? '#2563eb' : 'white',
-                                            color: state.isSelected ? 'white' : 'black',
-                                            '&:hover': {
-                                                backgroundColor: '#2563eb',
-                                                color: 'white'
-                                            }
-                                        })
+                                        ...provided,
+                                        backgroundColor: state.isFocused
+                                            ? '#8db1faff'
+                                            : state.isSelected
+                                                ? '#2563eb'
+                                                : 'white',
+                                        color: state.isSelected || state.isFocused ? 'white' : 'black',
+                                        '&:hover': {
+                                            backgroundColor: '#2563eb',
+                                            color: 'white'
+                                        }
+                                    })
                                     }}
                                 />
                             </div>
@@ -800,6 +808,7 @@ function MinisterialSessionTracker() {
                 }}
                 details={selectedRecordDetails}
                 mainData={selectedMainData}
+                sponsors={sponsors}
             />
         </>
     );

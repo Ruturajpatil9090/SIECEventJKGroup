@@ -15,6 +15,7 @@ class ExpoRegistryTracker(Base):
     Booth_Number_Assigned = Column(Text, nullable=True)
     Logo_Details_Received = Column(String(2), default=False)
     Notes_Comments = Column(Text, nullable=True)
+    Doc_No = Column(Integer)
 
     def __repr__(self):
         return f"<ExpoRegistryTracker {self.ExpoRegistryTrackerId}>"

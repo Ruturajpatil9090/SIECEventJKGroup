@@ -30,6 +30,7 @@ async def get_speaker_trackers(db: AsyncSession,event_code: Optional[int] = None
             st.Speaker_Bio, 
             st.Speaking_Date, 
             st.Track,
+            st.Doc_No,
             em.EventMaster_Name,
             sm.Sponsor_Name,
                  st.Pitch_session_Topic

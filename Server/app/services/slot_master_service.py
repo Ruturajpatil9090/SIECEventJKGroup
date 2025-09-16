@@ -137,18 +137,44 @@ async def create_slot_master(db: AsyncSession, slot_master: SlotMasterCreate, ws
         await ws_manager.broadcast(message="refresh_slot_master")
     return db_slot_master
 
-async def update_slot_master(db: AsyncSession, slot_master_id: int, slot_master: SlotMasterUpdate, ws_manager: Optional[ConnectionManager] = None):
+# async def update_slot_master(db: AsyncSession, slot_master_id: int, slot_master: SlotMasterUpdate, ws_manager: Optional[ConnectionManager] = None):
+#     update_data = slot_master.model_dump(exclude_unset=True)
+    
+#     await db.execute(
+#         update(SlotMaster)
+#         .where(SlotMaster.SlotMasterId == slot_master_id)
+#         .values(**update_data)
+#     )
+#     await db.commit()
+#     if ws_manager:
+#         await ws_manager.broadcast(message="refresh_slot_master")
+#     return await get_slot_master(db, slot_master_id)
+
+
+async def get_slot_master_by_event_and_id(db: AsyncSession, event_code: str, ID: int):
+    result = await db.execute(
+        select(SlotMaster)
+        .filter(SlotMaster.Event_Code == event_code, SlotMaster.ID == ID)
+    )
+    return result.scalars().first()
+
+async def update_slot_master(db: AsyncSession, event_code: str, ID: int, slot_master: SlotMasterUpdate, ws_manager: Optional[ConnectionManager] = None):
     update_data = slot_master.model_dump(exclude_unset=True)
     
-    await db.execute(
+    result = await db.execute(
         update(SlotMaster)
-        .where(SlotMaster.SlotMasterId == slot_master_id)
+        .where(SlotMaster.Event_Code == event_code, SlotMaster.ID == ID)
         .values(**update_data)
     )
     await db.commit()
+    
+    if result.rowcount == 0:
+        return None
+        
     if ws_manager:
         await ws_manager.broadcast(message="refresh_slot_master")
-    return await get_slot_master(db, slot_master_id)
+        
+    return await get_slot_master_by_event_and_id(db, event_code, ID)
 
 async def delete_slot_master(db: AsyncSession, slot_master_id: int, ws_manager: Optional[ConnectionManager] = None):
     db_slot_master = await get_slot_master(db, slot_master_id)

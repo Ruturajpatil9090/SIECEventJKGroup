@@ -11,6 +11,7 @@ class AwardRegistryTracker(Base):
     Deliverabled_Code = Column(Integer, nullable=True)
     Deliverable_No = Column(Integer, nullable=True)
     Award_Code = Column(Integer, nullable=True)
+    Doc_No = Column(Integer)
 
     def __repr__(self):
         return f"<AwardRegistryTracker {self.AwardRegistryTrackerId}>"

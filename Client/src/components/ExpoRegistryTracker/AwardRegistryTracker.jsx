@@ -100,7 +100,7 @@ function AwardRegistryTracker() {
     const columns = [
         {
             header: 'Award Registry ID',
-            accessor: 'AwardRegistryTrackerId',
+            accessor: 'Doc_No',
         },
         {
             header: 'Event Name',
@@ -448,11 +448,13 @@ function AwardRegistryTracker() {
                                 menuPortal: base => ({ ...base, zIndex: 9999 }),
                                 option: (provided, state) => ({
                                     ...provided,
-                                    backgroundColor: state.isSelected
-                                        ? '#2563eb'
-                                        : state.isDisabled
-                                            ? '#f3f4f6'
-                                            : 'white',
+                                    backgroundColor: state.isFocused
+                                        ? '#a8bde9ff'
+                                        : state.isSelected
+                                            ? '#2563eb'
+                                            : state.isDisabled
+                                                ? '#f3f4f6'
+                                                : 'white',
                                     color: state.isSelected
                                         ? 'white'
                                         : state.isDisabled

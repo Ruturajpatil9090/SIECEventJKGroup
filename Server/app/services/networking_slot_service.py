@@ -33,7 +33,8 @@ async def get_networking_slots(db: AsyncSession, event_code: Optional[int] = Non
             ns.Invitation_Sent,
             ns.Approval_Received,
             em.EventMaster_Name,
-            sm.Sponsor_Name
+            sm.Sponsor_Name,
+            sm.Doc_No
         FROM Eve_NetworkingSlot ns
         LEFT JOIN Eve_EventMaster em ON ns.Event_Code = em.EventMasterId
         LEFT JOIN Eve_SponsorMaster sm ON ns.SponsorMasterId = sm.SponsorMasterId
@@ -57,7 +58,9 @@ async def get_networking_slot_details(db: AsyncSession, NetworkingSlotId: Option
             ns.Track, 
             ns.Invitation_Sent, 
             ns.Approval_Received,
-            ns.NetworkingSlotId
+            ns.NetworkingSlotId,
+            ns.SponsorMasterId, 
+            ns.designation
         FROM Eve_NetworkingSlot ns
         INNER JOIN Eve_SponsorMaster sm ON ns.SponsorMasterId = sm.SponsorMasterId
         INNER JOIN Eve_EventMaster em ON ns.Event_Code = em.EventMasterId

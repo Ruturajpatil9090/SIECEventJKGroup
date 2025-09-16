@@ -14,6 +14,7 @@ class CuratedSessionBase(BaseModel):
     CuratedSession_Bio: Optional[str] = None
     Speaking_Date: Optional[datetime] = None
     Track: Optional[str] = None
+    Doc_No: Optional[int] = None
 
 class CuratedSessionCreate(CuratedSessionBase):
     pass

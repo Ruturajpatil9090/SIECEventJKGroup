@@ -374,7 +374,7 @@ function SponsorMaster() {
     ];
 
     const columns = [
-        { header: 'ID', accessor: 'SponsorMasterId' },
+        { header: 'ID', accessor: 'Doc_No' },
         { header: 'Sponsor Name', accessor: 'Sponsor_Name' },
         {
             header: 'Event Name',

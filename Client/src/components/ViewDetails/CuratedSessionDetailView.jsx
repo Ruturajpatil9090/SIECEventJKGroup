@@ -11,8 +11,9 @@ import {
   MicrophoneIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
+import ExportButton from '../../common/FileExport/exportUtils';
 
-function CuratedSessionDetailView({ isOpen, onClose, details, mainData }) {
+function CuratedSessionDetailView({ isOpen, onClose, details, mainData, sponsors = [] }) {
   const [activeTab, setActiveTab] = useState('details');
 
   const sessionDetails = details && details.length > 0 ? details[0] : mainData;
@@ -74,8 +75,8 @@ function CuratedSessionDetailView({ isOpen, onClose, details, mainData }) {
             <button
               onClick={() => setActiveTab('details')}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'details'
-                  ? 'border-purple-500 text-purple-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-purple-500 text-purple-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
             >
               Speaker Details
@@ -83,8 +84,8 @@ function CuratedSessionDetailView({ isOpen, onClose, details, mainData }) {
             <button
               onClick={() => setActiveTab('bio')}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'bio'
-                  ? 'border-purple-500 text-purple-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-purple-500 text-purple-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
             >
               Biography
@@ -147,11 +148,23 @@ function CuratedSessionDetailView({ isOpen, onClose, details, mainData }) {
             </div>
           </div>
         ) : (
+
           <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="font-semibold text-lg text-gray-800 mb-6 flex items-center">
-              <DocumentTextIcon className="h-5 w-5 mr-2 text-purple-600" />
-              Speaker Biography
-            </h3>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-semibold text-lg text-gray-800 flex items-center">
+                <DocumentTextIcon className="h-5 w-5 mr-2 text-orange-600" />
+                Speaker Biography
+              </h3>
+              <ExportButton
+                data={sessionDetails}
+                sponsors={sponsors}
+                onSuccess={(message) => console.log(message)}
+                onError={(message) => console.error(message)}
+                fileNamePrefix="Curated Session Bio"
+                requiredFields={['SponsorMasterId', 'designation', 'CuratedSession_Bio']}
+                buttonText="Export Bio"
+              />
+            </div>
 
             <div className="prose prose-sm max-w-none">
               {sessionDetails.CuratedSession_Bio ? (

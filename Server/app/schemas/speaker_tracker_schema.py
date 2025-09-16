@@ -15,6 +15,7 @@ class SpeakerTrackerBase(BaseModel):
     Deliverabled_Code: Optional[int] = None
     Deliverable_No: Optional[int] = None
     Pitch_session_Topic: Optional[str] = None
+    Doc_No: Optional[int] = None
 
 class SpeakerTrackerCreate(SpeakerTrackerBase):
     pass

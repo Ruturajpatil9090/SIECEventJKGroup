@@ -48,7 +48,7 @@ const ExportButton = ({
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${fileNamePrefix}_${data.NetworkingSlotId || data.MinisterialSessionId || data.id || 'new'}.txt`;
+        a.download = `${sponsorName}_${data.NetworkingSlotId || data.MinisterialSessionId || data.id || ''}.txt`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

@@ -42,6 +42,9 @@ export default function Sidebar() {
   const [expanded, setExpanded] = useState(true);
   const [showSubMenu, setShowSubMenu] = useState(false);
 
+  const Event_Name = sessionStorage.getItem('Event_Name');
+
+
   const getUserData = () => {
     try {
       const encryptedUserData = sessionStorage.getItem('user_data');
@@ -221,16 +224,26 @@ export default function Sidebar() {
         </SidebarContext.Provider>
 
         <div className="border-t flex p-3">
-          <img src={profile} className="w-10 h-10 rounded-md" alt="Profile" />
+          {/* <img src={profile} className="w-10 h-10 rounded-md" alt="Profile" /> */}
           <div className={`flex justify-between items-center overflow-hidden transition-all ${expanded ? "w-52 ml-3" : "w-0"}`}>
-            <div className="leading-4">
+            {/* <div className="leading-4">
               <span className="text-xs text-gray-800">Customer Care</span>
               <div className="flex items-center">
                 <Phone size={14} className="mr-1" />
                 <h2 className="font-semibold">9881999101</h2>
               </div>
-            </div>
-            <MoreVertical size={20} />
+            </div> */}
+
+            {Event_Name && (
+              <div className="flex items-center bg-[#FDF8F8] rounded-full px-4 py-2 hover:bg-[#FBEAEA] transition-colors duration-200 cursor-pointer">
+                <Calendar size={18} className="text-[#8B0000] mr-2" />
+                <span className="text-[#8B0000] font-medium text-sm md:text-base">
+                  {Event_Name}
+                </span>
+              </div>
+            )}
+
+            {/* <MoreVertical size={20} /> */}
           </div>
         </div>
       </nav>

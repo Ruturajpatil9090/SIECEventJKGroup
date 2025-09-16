@@ -7,6 +7,7 @@ class AwardRegistryTrackerBase(BaseModel):
     Deliverabled_Code: Optional[int] = None
     Deliverable_No: Optional[int] = None
     Award_Code: Optional[int] = None
+    Doc_No: Optional[int] = None
 
 class AwardRegistryTrackerCreate(AwardRegistryTrackerBase):
     pass

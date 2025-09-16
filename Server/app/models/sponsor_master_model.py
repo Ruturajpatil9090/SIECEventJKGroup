@@ -8,6 +8,7 @@ class Eve_SponsorMaster(Base):
 
     SponsorMasterId = Column(Integer, primary_key=True)
     Doc_Date = Column(DateTime)
+    Doc_No = Column(Integer) 
     Sponsor_Name = Column(String(255), nullable=False)
     Sponsor_logo = Column(String(255), nullable=True)
     Sponsor_pdf = Column(String(255), nullable=True)

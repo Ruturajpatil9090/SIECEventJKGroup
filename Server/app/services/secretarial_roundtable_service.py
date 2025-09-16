@@ -20,7 +20,7 @@ async def get_max_secretarial_roundtable_id(db: AsyncSession):
 async def get_secretarial_roundtables(db: AsyncSession, event_code: Optional[int] = None):
     query = text("""
      SELECT  srt.SecretarialRoundTableId, srt.Event_Code, srt.SponsorMasterId, srt.Speaker_Name, srt.designation, srt.Mobile_No, srt.Email_Address, srt.SecretarialRoundTable_Bio, srt.Speaking_Date, srt.Track, srt.Invitation_Sent, 
-                         srt.Approval_Received, em.EventMaster_Name, sm.Sponsor_Name, srt.Deliverabled_Code, srt.Deliverable_No
+                         srt.Approval_Received, em.EventMaster_Name, sm.Sponsor_Name, srt.Deliverabled_Code, srt.Deliverable_No,srt.Doc_No
 FROM  dbo.Eve_SecretarialRoundTable AS srt LEFT OUTER JOIN
                          dbo.Eve_EventMaster AS em ON srt.Event_Code = em.EventMasterId LEFT OUTER JOIN
                          dbo.Eve_SponsorMaster AS sm ON srt.SponsorMasterId = sm.SponsorMasterId
@@ -44,7 +44,9 @@ async def get_secretarial_details(db: AsyncSession, SecretarialRoundTableId: Opt
             srt.Track, 
             srt.Invitation_Sent, 
             srt.Approval_Received, 
-            srt.SecretarialRoundTableId
+            srt.SecretarialRoundTableId,
+            srt.SponsorMasterId, 
+            srt.designation
         FROM Eve_SecretarialRoundTable srt
         INNER JOIN Eve_SponsorMaster sm ON srt.SponsorMasterId = sm.SponsorMasterId
         INNER JOIN Eve_EventMaster em ON srt.Event_Code = em.EventMasterId

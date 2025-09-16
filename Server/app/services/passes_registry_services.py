@@ -10,9 +10,9 @@ from ..websockets.connection_manager import ConnectionManager
 
 async def get_passes_registries(db: AsyncSession, event_code: int, skip: int = 0, limit: int = 100):
     query = text("""
-   SELECT        TOP (100) PERCENT dm.Deliverables, em.EventMaster_Name, pr.PassessRegistryId, pr.Deliverabled_Code, pr.Event_Code, pr.Elite_Passess, pr.Carporate_Passess, pr.Visitor_Passess, pr.Deligate_Name_Recieverd, 
+   SELECT  dm.Deliverables, em.EventMaster_Name, pr.PassessRegistryId, pr.Deliverabled_Code, pr.Event_Code, pr.Elite_Passess, pr.Carporate_Passess, pr.Visitor_Passess, pr.Deligate_Name_Recieverd, 
                          pr.SponsorMasterId, pr.Deliverable_No, prd.PassessRegistryDetailId, prd.Pass_type, prd.Assigen_Name, prd.Mobile_No, prd.Email_Address, prd.Designation, prd.Remark, prd.PassessRegistryId AS detail_RegistryId, 
-                         dbo.Eve_SponsorMaster.Sponsor_Name,pr.Registration_Form_Sent
+                         dbo.Eve_SponsorMaster.Sponsor_Name,pr.Registration_Form_Sent,pr.Doc_No
 FROM            dbo.Eve_PassesRegistry AS pr INNER JOIN
                          dbo.Eve_DeliverablesMaster AS dm ON pr.Deliverabled_Code = dm.id INNER JOIN
                          dbo.Eve_EventMaster AS em ON pr.Event_Code = em.EventMasterId INNER JOIN
@@ -36,6 +36,7 @@ ORDER BY pr.PassessRegistryId DESC, prd.PassessRegistryDetailId
             if registry_id not in registries_dict:
                 registries_dict[registry_id] = {
                     "PassessRegistryId": registry_id,
+                    "Doc_No": row_dict.get('Doc_No'),
                     "SponsorMasterId": row_dict.get('SponsorMasterId'),
                     "Event_Code": row_dict.get('Event_Code'),
                     "Deliverabled_Code": row_dict.get('Deliverabled_Code'),

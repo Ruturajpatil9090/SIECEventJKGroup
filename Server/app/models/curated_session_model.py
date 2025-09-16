@@ -17,6 +17,7 @@ class EveCuratedSession(Base):
     CuratedSession_Bio = Column(Text, nullable=True)
     Speaking_Date = Column(DateTime, nullable=True)
     Track = Column(String(2), nullable=True)
+    Doc_No = Column(Integer)
 
     def __repr__(self):
         return f"<EveCuratedSession {self.CuratedSessionId}>"

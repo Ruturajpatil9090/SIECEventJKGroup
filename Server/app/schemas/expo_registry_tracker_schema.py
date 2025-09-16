@@ -46,6 +46,7 @@ class ExpoRegistryTrackerBase(BaseModel):
     Booth_Number_Assigned: Union[str, List[int], int]
     Logo_Details_Received: Optional[str] = "False"
     Notes_Comments: Optional[str] = None
+    Doc_No: Optional[int] = None
 
     @validator('Booth_Number_Assigned', pre=True, always=True)
     def validate_booth_numbers(cls, v):

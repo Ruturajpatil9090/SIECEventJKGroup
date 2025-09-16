@@ -31,6 +31,7 @@ class PassRegistryBase(BaseModel):
     SponsorMasterId: Optional[int] = None
     Deliverable_No: Optional[int] = None
     Registration_Form_Sent: Optional[str] = None
+    Doc_No: Optional[int] = None
 
 class PassRegistryCreate(PassRegistryBase):
     details: List[PassRegistryDetailCreate] = []

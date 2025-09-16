@@ -21,7 +21,7 @@ async def get_award_registry_trackers(db: AsyncSession,event_code: int):
     query = text("""
 SELECT  dbo.Eve_AwardMaster.Award_Name, dbo.Eve_AwardRegistryTracker.AwardRegistryTrackerId, dbo.Eve_AwardRegistryTracker.Event_Code, dbo.Eve_AwardRegistryTracker.SponsorMasterId, 
                          dbo.Eve_AwardRegistryTracker.Deliverabled_Code, dbo.Eve_AwardRegistryTracker.Deliverable_No, dbo.Eve_AwardRegistryTracker.Award_Code, dbo.Eve_EventMaster.EventMaster_Name, 
-                         dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_DeliverablesMaster.Deliverables
+                         dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_DeliverablesMaster.Deliverables,dbo.Eve_AwardRegistryTracker.Doc_No
 FROM            dbo.Eve_AwardRegistryTracker LEFT OUTER JOIN
                          dbo.Eve_AwardMaster ON dbo.Eve_AwardRegistryTracker.Award_Code = dbo.Eve_AwardMaster.AwardId INNER JOIN
                          dbo.Eve_SponsorMaster ON dbo.Eve_AwardRegistryTracker.SponsorMasterId = dbo.Eve_SponsorMaster.SponsorMasterId INNER JOIN

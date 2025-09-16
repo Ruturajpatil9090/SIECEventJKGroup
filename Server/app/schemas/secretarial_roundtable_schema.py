@@ -16,6 +16,7 @@ class SecretarialRoundTableBase(BaseModel):
     Track: Optional[str] = None
     Invitation_Sent: Optional[str] = None
     Approval_Received: Optional[str] = None
+    Doc_No: Optional[int] = None
 
 class SecretarialRoundTableCreate(SecretarialRoundTableBase):
     pass

@@ -173,7 +173,7 @@ function NetworkingSlotTracker() {
     const columns = [
         {
             header: 'Networking Slot ID',
-            accessor: 'NetworkingSlotId',
+            accessor: 'Doc_No',
         },
         {
             header: 'Event Name',
@@ -578,15 +578,19 @@ function NetworkingSlotTracker() {
                                             borderColor: '#d1d5db'
                                         }
                                     }),
-                                    option: (provided, state) => ({
+                                 option: (provided, state) => ({
                                         ...provided,
-                                        backgroundColor: state.isSelected ? '#2563eb' : 'white',
-                                        color: state.isSelected ? 'white' : 'black',
+                                        backgroundColor: state.isFocused
+                                            ? '#8db1faff'
+                                            : state.isSelected
+                                                ? '#2563eb'
+                                                : 'white',
+                                        color: state.isSelected || state.isFocused ? 'white' : 'black',
                                         '&:hover': {
                                             backgroundColor: '#2563eb',
                                             color: 'white'
                                         }
-                                    })
+                                    })              
                                 }}
                             />
                         </div>
@@ -612,10 +616,14 @@ function NetworkingSlotTracker() {
                                             borderColor: '#d1d5db'
                                         }
                                     }),
-                                    option: (provided, state) => ({
+                                   option: (provided, state) => ({
                                         ...provided,
-                                        backgroundColor: state.isSelected ? '#2563eb' : 'white',
-                                        color: state.isSelected ? 'white' : 'black',
+                                        backgroundColor: state.isFocused
+                                            ? '#8db1faff'
+                                            : state.isSelected
+                                                ? '#2563eb'
+                                                : 'white',
+                                        color: state.isSelected || state.isFocused ? 'white' : 'black',
                                         '&:hover': {
                                             backgroundColor: '#2563eb',
                                             color: 'white'
@@ -771,6 +779,7 @@ function NetworkingSlotTracker() {
                 }}
                 details={selectedRecordDetails}
                 mainData={selectedMainData}
+                sponsors={sponsors}
             />
         </>
     );

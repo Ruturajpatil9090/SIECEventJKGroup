@@ -16,6 +16,7 @@ class NetworkingSlotBase(BaseModel):
     Track: Optional[str] = None
     Invitation_Sent: Optional[str] = None
     Approval_Received: Optional[str] = None
+    Doc_No: Optional[int] = None
 
 class NetworkingSlotCreate(NetworkingSlotBase):
     pass

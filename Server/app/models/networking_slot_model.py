@@ -19,6 +19,7 @@ class EveNetworkingSlot(Base):
     Track = Column(String(255), nullable=True)
     Invitation_Sent = Column(String(2), nullable=True)
     Approval_Received = Column(String(2), nullable=True)
+    Doc_No = Column(Integer)
 
     def __repr__(self):
         return f"<EveNetworkingSlot {self.NetworkingSlotId}>"

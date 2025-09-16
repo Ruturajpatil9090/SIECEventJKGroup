@@ -15,6 +15,7 @@ class Eve_PassesRegistry(Base):
     SponsorMasterId = Column(Integer, nullable=True)
     Deliverable_No = Column(Integer, nullable=True)
     Registration_Form_Sent = Column(String(2))
+    Doc_No = Column(Integer)  
 
     details = relationship(
         "Eve_PassessRegistryDetail", 

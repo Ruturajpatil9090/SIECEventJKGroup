@@ -38,7 +38,7 @@ SELECT   dbo.Eve_SponsorMaster.SponsorMasterId, dbo.Eve_SponsorMaster.Doc_Date, 
                          dbo.Eve_SponsorMaster.Modified_By, dbo.Eve_SponsorMaster.User_Id, dbo.Eve_SponsorMasterDetail.SponsorDetailId, dbo.Eve_SponsorMasterDetail.ID, dbo.Eve_SponsorMasterDetail.Deliverabled_Code, 
                          dbo.Eve_SponsorMasterDetail.Deliverable_No, dbo.Eve_SponsorMasterDetail.SponsorMasterId AS Expr1, dbo.Eve_EventMaster.EventMaster_Name, dbo.Eve_CategoryMaster.category_name, 
                          COALESCE(dbo.Eve_CategorySubMaster.CategorySub_Name, 'No Subcategory') AS CategorySub_Name, 
-                         dbo.tbluser.User_Name, dbo.Eve_SponsorMaster.Sponsorship_Amount - dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance AS Pending_Amount,dbo.Eve_SponsorMaster.Sponsor_video, dbo.Eve_SponsorMaster.Sponsor_pdf
+                         dbo.tbluser.User_Name, dbo.Eve_SponsorMaster.Sponsorship_Amount - dbo.Eve_SponsorMaster.Sponsorship_Amount_Advance AS Pending_Amount,dbo.Eve_SponsorMaster.Sponsor_video, dbo.Eve_SponsorMaster.Sponsor_pdf,  dbo.Eve_SponsorMaster.Doc_No
 FROM            dbo.Eve_SponsorMaster 
 INNER JOIN dbo.Eve_SponsorMasterDetail ON dbo.Eve_SponsorMaster.SponsorMasterId = dbo.Eve_SponsorMasterDetail.SponsorMasterId 
 INNER JOIN dbo.Eve_EventMaster ON dbo.Eve_SponsorMaster.Event_Code = dbo.Eve_EventMaster.EventMasterId 
@@ -46,7 +46,7 @@ INNER JOIN dbo.Eve_CategoryMaster ON dbo.Eve_SponsorMaster.CategoryMaster_Code =
 LEFT JOIN dbo.Eve_CategorySubMaster ON dbo.Eve_SponsorMaster.CategorySubMaster_Code = dbo.Eve_CategorySubMaster.CategorySubMasterId 
 INNER JOIN dbo.tbluser ON dbo.Eve_SponsorMaster.User_Id = dbo.tbluser.User_Id
 WHERE dbo.Eve_SponsorMaster.Event_Code = :event_code
-ORDER BY dbo.Eve_SponsorMaster.SponsorMasterId DESC
+ORDER BY  dbo.Eve_SponsorMaster.Doc_No DESC
     """)
     
     result = await db.execute(query, {"event_code": event_code, "skip": skip, "limit": limit})
@@ -70,7 +70,7 @@ SELECT        dbo.Eve_PassesRegistry.Elite_Passess, dbo.Eve_PassesRegistry.Visit
                          dbo.Eve_SecretarialRoundTable.Track AS SecretarialRoundTrack, dbo.Eve_SecretarialRoundTable.Invitation_Sent AS SecretarialRoundInvitationsent, 
                          dbo.Eve_SecretarialRoundTable.Approval_Received AS SecretarialRoundApprovalReceived, dbo.Eve_NetworkingSlot.Speaker_Name AS NetworkingSpeakername, dbo.Eve_NetworkingSlot.designation AS NetworkingDesignation,
                           dbo.Eve_NetworkingSlot.Mobile_No AS NetworkingMobileNo, dbo.Eve_NetworkingSlot.Email_Address AS NetworkingEmailAddress, dbo.Eve_NetworkingSlot.NetworkingSlotSession_Bio AS NetworkingBio, 
-                         dbo.Eve_NetworkingSlot.Track AS NetworkingTrack,dbo.Eve_NetworkingSlot.Invitation_Sent AS NetworkingInvitationSent, dbo.Eve_NetworkingSlot.Approval_Received AS NetworkingApproved
+                         dbo.Eve_NetworkingSlot.Track AS NetworkingTrack,dbo.Eve_NetworkingSlot.Invitation_Sent AS NetworkingInvitationSent, dbo.Eve_NetworkingSlot.Approval_Received AS NetworkingApproved,dbo.Eve_SponsorMaster.Doc_No
 FROM            dbo.Eve_SponsorMaster INNER JOIN
                          dbo.Eve_PassesRegistry ON dbo.Eve_SponsorMaster.SponsorMasterId = dbo.Eve_PassesRegistry.SponsorMasterId INNER JOIN
                          dbo.Eve_MinisterialSessions ON dbo.Eve_SponsorMaster.SponsorMasterId = dbo.Eve_MinisterialSessions.SponsorMasterId INNER JOIN
@@ -293,6 +293,285 @@ async def get_max_sponsor_id(db: AsyncSession):
     return result.scalar() or 0
 
 
+# async def create_sponsor(
+#     db: AsyncSession, 
+#     sponsor_data: SponsorMasterCreate, 
+#     logo_file = None,
+#     pdf_file=None,
+#     video_file=None,
+#     ws_manager: Optional[ConnectionManager] = None
+# ):
+#     logo_path = None
+#     if logo_file:
+#         logo_path = await save_upload_file(logo_file)
+
+
+#     pdf_path = None
+#     if pdf_file:
+#         pdf_path = await save_upload_document(pdf_file)
+
+#     video_path = None
+#     if video_file:
+#         video_path = await save_upload_video(video_file)  
+
+#     max_doc_no_result = await db.execute(
+#         select(func.max(Eve_SponsorMaster.Doc_No))
+#         .where(Eve_SponsorMaster.Event_Code == sponsor_data.Event_Code)
+#     )
+#     current_max_doc_no = max_doc_no_result.scalar() or 0
+#     next_doc_no = current_max_doc_no + 1
+
+#     sponsor_dict = sponsor_data.model_dump(exclude={'details'})
+    
+#     # Add the newly generated Doc_No to the dictionary
+#     sponsor_dict['Doc_No'] = next_doc_no
+    
+#     # sponsor_dict = sponsor_data.model_dump(exclude={'details'})
+#     if logo_path:
+#         sponsor_dict['Sponsor_logo'] = logo_path
+#     if pdf_path:
+#         sponsor_dict['Sponsor_pdf'] = pdf_path
+#     if video_path:
+#         sponsor_dict['Sponsor_video'] = video_path
+    
+#     db_sponsor = Eve_SponsorMaster(**sponsor_dict)
+#     db.add(db_sponsor)
+    
+#     await db.flush()
+    
+#     max_id_result = await db.execute(
+#         select(func.max(Eve_SponsorMasterDetail.ID))
+#         .where(Eve_SponsorMasterDetail.SponsorMasterId == db_sponsor.SponsorMasterId)
+#     )
+#     current_id = max_id_result.scalar() or 0
+    
+#     should_broadcast = False
+
+#     for detail_data in sponsor_data.details:
+#         current_id += 1
+#         db_detail = Eve_SponsorMasterDetail(
+#             SponsorMasterId=db_sponsor.SponsorMasterId,
+#             ID=current_id,
+#             Deliverabled_Code=detail_data.Deliverabled_Code,
+#             Deliverable_No=detail_data.Deliverable_No
+#         )
+#         db.add(db_detail)
+        
+#         # Handle Deliverable_Code 31 (ExpoRegistryTracker)
+#         if detail_data.Deliverabled_Code == 31:
+#             existing_expo_tracker_stmt = select(ExpoRegistryTracker).filter(
+#                 ExpoRegistryTracker.SponsorMasterId == db_sponsor.SponsorMasterId,
+#                 ExpoRegistryTracker.Deliverabled_Code == 31
+#             )
+#             existing_expo_tracker_result = await db.execute(existing_expo_tracker_stmt)
+#             existing_expo_tracker = existing_expo_tracker_result.scalar_one_or_none()
+            
+#             if not existing_expo_tracker:
+#                 db_expo_tracker = ExpoRegistryTracker(
+#                     Deliverabled_Code=detail_data.Deliverabled_Code,
+#                     Deliverable_No=detail_data.Deliverable_No,
+#                     SponsorMasterId=db_sponsor.SponsorMasterId,
+#                     Event_Code=str(sponsor_data.Event_Code),
+#                     Booth_to_be_provided="Y",
+#                     Booth_Assigned="N",
+#                     Booth_Number_Assigned=None,
+#                     Logo_Details_Received="N",
+#                     Notes_Comments=''
+#                 )
+#                 db.add(db_expo_tracker)
+#                 should_broadcast = True
+        
+#         # Handle Deliverable_Code 39 (AwardRegistryTracker)
+#         elif detail_data.Deliverabled_Code == 39:
+#             existing_award_tracker_stmt = select(AwardRegistryTracker).filter(
+#                 AwardRegistryTracker.SponsorMasterId == db_sponsor.SponsorMasterId,
+#                 AwardRegistryTracker.Deliverabled_Code == 39
+#             )
+#             existing_award_tracker_result = await db.execute(existing_award_tracker_stmt)
+#             existing_award_tracker = existing_award_tracker_result.scalar_one_or_none()
+            
+#             if not existing_award_tracker:
+#                 db_award_tracker = AwardRegistryTracker(
+#                     Deliverabled_Code=detail_data.Deliverabled_Code,
+#                     Deliverable_No=detail_data.Deliverable_No,
+#                     SponsorMasterId=db_sponsor.SponsorMasterId,
+#                     Event_Code=sponsor_data.Event_Code,
+#                     Award_Code=0 
+#                 )
+#                 db.add(db_award_tracker)
+#                 should_broadcast = True
+        
+#         # Handle Deliverable_Code 43 (CuratedSessionTracker)
+#         elif detail_data.Deliverabled_Code == 43:
+#             existing_curated_tracker_stmt = select(EveCuratedSession).filter(
+#                 EveCuratedSession.SponsorMasterId == db_sponsor.SponsorMasterId,
+#                 EveCuratedSession.Deliverabled_Code == 43
+#             )
+#             existing_curated_tracker_result = await db.execute(existing_curated_tracker_stmt)
+#             existing_curated_tracker = existing_curated_tracker_result.scalar_one_or_none()
+            
+#             if not existing_curated_tracker:
+#                 db_curated_tracker = EveCuratedSession(
+#                     Deliverabled_Code=detail_data.Deliverabled_Code,
+#                     Deliverable_No=detail_data.Deliverable_No,
+#                     SponsorMasterId=db_sponsor.SponsorMasterId,
+#                     Event_Code=sponsor_data.Event_Code,
+#                     Speaker_Name="",
+#                     designation="",
+#                     Mobile_No="",
+#                     Email_Address="",
+#                     CuratedSession_Bio="",
+#                     Speaking_Date=None,
+#                     Track=""
+#                 )
+#                 db.add(db_curated_tracker)
+#                 should_broadcast = True
+        
+#         # Handle Deliverable_Code 40 (MinisterialSessionTracker)
+#         elif detail_data.Deliverabled_Code == 40:
+#             existing_ministerial_tracker_stmt = select(EveMinisterialSession).filter(
+#                 EveMinisterialSession.SponsorMasterId == db_sponsor.SponsorMasterId,
+#                 EveMinisterialSession.Deliverabled_Code == 40
+#             )
+#             existing_ministerial_tracker_result = await db.execute(existing_ministerial_tracker_stmt)
+#             existing_ministerial_tracker = existing_ministerial_tracker_result.scalar_one_or_none()
+            
+#             if not existing_ministerial_tracker:
+#                 db_ministerial_tracker = EveMinisterialSession(
+#                     Deliverabled_Code=detail_data.Deliverabled_Code,
+#                     Deliverable_No=detail_data.Deliverable_No,
+#                     SponsorMasterId=db_sponsor.SponsorMasterId,
+#                     Event_Code=sponsor_data.Event_Code,
+#                     Speaker_Name="",
+#                     designation="",
+#                     Mobile_No="",
+#                     Email_Address="",
+#                     MinisterialSession_Bio="",
+#                     Speaking_Date=None,
+#                     Track=""
+#                 )
+#                 db.add(db_ministerial_tracker)
+#                 should_broadcast = True
+
+
+#         # Handle Deliverable_Code 20  (PassesRegistry)
+#         elif detail_data.Deliverabled_Code == 20:
+#             existing_passes_registry_stmt = select(Eve_PassesRegistry).filter(
+#                 Eve_PassesRegistry.SponsorMasterId == db_sponsor.SponsorMasterId,
+#                 Eve_PassesRegistry.Deliverabled_Code == 20
+#             )
+#             existing_passes_registry_result = await db.execute(existing_passes_registry_stmt)
+#             existing_passes_registry = existing_passes_registry_result.scalar_one_or_none()
+            
+#             if not existing_passes_registry:
+#                 db_passes_registry = Eve_PassesRegistry(
+#                     Deliverabled_Code=detail_data.Deliverabled_Code,
+#                     Deliverable_No=detail_data.Deliverable_No,
+#                     SponsorMasterId=db_sponsor.SponsorMasterId,
+#                     Event_Code=sponsor_data.Event_Code,
+#                     Elite_Passess=0,
+#                     Carporate_Passess=0,
+#                     Visitor_Passess=0,
+#                     Deligate_Name_Recieverd="N"
+#                 )
+#                 db.add(db_passes_registry)
+#                 should_broadcast = True
+
+#         # Handle Deliverable_Code 22  (SpeakerTracker)
+#         elif detail_data.Deliverabled_Code == 22:
+#             existing_SpeakerTracker_stmt = select(EveSpeakerTracker).filter(
+#                 EveSpeakerTracker.SponsorMasterId == db_sponsor.SponsorMasterId,
+#                 EveSpeakerTracker.Deliverabled_Code == 22
+#             )
+#             existing_SpeakerTracker_result = await db.execute(existing_SpeakerTracker_stmt)
+#             existing_SpeakerTracker_roundtable = existing_SpeakerTracker_result.scalar_one_or_none()
+            
+#             if not existing_SpeakerTracker_roundtable:
+#                 db_secretarial_tracker = EveSpeakerTracker(
+#                     Deliverabled_Code=detail_data.Deliverabled_Code,
+#                     Deliverable_No=detail_data.Deliverable_No,
+#                     SponsorMasterId=db_sponsor.SponsorMasterId,
+#                     Event_Code=sponsor_data.Event_Code,
+#                     Speaker_Name="",
+#                     Designation="",
+#                     Mobile_No="",
+#                     Email_Address="",
+#                     Speaker_Bio="",
+#                     Speaking_Date=None,
+#                     Track=""
+#                 )
+#                 db.add(db_secretarial_tracker)
+#                 should_broadcast = True
+
+
+#         elif detail_data.Deliverabled_Code == 41:
+#             existing_SecretarialRoundTable_stmt = select(EveSecretarialRoundTable).filter(
+#                 EveSecretarialRoundTable.SponsorMasterId == db_sponsor.SponsorMasterId,
+#                 EveSecretarialRoundTable.Deliverabled_Code == 41
+#             )
+#             existing_SecretarialRound_result = await db.execute(existing_SecretarialRoundTable_stmt)
+#             existing_SecretarialRound_roundtable = existing_SecretarialRound_result.scalar_one_or_none()
+            
+#             if not existing_SecretarialRound_roundtable:
+#                 db_secretarial_tracker = EveSecretarialRoundTable(
+#                     Deliverabled_Code=detail_data.Deliverabled_Code,
+#                     Deliverable_No=detail_data.Deliverable_No,
+#                     SponsorMasterId=db_sponsor.SponsorMasterId,
+#                     Event_Code=sponsor_data.Event_Code,
+#                     Speaker_Name="",
+#                     designation="",
+#                     Mobile_No="",
+#                     Email_Address="",
+#                     SecretarialRoundTable_Bio="",
+#                     Speaking_Date=None,
+#                     Track="",
+#                     Invitation_Sent="",
+#                     Approval_Received=""
+#                 )
+#                 db.add(db_secretarial_tracker)
+#                 should_broadcast = True
+
+
+#         elif detail_data.Deliverabled_Code == 44:
+#             existing_networkingslot_stmt = select(EveNetworkingSlot).filter(
+#                 EveNetworkingSlot.SponsorMasterId == db_sponsor.SponsorMasterId,
+#                 EveNetworkingSlot.Deliverabled_Code == 44
+#             )
+#             existing_networkingslot_result = await db.execute(existing_networkingslot_stmt)
+#             existing_networkingslot_roundtable = existing_networkingslot_result.scalar_one_or_none()
+            
+#             if not existing_networkingslot_roundtable:
+#                 db_secretarial_tracker = EveNetworkingSlot(
+#                     Deliverabled_Code=detail_data.Deliverabled_Code,
+#                     Deliverable_No=detail_data.Deliverable_No,
+#                     SponsorMasterId=db_sponsor.SponsorMasterId,
+#                     Event_Code=sponsor_data.Event_Code,
+#                     Speaker_Name="",
+#                     designation="",
+#                     Mobile_No="",
+#                     Email_Address="",
+#                     NetworkingSlotSession_Bio="",
+#                     Speaking_Date=None,
+#                     Track="",
+#                     Invitation_Sent="",
+#                     Approval_Received=""
+#                 )
+#                 db.add(db_secretarial_tracker)
+#                 should_broadcast = True
+
+    
+#     await db.commit()
+#     await db.refresh(db_sponsor)
+
+#     if ws_manager:
+#         if should_broadcast:
+#             await ws_manager.broadcast("refresh_expo_registry")
+    
+#     return db_sponsor  
+
+
+
+
 async def create_sponsor(
     db: AsyncSession, 
     sponsor_data: SponsorMasterCreate, 
@@ -305,7 +584,6 @@ async def create_sponsor(
     if logo_file:
         logo_path = await save_upload_file(logo_file)
 
-
     pdf_path = None
     if pdf_file:
         pdf_path = await save_upload_document(pdf_file)
@@ -314,7 +592,19 @@ async def create_sponsor(
     if video_file:
         video_path = await save_upload_video(video_file)  
     
+    # Logic to get the next Doc_No for the main sponsor record
+    max_doc_no_result = await db.execute(
+        select(func.max(Eve_SponsorMaster.Doc_No))
+        .where(Eve_SponsorMaster.Event_Code == sponsor_data.Event_Code)
+    )
+    current_max_doc_no = max_doc_no_result.scalar() or 0
+    next_doc_no = current_max_doc_no + 1
+
     sponsor_dict = sponsor_data.model_dump(exclude={'details'})
+    
+    # Add the newly generated Doc_No to the main dictionary
+    sponsor_dict['Doc_No'] = next_doc_no
+
     if logo_path:
         sponsor_dict['Sponsor_logo'] = logo_path
     if pdf_path:
@@ -355,11 +645,19 @@ async def create_sponsor(
             existing_expo_tracker = existing_expo_tracker_result.scalar_one_or_none()
             
             if not existing_expo_tracker:
+                max_doc_no_result = await db.execute(
+                    select(func.max(ExpoRegistryTracker.Doc_No))
+                    .where(ExpoRegistryTracker.Event_Code == str(sponsor_data.Event_Code))
+                )
+                current_max_doc_no = max_doc_no_result.scalar() or 0
+                next_doc_no = current_max_doc_no + 1
+
                 db_expo_tracker = ExpoRegistryTracker(
                     Deliverabled_Code=detail_data.Deliverabled_Code,
                     Deliverable_No=detail_data.Deliverable_No,
                     SponsorMasterId=db_sponsor.SponsorMasterId,
                     Event_Code=str(sponsor_data.Event_Code),
+                    Doc_No=next_doc_no, 
                     Booth_to_be_provided="Y",
                     Booth_Assigned="N",
                     Booth_Number_Assigned=None,
@@ -379,11 +677,19 @@ async def create_sponsor(
             existing_award_tracker = existing_award_tracker_result.scalar_one_or_none()
             
             if not existing_award_tracker:
+                max_doc_no_result = await db.execute(
+                    select(func.max(AwardRegistryTracker.Doc_No))
+                    .where(AwardRegistryTracker.Event_Code == sponsor_data.Event_Code)
+                )
+                current_max_doc_no = max_doc_no_result.scalar() or 0
+                next_doc_no = current_max_doc_no + 1
+
                 db_award_tracker = AwardRegistryTracker(
                     Deliverabled_Code=detail_data.Deliverabled_Code,
                     Deliverable_No=detail_data.Deliverable_No,
                     SponsorMasterId=db_sponsor.SponsorMasterId,
                     Event_Code=sponsor_data.Event_Code,
+                    Doc_No=next_doc_no, 
                     Award_Code=0 
                 )
                 db.add(db_award_tracker)
@@ -399,11 +705,19 @@ async def create_sponsor(
             existing_curated_tracker = existing_curated_tracker_result.scalar_one_or_none()
             
             if not existing_curated_tracker:
+                max_doc_no_result = await db.execute(
+                    select(func.max(EveCuratedSession.Doc_No))
+                    .where(EveCuratedSession.Event_Code == sponsor_data.Event_Code)
+                )
+                current_max_doc_no = max_doc_no_result.scalar() or 0
+                next_doc_no = current_max_doc_no + 1
+
                 db_curated_tracker = EveCuratedSession(
                     Deliverabled_Code=detail_data.Deliverabled_Code,
                     Deliverable_No=detail_data.Deliverable_No,
                     SponsorMasterId=db_sponsor.SponsorMasterId,
                     Event_Code=sponsor_data.Event_Code,
+                    Doc_No=next_doc_no, 
                     Speaker_Name="",
                     designation="",
                     Mobile_No="",
@@ -425,11 +739,19 @@ async def create_sponsor(
             existing_ministerial_tracker = existing_ministerial_tracker_result.scalar_one_or_none()
             
             if not existing_ministerial_tracker:
+                max_doc_no_result = await db.execute(
+                    select(func.max(EveMinisterialSession.Doc_No))
+                    .where(EveMinisterialSession.Event_Code == sponsor_data.Event_Code)
+                )
+                current_max_doc_no = max_doc_no_result.scalar() or 0
+                next_doc_no = current_max_doc_no + 1
+
                 db_ministerial_tracker = EveMinisterialSession(
                     Deliverabled_Code=detail_data.Deliverabled_Code,
                     Deliverable_No=detail_data.Deliverable_No,
                     SponsorMasterId=db_sponsor.SponsorMasterId,
                     Event_Code=sponsor_data.Event_Code,
+                    Doc_No=next_doc_no, 
                     Speaker_Name="",
                     designation="",
                     Mobile_No="",
@@ -441,8 +763,7 @@ async def create_sponsor(
                 db.add(db_ministerial_tracker)
                 should_broadcast = True
 
-
-        # Handle Deliverable_Code 20  (PassesRegistry)
+        # Handle Deliverable_Code 20 (PassesRegistry)
         elif detail_data.Deliverabled_Code == 20:
             existing_passes_registry_stmt = select(Eve_PassesRegistry).filter(
                 Eve_PassesRegistry.SponsorMasterId == db_sponsor.SponsorMasterId,
@@ -452,11 +773,19 @@ async def create_sponsor(
             existing_passes_registry = existing_passes_registry_result.scalar_one_or_none()
             
             if not existing_passes_registry:
+                max_doc_no_result = await db.execute(
+                    select(func.max(Eve_PassesRegistry.Doc_No))
+                    .where(Eve_PassesRegistry.Event_Code == sponsor_data.Event_Code)
+                )
+                current_max_doc_no = max_doc_no_result.scalar() or 0
+                next_doc_no = current_max_doc_no + 1
+
                 db_passes_registry = Eve_PassesRegistry(
                     Deliverabled_Code=detail_data.Deliverabled_Code,
                     Deliverable_No=detail_data.Deliverable_No,
                     SponsorMasterId=db_sponsor.SponsorMasterId,
                     Event_Code=sponsor_data.Event_Code,
+                    Doc_No=next_doc_no, 
                     Elite_Passess=0,
                     Carporate_Passess=0,
                     Visitor_Passess=0,
@@ -465,7 +794,7 @@ async def create_sponsor(
                 db.add(db_passes_registry)
                 should_broadcast = True
 
-        # Handle Deliverable_Code 22  (SpeakerTracker)
+        # Handle Deliverable_Code 22 (SpeakerTracker)
         elif detail_data.Deliverabled_Code == 22:
             existing_SpeakerTracker_stmt = select(EveSpeakerTracker).filter(
                 EveSpeakerTracker.SponsorMasterId == db_sponsor.SponsorMasterId,
@@ -475,11 +804,19 @@ async def create_sponsor(
             existing_SpeakerTracker_roundtable = existing_SpeakerTracker_result.scalar_one_or_none()
             
             if not existing_SpeakerTracker_roundtable:
+                max_doc_no_result = await db.execute(
+                    select(func.max(EveSpeakerTracker.Doc_No))
+                    .where(EveSpeakerTracker.Event_Code == sponsor_data.Event_Code)
+                )
+                current_max_doc_no = max_doc_no_result.scalar() or 0
+                next_doc_no = current_max_doc_no + 1
+
                 db_secretarial_tracker = EveSpeakerTracker(
                     Deliverabled_Code=detail_data.Deliverabled_Code,
                     Deliverable_No=detail_data.Deliverable_No,
                     SponsorMasterId=db_sponsor.SponsorMasterId,
                     Event_Code=sponsor_data.Event_Code,
+                    Doc_No=next_doc_no, 
                     Speaker_Name="",
                     Designation="",
                     Mobile_No="",
@@ -491,7 +828,7 @@ async def create_sponsor(
                 db.add(db_secretarial_tracker)
                 should_broadcast = True
 
-
+        # Handle Deliverable_Code 41 (SecretarialRoundTable)
         elif detail_data.Deliverabled_Code == 41:
             existing_SecretarialRoundTable_stmt = select(EveSecretarialRoundTable).filter(
                 EveSecretarialRoundTable.SponsorMasterId == db_sponsor.SponsorMasterId,
@@ -501,11 +838,19 @@ async def create_sponsor(
             existing_SecretarialRound_roundtable = existing_SecretarialRound_result.scalar_one_or_none()
             
             if not existing_SecretarialRound_roundtable:
+                max_doc_no_result = await db.execute(
+                    select(func.max(EveSecretarialRoundTable.Doc_No))
+                    .where(EveSecretarialRoundTable.Event_Code == sponsor_data.Event_Code)
+                )
+                current_max_doc_no = max_doc_no_result.scalar() or 0
+                next_doc_no = current_max_doc_no + 1
+
                 db_secretarial_tracker = EveSecretarialRoundTable(
                     Deliverabled_Code=detail_data.Deliverabled_Code,
                     Deliverable_No=detail_data.Deliverable_No,
                     SponsorMasterId=db_sponsor.SponsorMasterId,
                     Event_Code=sponsor_data.Event_Code,
+                    Doc_No=next_doc_no, 
                     Speaker_Name="",
                     designation="",
                     Mobile_No="",
@@ -519,7 +864,7 @@ async def create_sponsor(
                 db.add(db_secretarial_tracker)
                 should_broadcast = True
 
-
+        # Handle Deliverable_Code 44 (NetworkingSlot)
         elif detail_data.Deliverabled_Code == 44:
             existing_networkingslot_stmt = select(EveNetworkingSlot).filter(
                 EveNetworkingSlot.SponsorMasterId == db_sponsor.SponsorMasterId,
@@ -529,11 +874,19 @@ async def create_sponsor(
             existing_networkingslot_roundtable = existing_networkingslot_result.scalar_one_or_none()
             
             if not existing_networkingslot_roundtable:
+                max_doc_no_result = await db.execute(
+                    select(func.max(EveNetworkingSlot.Doc_No))
+                    .where(EveNetworkingSlot.Event_Code == sponsor_data.Event_Code)
+                )
+                current_max_doc_no = max_doc_no_result.scalar() or 0
+                next_doc_no = current_max_doc_no + 1
+
                 db_secretarial_tracker = EveNetworkingSlot(
                     Deliverabled_Code=detail_data.Deliverabled_Code,
                     Deliverable_No=detail_data.Deliverable_No,
                     SponsorMasterId=db_sponsor.SponsorMasterId,
                     Event_Code=sponsor_data.Event_Code,
+                    Doc_No=next_doc_no, 
                     Speaker_Name="",
                     designation="",
                     Mobile_No="",
@@ -547,15 +900,13 @@ async def create_sponsor(
                 db.add(db_secretarial_tracker)
                 should_broadcast = True
 
-    
     await db.commit()
     await db.refresh(db_sponsor)
 
-    if ws_manager:
-        if should_broadcast:
-            await ws_manager.broadcast("refresh_expo_registry")
-    
-    return db_sponsor  
+    if should_broadcast and ws_manager:
+        await ws_manager.broadcast("New data created, please refresh.")
+        
+    return db_sponsor
 
 
 async def update_sponsor(

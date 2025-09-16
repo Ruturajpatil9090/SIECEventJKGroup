@@ -33,7 +33,8 @@ async def get_ministerial_sessions(db: AsyncSession,event_code: Optional[int] = 
             em.EventMaster_Name,
             sm.Sponsor_Name,
             ms.Invitation_Sent,
-            ms.Approval_Received
+            ms.Approval_Received,
+            ms.Doc_No
         FROM Eve_MinisterialSessions ms
         LEFT JOIN Eve_EventMaster em ON ms.Event_Code = em.EventMasterId
         LEFT JOIN Eve_SponsorMaster sm ON ms.SponsorMasterId = sm.SponsorMasterId
@@ -50,7 +51,7 @@ async def get_ministrial_details(db: AsyncSession, MinisterialSessionId: Optiona
     query = text("""
 SELECT        dbo.Eve_EventMaster.EventMaster_Name, dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_MinisterialSessions.Speaker_Name, dbo.Eve_MinisterialSessions.Mobile_No, dbo.Eve_MinisterialSessions.Email_Address, 
                          dbo.Eve_MinisterialSessions.MinisterialSession_Bio, dbo.Eve_MinisterialSessions.Speaking_Date, dbo.Eve_MinisterialSessions.Track, dbo.Eve_MinisterialSessions.Invitation_Sent, 
-                         dbo.Eve_MinisterialSessions.MinisterialSessionId,dbo.Eve_MinisterialSessions.Approval_Received
+                         dbo.Eve_MinisterialSessions.MinisterialSessionId,dbo.Eve_MinisterialSessions.Approval_Received,dbo.Eve_MinisterialSessions.SponsorMasterId, dbo.Eve_MinisterialSessions.designation
 FROM            dbo.Eve_MinisterialSessions INNER JOIN
                          dbo.Eve_SponsorMaster ON dbo.Eve_MinisterialSessions.SponsorMasterId = dbo.Eve_SponsorMaster.SponsorMasterId INNER JOIN
                          dbo.Eve_EventMaster ON dbo.Eve_MinisterialSessions.Event_Code = dbo.Eve_EventMaster.EventMasterId

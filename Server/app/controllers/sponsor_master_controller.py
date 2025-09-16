@@ -46,6 +46,7 @@ async def get_sponsormaster_with_details(
         if cat_deliverable_id not in grouped_results:
             grouped_results[cat_deliverable_id] = {
               "Sponsor_Name": row['Sponsor_Name'],
+               "Doc_No": row['Doc_No'],
                 "Sponsor_logo": row['Sponsor_logo'],
                 "Sponsor_pdf": row['Sponsor_pdf'],
                 "Sponsor_video": row['Sponsor_video'],

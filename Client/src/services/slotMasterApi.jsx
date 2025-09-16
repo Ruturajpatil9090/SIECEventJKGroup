@@ -42,14 +42,24 @@ export const slotMasterApi = createApi({
             }),
             invalidatesTags: ['SlotMaster']
         }),
+        // updateSlotMaster: builder.mutation({
+        //     query: ({ id, ...slotMaster }) => ({
+        //         url: `/slot-masters/${id}`,
+        //         method: "PUT",
+        //         body: slotMaster
+        //     }),
+        //     invalidatesTags: ['SlotMaster']
+        // }),
+
         updateSlotMaster: builder.mutation({
-            query: ({ id, ...slotMaster }) => ({
-                url: `/slot-masters/${id}`,
+            query: ({ event_code, ID, ...slotMaster }) => ({
+                url: `/slot-masters/${event_code}/${ID}`,
                 method: "PUT",
                 body: slotMaster
             }),
             invalidatesTags: ['SlotMaster']
         }),
+
         deleteSlotMaster: builder.mutation({
             query: (id) => ({
                 url: `/slot-masters/${id}`,

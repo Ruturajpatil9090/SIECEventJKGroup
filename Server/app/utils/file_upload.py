@@ -23,15 +23,6 @@ os.makedirs(UPLOAD_DIR_DOCS,exist_ok=True)
 os.makedirs(UPLOAD_DIR_Video,exist_ok=True)
 
 
-
-
-
-
-
-
-
-
-
 async def save_upload_file(upload_file: UploadFile) -> str:
     try:
         if upload_file.content_type not in ALLOWED_IMAGE_TYPES:
@@ -61,7 +52,6 @@ async def save_upload_file(upload_file: UploadFile) -> str:
             raise e
         raise HTTPException(status_code=500, detail=f"Error saving file: {str(e)}")
     
-
 
 async def save_upload_document(upload_file: UploadFile) -> str:
     try:

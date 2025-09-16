@@ -11,8 +11,9 @@ import {
   CheckBadgeIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
+import ExportButton from '../../common/FileExport/exportUtils';
 
-function SecretarialRoundTableDetailView({ isOpen, onClose, details, mainData }) {
+function SecretarialRoundTableDetailView({ isOpen, onClose, details, mainData,sponsors = [] }) {
   const [activeTab, setActiveTab] = useState('details');
 
   const sessionDetails = details && details.length > 0 ? details[0] : mainData;
@@ -165,15 +166,43 @@ function SecretarialRoundTableDetailView({ isOpen, onClose, details, mainData })
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="font-semibold text-lg text-gray-800 mb-6 flex items-center">
-              <DocumentTextIcon className="h-5 w-5 mr-2 text-indigo-600" />
-              Speaker Biography
-            </h3>
+          // <div className="bg-white rounded-lg border border-gray-200 p-6">
+          //   <h3 className="font-semibold text-lg text-gray-800 mb-6 flex items-center">
+          //     <DocumentTextIcon className="h-5 w-5 mr-2 text-indigo-600" />
+          //     Speaker Biography
+          //   </h3>
+
+          //   <div className="prose prose-sm max-w-none">
+          //     {sessionDetails.SecretarialRoundTable_Bio ? (
+          //       <div className="whitespace-pre-wrap text-gray-900 bg-gray-50 p-4 rounded-md">
+          //         {sessionDetails.SecretarialRoundTable_Bio}
+          //       </div>
+          //     ) : (
+          //       <p className="text-gray-500 italic">No biography available for this speaker.</p>
+          //     )}
+          //   </div>
+          // </div>
+
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-semibold text-lg text-gray-800 flex items-center">
+                <DocumentTextIcon className="h-5 w-5 mr-2 text-orange-600" />
+                Biography
+              </h3>
+              <ExportButton
+                data={sessionDetails}
+                sponsors={sponsors}
+                onSuccess={(message) => console.log(message)}
+                onError={(message) => console.error(message)}
+                fileNamePrefix="Secretarial RoundTable Bio"
+                requiredFields={['SponsorMasterId', 'designation', 'SecretarialRoundTable_Bio']}
+                buttonText="Export Bio"
+              />
+            </div>
 
             <div className="prose prose-sm max-w-none">
               {sessionDetails.SecretarialRoundTable_Bio ? (
-                <div className="whitespace-pre-wrap text-gray-900 bg-gray-50 p-4 rounded-md">
+                <div className="whitespace-pre-wrap text-gray-900">
                   {sessionDetails.SecretarialRoundTable_Bio}
                 </div>
               ) : (

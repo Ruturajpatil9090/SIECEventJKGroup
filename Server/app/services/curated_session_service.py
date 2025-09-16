@@ -31,7 +31,8 @@ async def get_curated_sessions(db: AsyncSession,event_code: Optional[int] = None
             cs.Speaking_Date, 
             cs.Track,
             em.EventMaster_Name,
-            sm.Sponsor_Name
+            sm.Sponsor_Name,
+            cs.Doc_No
         FROM Eve_CuratedSession cs
         LEFT JOIN Eve_EventMaster em ON cs.Event_Code = em.EventMasterId
         LEFT JOIN Eve_SponsorMaster sm ON cs.SponsorMasterId = sm.SponsorMasterId

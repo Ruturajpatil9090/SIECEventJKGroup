@@ -177,7 +177,7 @@ function SpeakerTracker() {
     const columns = [
         {
             header: 'Speaker Tracker ID',
-            accessor: 'SpeakerTrackerId',
+            accessor: 'Doc_No',
         },
         {
             header: 'Event Name',
@@ -665,8 +665,12 @@ function SpeakerTracker() {
                                     }),
                                     option: (provided, state) => ({
                                         ...provided,
-                                        backgroundColor: state.isSelected ? '#2563eb' : 'white',
-                                        color: state.isSelected ? 'white' : 'black',
+                                        backgroundColor: state.isFocused
+                                            ? '#8db1faff'
+                                            : state.isSelected
+                                                ? '#2563eb'
+                                                : 'white',
+                                        color: state.isSelected || state.isFocused ? 'white' : 'black',
                                         '&:hover': {
                                             backgroundColor: '#2563eb',
                                             color: 'white'
@@ -736,6 +740,7 @@ function SpeakerTracker() {
                 }}
                 details={selectedRecordDetails}
                 mainData={selectedMainData}
+                sponsors={sponsors}
             />
         </>
     );

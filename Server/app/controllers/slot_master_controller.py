@@ -189,15 +189,37 @@ async def read_slots_by_sponsor(
     slots = await get_slots_by_sponsor_id(db, sponsor_master_id=sponsor_master_id, event_code=event_code)
     return slots
 
-@router.put("/{slot_master_id}", response_model=SlotMaster)
+# @router.put("/{slot_master_id}", response_model=SlotMaster)
+# async def update_existing_slot_master(
+#     slot_master_id: int,
+#     slot_master: SlotMasterUpdate,
+#     db: AsyncSession = Depends(get_db),
+# ):
+#     updated_slot_master = await update_slot_master(
+#         db=db, 
+#         slot_master_id=slot_master_id, 
+#         slot_master=slot_master,
+#         ws_manager=manager
+#     )
+#     if updated_slot_master is None:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail="SlotMaster not found"
+#         )
+#     return updated_slot_master
+
+
+@router.put("/{event_code}/{ID}", response_model=SlotMaster)
 async def update_existing_slot_master(
-    slot_master_id: int,
+    event_code: str,
+    ID: int,
     slot_master: SlotMasterUpdate,
     db: AsyncSession = Depends(get_db),
 ):
     updated_slot_master = await update_slot_master(
         db=db, 
-        slot_master_id=slot_master_id, 
+        event_code=event_code,
+        ID=ID,
         slot_master=slot_master,
         ws_manager=manager
     )

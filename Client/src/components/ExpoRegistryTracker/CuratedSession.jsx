@@ -175,7 +175,7 @@ function CuratedSessionTracker() {
     const columns = [
         {
             header: 'Curated Session ID',
-            accessor: 'CuratedSessionId',
+            accessor: 'Doc_No',
         },
         {
             header: 'Event Name',
@@ -649,8 +649,12 @@ function CuratedSessionTracker() {
                                     }),
                                     option: (provided, state) => ({
                                         ...provided,
-                                        backgroundColor: state.isSelected ? '#2563eb' : 'white',
-                                        color: state.isSelected ? 'white' : 'black',
+                                        backgroundColor: state.isFocused
+                                            ? '#8db1faff'
+                                            : state.isSelected
+                                                ? '#2563eb'
+                                                : 'white',
+                                        color: state.isSelected || state.isFocused ? 'white' : 'black',
                                         '&:hover': {
                                             backgroundColor: '#2563eb',
                                             color: 'white'
@@ -719,6 +723,7 @@ function CuratedSessionTracker() {
                 }}
                 details={selectedRecordDetails}
                 mainData={selectedMainData}
+                sponsors={sponsors}
             />
         </>
     );

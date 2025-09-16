@@ -117,7 +117,7 @@ function PassesRegistry() {
 
 
   const columns = [
-    { header: 'ID', accessor: 'PassessRegistryId' },
+    { header: 'ID', accessor: 'Doc_No' },
     {
       header: 'Event Name',
       accessor: 'EventMaster_Name',
@@ -556,20 +556,6 @@ function PassesRegistry() {
             </div>
 
             <div>
-              <label htmlFor="delegate_received" className="block text-sm font-medium text-gray-700 mb-1">Details Recieved</label>
-              <select
-                id="delegate_received"
-                value={formData.Deligate_Name_Recieverd}
-                onChange={(e) => setFormData(prev => ({ ...prev, Deligate_Name_Recieverd: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              >
-                <option value="C">Complete</option>
-                <option value="P">Partial</option>
-                <option value="N">No</option>
-              </select>
-            </div>
-
-            <div>
               <label htmlFor="Registration_Form_Sent" className="block text-sm font-medium text-gray-700 mb-1">Registration Form Sent</label>
               <select
                 id="Registration_Form_Sent"
@@ -582,6 +568,20 @@ function PassesRegistry() {
               </select>
             </div>
 
+            <div>
+              <label htmlFor="delegate_received" className="block text-sm font-medium text-gray-700 mb-1">Details Recieved</label>
+              <select
+                id="delegate_received"
+                value={formData.Deligate_Name_Recieverd}
+                onChange={(e) => setFormData(prev => ({ ...prev, Deligate_Name_Recieverd: e.target.value }))}
+                className={`w-full px-3 py-2 border border-gray-300 rounded-md ${formData.Registration_Form_Sent === 'N' ? 'cursor-not-allowed' : ''}`}
+                disabled={formData.Registration_Form_Sent === 'N'}
+              >
+                <option value="C">Complete</option>
+                <option value="P">Partial</option>
+                <option value="N">No</option>
+              </select>
+            </div>
           </div>
 
           <hr className="my-3 " />
