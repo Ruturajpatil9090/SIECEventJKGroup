@@ -19,14 +19,16 @@ async def get_max_award_tracker_id(db: AsyncSession):
 
 async def get_award_registry_trackers(db: AsyncSession,event_code: int):
     query = text("""
-SELECT  dbo.Eve_AwardMaster.Award_Name, dbo.Eve_AwardRegistryTracker.AwardRegistryTrackerId, dbo.Eve_AwardRegistryTracker.Event_Code, dbo.Eve_AwardRegistryTracker.SponsorMasterId, 
+SELECT        dbo.Eve_AwardMaster.Award_Name, dbo.Eve_AwardRegistryTracker.AwardRegistryTrackerId, dbo.Eve_AwardRegistryTracker.Event_Code, dbo.Eve_AwardRegistryTracker.SponsorMasterId, 
                          dbo.Eve_AwardRegistryTracker.Deliverabled_Code, dbo.Eve_AwardRegistryTracker.Deliverable_No, dbo.Eve_AwardRegistryTracker.Award_Code, dbo.Eve_EventMaster.EventMaster_Name, 
-                         dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_DeliverablesMaster.Deliverables,dbo.Eve_AwardRegistryTracker.Doc_No
+                         dbo.Eve_SponsorMaster.Sponsor_Name, dbo.Eve_DeliverablesMaster.Deliverables, dbo.Eve_AwardRegistryTracker.Doc_No, dbo.Eve_AwardRegistryTracker.Award_Sub_Code, 
+                         dbo.Eve_AwardSubCategoryMaster.AwardSubCategoryName
 FROM            dbo.Eve_AwardRegistryTracker LEFT OUTER JOIN
                          dbo.Eve_AwardMaster ON dbo.Eve_AwardRegistryTracker.Award_Code = dbo.Eve_AwardMaster.AwardId INNER JOIN
                          dbo.Eve_SponsorMaster ON dbo.Eve_AwardRegistryTracker.SponsorMasterId = dbo.Eve_SponsorMaster.SponsorMasterId INNER JOIN
                          dbo.Eve_EventMaster ON dbo.Eve_AwardRegistryTracker.Event_Code = dbo.Eve_EventMaster.EventMasterId INNER JOIN
-                         dbo.Eve_DeliverablesMaster ON dbo.Eve_AwardRegistryTracker.Deliverabled_Code = dbo.Eve_DeliverablesMaster.id
+                         dbo.Eve_DeliverablesMaster ON dbo.Eve_AwardRegistryTracker.Deliverabled_Code = dbo.Eve_DeliverablesMaster.id LEFT OUTER JOIN
+                         dbo.Eve_AwardSubCategoryMaster ON dbo.Eve_AwardRegistryTracker.Award_Sub_Code = dbo.Eve_AwardSubCategoryMaster.AwardSubCategoryId
                  WHERE        dbo.Eve_AwardRegistryTracker.Event_Code = :event_code
 ORDER BY dbo.Eve_AwardRegistryTracker.AwardRegistryTrackerId DESC
     """)

@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useState, createContext, useContext } from "react";
+import { Link, useLocation, Outlet } from "react-router-dom"; // Import Outlet
 import {
     ChevronFirst,
     ChevronLast,
@@ -7,7 +7,10 @@ import {
     Phone,
     ClipboardList,
     Settings,
-    Calendar
+    Calendar,
+    ClipboardListIcon,
+    ShieldCheck,
+    FileDown
 } from "lucide-react";
 import logo from "../assets/jkIndia.png";
 import profile from "../assets/jklogo.png";
@@ -15,12 +18,11 @@ import Profile from "../Pages/Profile/Profile";
 
 const SidebarContext = createContext();
 
-function TaskDashboard() {
+function TaskLayout() {
     const [expanded, setExpanded] = useState(true);
 
     return (
         <div className="flex h-screen">
-            {/* Sidebar */}
             <aside className="h-full">
                 <nav className="h-full flex flex-col bg-white border-r shadow-sm">
                     <div className="p-2 pb-1 mt-2 flex justify-between items-center">
@@ -40,24 +42,16 @@ function TaskDashboard() {
 
                     <SidebarContext.Provider value={{ expanded }}>
                         <ul className="flex-1 px-3 mt-2">
-                            <SidebarItem
-                                icon={<ClipboardList className="h-5 w-5 text-blue-600" size={20} />}
-                                text="Task Assigned"
-                                path="/task-assigned"
-                            />
-
-                            <SidebarItem
-                                icon={<Settings className="h-5 w-5 text-green-600" size={20} />}
-                                text="Task Management"
-                                path="/task-management"
-                            />
-
+                             <SidebarItem icon={<ClipboardListIcon className="h-5 w-5 text-red-600" size={20} />} text="Dashboard" path='/taskdashboard/Taskutility' />
+                            <SidebarItem icon={<ClipboardListIcon className="h-5 w-5 text-red-600" size={20} />} text="Task" path='/taskdashboard/TaskDescription' />
+                            <SidebarItem icon={<ShieldCheck className="h-5 w-5 text-green-600" size={20} />} text="Authentication" path='/taskdashboard/TaskAuthentication' />
+                            <SidebarItem icon={<FileDown className="h-5 w-5 text-black-600" size={20} />} text="Task Reports" path='/taskdashboard/TaskReports' />
                             <SidebarItem
                                 icon={<Calendar className="h-5 w-5 text-purple-600" size={20} />}
                                 text="Event"
                                 path="/event-list"
                             />
-                                <Profile />
+                            <Profile />
                         </ul>
                     </SidebarContext.Provider>
 
@@ -80,37 +74,40 @@ function TaskDashboard() {
                 </nav>
             </aside>
 
-            <main className="flex-1 p-4">
-                <h1 className="text-2xl font-bold mb-4">Task Dashboard</h1>
+            {/* Main content area */}
+            {/* The Outlet component will render the content of the nested routes */}
+            <main className="flex-1 p-4 overflow-y-auto">
+                <Outlet />
             </main>
         </div>
     );
 }
 
+// SidebarItem component remains the same
 function SidebarItem({ icon, text, path = "/" }) {
     const { expanded } = useContext(SidebarContext);
     const location = useLocation();
-    const isActive = location.pathname === path;
+    const isActive = location.pathname.startsWith(path); // Use startsWith for nested routes
 
     return (
         <Link to={path}>
             <li
                 className={`
-          relative flex items-center py-2 px-3 my-1 font-medium rounded-[25px] 
-          cursor-pointer transition-colors group 
-          ${isActive
+                    relative flex items-center py-2 px-3 my-1 font-medium rounded-[25px] 
+                    cursor-pointer transition-colors group 
+                    ${isActive
                         ? "bg-[#F5EBEB] text-[#D92300]"
                         : "hover:bg-indigo-50 text-gray-600"
                     }
-          h-10 
-        `}
+                    h-10 
+                `}
             >
                 {icon}
                 <span
                     className={`
-          overflow-hidden transition-all 
-          ${expanded ? "w-52 ml-3 whitespace-nowrap" : "w-0"}
-        `}
+                        overflow-hidden transition-all 
+                        ${expanded ? "w-52 ml-3 whitespace-nowrap" : "w-0"}
+                    `}
                 >
                     {text}
                 </span>
@@ -118,24 +115,24 @@ function SidebarItem({ icon, text, path = "/" }) {
                 {isActive && (
                     <div
                         className={`
-              absolute right-2 w-2 h-2 rounded-full bg-[#992205] 
-              ${expanded ? "" : "top-2"}
-            `}
+                            absolute right-2 w-2 h-2 rounded-full bg-[#992205] 
+                            ${expanded ? "" : "top-2"}
+                        `}
                     ></div>
                 )}
 
                 {!expanded && (
                     <div
                         className={`
-              absolute left-full top-0 
-              rounded-md px-2 py-1 ml-6 
-              bg-[#F5EBEB] text-[#D92300] text-sm 
-              invisible opacity-20 -translate-x-3 
-              transition-all 
-              group-hover:visible group-hover:opacity-100 group-hover:translate-x-0 
-              whitespace-nowrap
-              z-10 
-            `}
+                            absolute left-full top-0 
+                            rounded-md px-2 py-1 ml-6 
+                            bg-[#F5EBEB] text-[#D92300] text-sm 
+                            invisible opacity-20 -translate-x-3 
+                            transition-all 
+                            group-hover:visible group-hover:opacity-100 group-hover:translate-x-0 
+                            whitespace-nowrap
+                            z-10 
+                        `}
                     >
                         {text}
                     </div>
@@ -145,4 +142,4 @@ function SidebarItem({ icon, text, path = "/" }) {
     );
 }
 
-export default TaskDashboard;
+export default TaskLayout;

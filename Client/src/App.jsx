@@ -1,14 +1,713 @@
+// // import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
+// // import Sidebar from "./components/Sidebar";
+// // import EditProfile from "./components/EditProfile/EditProfile";
+// // import Testimonials from "./components/Testimonials/Testimonials"
+// // import DeliverableMaster from "./components/EventMasters/DeliverableMaster";
+// // import CategoryMaster from "./components/EventMasters/CategoryMaster"
+// // import CategorySubMaster from "./components/EventMasters/CategorySubMaster";
+// // import EventSuperMaster from "./components/EventMasters/EventSuperMaster"
+// // import EventMaster from "./components/EventMasters/EventMaster";
+// // import CategoryWiseDeliverableMaster from "./components/EventMasters/CategoryWiseDeliverableMaster"
+// // import SponsorMaster from "./components/EventMasters/sponsorMaster"
+// // import ExpoRegistryTracker from "./components/ExpoRegistryTracker/ExpoRegistryTracker";
+// // import AwardMaster from "./components/EventMasters/AwardMaster";
+// // import AwardRegistryTracker from "./components/ExpoRegistryTracker/AwardRegistryTracker";
+// // import CuratedSession from "./components/ExpoRegistryTracker/CuratedSession";
+// // import MinisterialSession from "./components/ExpoRegistryTracker/MinisterialSession";
+// // import SlotMaster from "./components/EventMasters/SlotMaster";
+// // import PassessRegistry from "./components/ExpoRegistryTracker/PassessRegistry";
+// // import Login from "./Pages/Login/Login";
+// // import ProtectedRoute from "./common/ProtectedRoutes/ProtectedRoute";
+// // import NotFound from "./components/PageNotFound/PageNotFound";
+// // import SpeakerTracker from "./components/ExpoRegistryTracker/SpeakerTracker";
+// // import Dashboard from "./Pages/Dashboard/Dashboard";
+// // import EventList from "./Pages/Login/EventList";
+// // import SecretarialRoundTableTracker from "./components/ExpoRegistryTracker/SecretarialRoundTableTracker"
+// // import NetworkingSlotTracker from "./components/ExpoRegistryTracker/NetworkingSlot";
+// // import Userdashboard from "./Pages/Dashboard/Userdashboard";
+// // import { decryptData } from "./common/Functions/DecryptData";
+// // import AwardSubCategory from "./components/EventMasters/AwardSubCategoryMaster"
+
+// // //Task Management Routes
+// // import TaskDashboard from "./TaskManagement/TaskDashboard";
+// // import TaskDescriptionEntry from "./TaskManagement/taskDescription";
+// // import TaskAuthentication from "./TaskManagement/TaskAuthentication";
+// // import UserwiseTaskReport from "./TaskManagement/AllTaskReport";
+
+// // const Layout = () => {
+// //   const location = useLocation();
+
+// //   const hideLayoutRoutes = ["/", "/verifyotp", "/event-list"];
+// //   const noSidebarRoutes = ["/", "/verifyotp", "/event-list"];
+
+// //   const isAuthenticated = () => {
+// //     const encryptedToken = sessionStorage.getItem('access_token');
+// //     return !!encryptedToken;
+// //   };
+
+// //   const getUserData = () => {
+// //     try {
+// //       const encryptedUserData = sessionStorage.getItem('user_data');
+// //       if (encryptedUserData) {
+// //         return decryptData(encryptedUserData);
+// //       }
+// //     } catch (error) {
+// //       console.error("Error decrypting user data:", error);
+// //     }
+// //     return null;
+// //   };
+
+// //   const userData = getUserData();
+// //   const userType = userData?.user_type;
+
+// //   const shouldHideLayout = hideLayoutRoutes.includes(location.pathname);
+// //   const shouldHideSidebar = noSidebarRoutes.includes(location.pathname);
+
+// //   if (shouldHideLayout) {
+// //     return (
+// //       <Routes>
+// //         <Route path="/" element={<Login />} />
+// //         <Route path="*" element={<Navigate to="/" replace />} />
+// //         <Route path="/event-list" element={<EventList />} />
+// //       </Routes>
+// //     );
+// //   }
+
+// //   if (!isAuthenticated()) {
+// //     return <Navigate to="/" replace />;
+// //   }
+
+// //   const adminRoutes = [
+// //     "/editprofile",
+// //     "/testimonials",
+// //     "/deliverable-master",
+// //     "/category-master",
+// //     "/categorysub-master",
+// //     "/eventsupermaster",
+// //     "/eventmaster",
+// //     "/CategoryWiseDeliverableMaster",
+// //     "/sponsor-master",
+// //     "/exporegistry-tracker",
+// //     "/award-subcategory",
+// //     "/award-master",
+// //     "/award-registry",
+// //     "/curated-sessions",
+// //     "/ministrial-sessions",
+// //     "/slot-master",
+// //     "/passess-registry",
+// //     "/speaker-tracker",
+// //     "/dashboard",
+// //     "/userdashboard",
+// //     "/event-list",
+// //     "/SecretarialRoundTable",
+// //     "/NetworkingSlotTracker",
+
+// //     //Task Dashbaord
+// //     "/taskdashboard",
+// //     "/TaskDescription",
+// //     "/TaskAuthentication",
+// //     "/TaskReports",
+// //   ];
+
+// //   const userRoutes = [
+// //     "/editprofile",
+// //     "/sponsor-master",
+// //     "/exporegistry-tracker",
+// //     "/award-registry",
+// //     "/curated-sessions",
+// //     "/ministrial-sessions",
+// //     "/speaker-tracker",
+// //     "/dashboard",
+// //     "/userdashboard",
+// //     "/passess-registry",
+// //     "/SecretarialRoundTable",
+// //     "/NetworkingSlotTracker",
+
+// //     //Task Dashbaord
+// //     "/taskdashboard",
+// //     "/TaskDescription",
+// //     "/TaskAuthentication",
+// //     "/TaskReports",
+
+// //   ];
+
+// //   const allowedRoutes = userType === 'A' ? adminRoutes : userRoutes;
+// //   const isValidRoute = allowedRoutes.includes(location.pathname);
+
+// //   if (!isValidRoute) {
+// //     return <NotFound />;
+// //   }
+
+// //   return (
+// //     <div className="flex h-screen">
+// //       <Sidebar userType={userType} />
+// //       <div className="flex-1 flex flex-col min-h-screen">
+// //         <div className="flex-1 overflow-y-auto p-4">
+// //           <Routes>
+// //             {userType === 'A' && (
+// //               <>
+// //                 <Route path="/testimonials" element={
+// //                   <ProtectedRoute>
+// //                     <Testimonials />
+// //                   </ProtectedRoute>
+// //                 } />
+// //                 <Route path="/deliverable-master" element={
+// //                   <ProtectedRoute>
+// //                     <DeliverableMaster />
+// //                   </ProtectedRoute>
+// //                 } />
+// //                 <Route path="/category-master" element={
+// //                   <ProtectedRoute>
+// //                     <CategoryMaster />
+// //                   </ProtectedRoute>
+// //                 } />
+// //                 <Route path="/categorysub-master" element={
+// //                   <ProtectedRoute>
+// //                     <CategorySubMaster />
+// //                   </ProtectedRoute>
+// //                 } />
+// //                 <Route path="/eventsupermaster" element={
+// //                   <ProtectedRoute>
+// //                     <EventSuperMaster />
+// //                   </ProtectedRoute>
+// //                 } />
+// //                 <Route path="/eventmaster" element={
+// //                   <ProtectedRoute>
+// //                     <EventMaster />
+// //                   </ProtectedRoute>
+// //                 } />
+// //                 <Route path="/CategoryWiseDeliverableMaster" element={
+// //                   <ProtectedRoute>
+// //                     <CategoryWiseDeliverableMaster />
+// //                   </ProtectedRoute>
+// //                 } />
+// //                 <Route path="/award-master" element={
+// //                   <ProtectedRoute>
+// //                     <AwardMaster />
+// //                   </ProtectedRoute>
+// //                 } />
+// //                  <Route path="/award-subcategory" element={
+// //                   <ProtectedRoute>
+// //                     <AwardSubCategory />
+// //                   </ProtectedRoute>
+// //                 } />
+// //                 <Route path="/slot-master" element={
+// //                   <ProtectedRoute>
+// //                     <SlotMaster />
+// //                   </ProtectedRoute>
+// //                 } />
+// //                 <Route path="/passess-registry" element={
+// //                   <ProtectedRoute>
+// //                     <PassessRegistry />
+// //                   </ProtectedRoute>
+// //                 } />
+
+
+// //                 {/* Task Management  */}
+
+// //                 <Route path="/TaskDescription" element={
+// //                   <ProtectedRoute>
+// //                     <TaskDescriptionEntry />
+// //                   </ProtectedRoute>
+// //                 } />
+// //                 <Route path="/TaskAuthentication" element={
+// //                   <ProtectedRoute>
+// //                     <TaskAuthentication />
+// //                   </ProtectedRoute>
+// //                 } />
+// //                 <Route path="/TaskReports" element={
+// //                   <ProtectedRoute>
+// //                     <UserwiseTaskReport />
+// //                   </ProtectedRoute>
+// //                 } />
+// //               </>
+// //             )}
+
+// //             {/* Routes available to both Admin and User */}
+// //             <Route path="/sponsor-master" element={
+// //               <ProtectedRoute>
+// //                 <SponsorMaster />
+// //               </ProtectedRoute>
+// //             } />
+// //             <Route path="/exporegistry-tracker" element={
+// //               <ProtectedRoute>
+// //                 <ExpoRegistryTracker />
+// //               </ProtectedRoute>
+// //             } />
+// //             <Route path="/award-registry" element={
+// //               <ProtectedRoute>
+// //                 <AwardRegistryTracker />
+// //               </ProtectedRoute>
+// //             } />
+// //             <Route path="/passess-registry" element={
+// //               <ProtectedRoute>
+// //                 <PassessRegistry />
+// //               </ProtectedRoute>
+// //             } />
+// //             <Route path="/curated-sessions" element={
+// //               <ProtectedRoute>
+// //                 <CuratedSession />
+// //               </ProtectedRoute>
+// //             } />
+// //             <Route path="/ministrial-sessions" element={
+// //               <ProtectedRoute>
+// //                 <MinisterialSession />
+// //               </ProtectedRoute>
+// //             } />
+// //             <Route path="/speaker-tracker" element={
+// //               <ProtectedRoute>
+// //                 <SpeakerTracker />
+// //               </ProtectedRoute>
+// //             } />
+// //             <Route path="/dashboard" element={
+// //               <ProtectedRoute>
+// //                 <Dashboard />
+// //               </ProtectedRoute>
+// //             } />
+// //             <Route path="/userdashboard" element={
+// //               <ProtectedRoute>
+// //                 <Userdashboard />
+// //               </ProtectedRoute>
+// //             } />
+// //             <Route path="/event-list" element={
+// //               <ProtectedRoute>
+// //                 <EventList />
+// //               </ProtectedRoute>
+// //             } />
+// //             <Route path="/SecretarialRoundTable" element={
+// //               <ProtectedRoute>
+// //                 <SecretarialRoundTableTracker />
+// //               </ProtectedRoute>
+// //             } />
+// //             <Route path="/NetworkingSlotTracker" element={
+// //               <ProtectedRoute>
+// //                 <NetworkingSlotTracker />
+// //               </ProtectedRoute>
+// //             } />
+
+
+
+// //           {/* Task Management  */}
+
+// //                 <Route path="/TaskDescription" element={
+// //                   <ProtectedRoute>
+// //                     <TaskDescriptionEntry />
+// //                   </ProtectedRoute>
+// //                 } />
+// //                 <Route path="/TaskAuthentication" element={
+// //                   <ProtectedRoute>
+// //                     <TaskAuthentication />
+// //                   </ProtectedRoute>
+// //                 } />
+// //                 <Route path="/TaskReports" element={
+// //                   <ProtectedRoute>
+// //                     <UserwiseTaskReport />
+// //                   </ProtectedRoute>
+// //                 } />
+
+
+
+// //           </Routes>
+// //         </div>
+// //       </div>
+// //     </div>
+// //   );
+// // };
+
+// // function App() {
+// //   return (
+// //     <Router>
+// //       <Routes>
+// //         <Route path="/" element={<Login />} />
+// //         <Route path="/taskdashboard" element={
+// //           <TaskDashboard />
+// //         } />
+
+// //         <Route path="/*" element={
+// //           <ProtectedRoute>
+// //             <Layout />
+// //           </ProtectedRoute>
+// //         } />
+
+// //         <Route path="*" element={<NotFound />} />
+// //       </Routes>
+// //     </Router>
+// //   );
+// // }
+
+// // export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
+// import Sidebar from "./components/Sidebar";
+// import EditProfile from "./components/EditProfile/EditProfile";
+// import Testimonials from "./components/Testimonials/Testimonials"
+// import DeliverableMaster from "./components/EventMasters/DeliverableMaster";
+// import CategoryMaster from "./components/EventMasters/CategoryMaster"
+// import CategorySubMaster from "./components/EventMasters/CategorySubMaster";
+// import EventSuperMaster from "./components/EventMasters/EventSuperMaster"
+// import EventMaster from "./components/EventMasters/EventMaster";
+// import CategoryWiseDeliverableMaster from "./components/EventMasters/CategoryWiseDeliverableMaster"
+// import SponsorMaster from "./components/EventMasters/sponsorMaster"
+// import ExpoRegistryTracker from "./components/ExpoRegistryTracker/ExpoRegistryTracker";
+// import AwardMaster from "./components/EventMasters/AwardMaster";
+// import AwardRegistryTracker from "./components/ExpoRegistryTracker/AwardRegistryTracker";
+// import CuratedSession from "./components/ExpoRegistryTracker/CuratedSession";
+// import MinisterialSession from "./components/ExpoRegistryTracker/MinisterialSession";
+// import SlotMaster from "./components/EventMasters/SlotMaster";
+// import PassessRegistry from "./components/ExpoRegistryTracker/PassessRegistry";
+// import Login from "./Pages/Login/Login";
+// import ProtectedRoute from "./common/ProtectedRoutes/ProtectedRoute";
+// import NotFound from "./components/PageNotFound/PageNotFound";
+// import SpeakerTracker from "./components/ExpoRegistryTracker/SpeakerTracker";
+// import Dashboard from "./Pages/Dashboard/Dashboard";
+// import EventList from "./Pages/Login/EventList";
+// import SecretarialRoundTableTracker from "./components/ExpoRegistryTracker/SecretarialRoundTableTracker"
+// import NetworkingSlotTracker from "./components/ExpoRegistryTracker/NetworkingSlot";
+// import Userdashboard from "./Pages/Dashboard/Userdashboard";
+// import { decryptData } from "./common/Functions/DecryptData";
+// import AwardSubCategory from "./components/EventMasters/AwardSubCategoryMaster"
+
+// //Task Management Routes
+// import TaskDashboard from "./TaskManagement/TaskDashboard";
+// import TaskDescriptionEntry from "./TaskManagement/taskDescription";
+// import TaskAuthentication from "./TaskManagement/TaskAuthentication";
+// import UserwiseTaskReport from "./TaskManagement/AllTaskReport";
+
+// const Layout = () => {
+//   const location = useLocation();
+
+//   const hideLayoutRoutes = ["/", "/verifyotp", "/event-list", "/taskdashboard"];
+//   const noSidebarRoutes = ["/", "/verifyotp", "/event-list", "/taskdashboard"];
+
+//   const isAuthenticated = () => {
+//     const encryptedToken = sessionStorage.getItem('access_token');
+//     return !!encryptedToken;
+//   };
+
+//   const getUserData = () => {
+//     try {
+//       const encryptedUserData = sessionStorage.getItem('user_data');
+//       if (encryptedUserData) {
+//         return decryptData(encryptedUserData);
+//       }
+//     } catch (error) {
+//       console.error("Error decrypting user data:", error);
+//     }
+//     return null;
+//   };
+
+//   const userData = getUserData();
+//   const userType = userData?.user_type;
+
+//   const shouldHideLayout = hideLayoutRoutes.includes(location.pathname);
+//   const shouldHideSidebar = noSidebarRoutes.includes(location.pathname);
+
+//   if (shouldHideLayout) {
+//     return (
+//       <Routes>
+//         <Route path="/" element={<Login />} />
+//         <Route path="/event-list" element={<EventList />} />
+//         <Route path="/taskdashboard" element={<TaskDashboard />} />
+//         <Route path="*" element={<Navigate to="/" replace />} />
+//       </Routes>
+//     );
+//   }
+
+//   if (!isAuthenticated()) {
+//     return <Navigate to="/" replace />;
+//   }
+
+//   const adminRoutes = [
+//     "/editprofile",
+//     "/testimonials",
+//     "/deliverable-master",
+//     "/category-master",
+//     "/categorysub-master",
+//     "/eventsupermaster",
+//     "/eventmaster",
+//     "/CategoryWiseDeliverableMaster",
+//     "/sponsor-master",
+//     "/exporegistry-tracker",
+//     "/award-subcategory",
+//     "/award-master",
+//     "/award-registry",
+//     "/curated-sessions",
+//     "/ministrial-sessions",
+//     "/slot-master",
+//     "/passess-registry",
+//     "/speaker-tracker",
+//     "/dashboard",
+//     "/userdashboard",
+//     "/event-list",
+//     "/SecretarialRoundTable",
+//     "/NetworkingSlotTracker",
+
+//     //Task Management Routes
+//     "/TaskDescription",
+//     "/TaskAuthentication",
+//     "/TaskReports",
+//   ];
+
+//   const userRoutes = [
+//     "/editprofile",
+//     "/sponsor-master",
+//     "/exporegistry-tracker",
+//     "/award-registry",
+//     "/curated-sessions",
+//     "/ministrial-sessions",
+//     "/speaker-tracker",
+//     "/dashboard",
+//     "/userdashboard",
+//     "/passess-registry",
+//     "/SecretarialRoundTable",
+//     "/NetworkingSlotTracker",
+
+//     //Task Management Routes
+//     "/TaskDescription",
+//     "/TaskAuthentication",
+//     "/TaskReports",
+//   ];
+
+//   const allowedRoutes = userType === 'A' ? adminRoutes : userRoutes;
+//   const isValidRoute = allowedRoutes.includes(location.pathname);
+
+//   if (!isValidRoute) {
+//     return <NotFound />;
+//   }
+
+//   return (
+//     <div className="flex h-screen">
+//       <Sidebar userType={userType} />
+//       <div className="flex-1 flex flex-col min-h-screen">
+//         <div className="flex-1 overflow-y-auto p-4">
+//           <Routes>
+//             {userType === 'A' && (
+//               <>
+//                 <Route path="/testimonials" element={
+//                   <ProtectedRoute>
+//                     <Testimonials />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/deliverable-master" element={
+//                   <ProtectedRoute>
+//                     <DeliverableMaster />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/category-master" element={
+//                   <ProtectedRoute>
+//                     <CategoryMaster />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/categorysub-master" element={
+//                   <ProtectedRoute>
+//                     <CategorySubMaster />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/eventsupermaster" element={
+//                   <ProtectedRoute>
+//                     <EventSuperMaster />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/eventmaster" element={
+//                   <ProtectedRoute>
+//                     <EventMaster />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/CategoryWiseDeliverableMaster" element={
+//                   <ProtectedRoute>
+//                     <CategoryWiseDeliverableMaster />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/award-master" element={
+//                   <ProtectedRoute>
+//                     <AwardMaster />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/award-subcategory" element={
+//                   <ProtectedRoute>
+//                     <AwardSubCategory />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/slot-master" element={
+//                   <ProtectedRoute>
+//                     <SlotMaster />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/passess-registry" element={
+//                   <ProtectedRoute>
+//                     <PassessRegistry />
+//                   </ProtectedRoute>
+//                 } />
+
+//                 {/* Task Management Routes */}
+//                 <Route path="/TaskDescription" element={
+//                   <ProtectedRoute>
+//                     <TaskDescriptionEntry />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/TaskAuthentication" element={
+//                   <ProtectedRoute>
+//                     <TaskAuthentication />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/TaskReports" element={
+//                   <ProtectedRoute>
+//                     <UserwiseTaskReport />
+//                   </ProtectedRoute>
+//                 } />
+//               </>
+//             )}
+
+//             {/* Routes available to both Admin and User */}
+//             <Route path="/sponsor-master" element={
+//               <ProtectedRoute>
+//                 <SponsorMaster />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/exporegistry-tracker" element={
+//               <ProtectedRoute>
+//                 <ExpoRegistryTracker />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/award-registry" element={
+//               <ProtectedRoute>
+//                 <AwardRegistryTracker />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/passess-registry" element={
+//               <ProtectedRoute>
+//                 <PassessRegistry />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/curated-sessions" element={
+//               <ProtectedRoute>
+//                 <CuratedSession />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/ministrial-sessions" element={
+//               <ProtectedRoute>
+//                 <MinisterialSession />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/speaker-tracker" element={
+//               <ProtectedRoute>
+//                 <SpeakerTracker />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/dashboard" element={
+//               <ProtectedRoute>
+//                 <Dashboard />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/userdashboard" element={
+//               <ProtectedRoute>
+//                 <Userdashboard />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/event-list" element={
+//               <ProtectedRoute>
+//                 <EventList />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/SecretarialRoundTable" element={
+//               <ProtectedRoute>
+//                 <SecretarialRoundTableTracker />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/NetworkingSlotTracker" element={
+//               <ProtectedRoute>
+//                 <NetworkingSlotTracker />
+//               </ProtectedRoute>
+//             } />
+
+//             {/* Task Management Routes - Available to both */}
+//             <Route path="/TaskDescription" element={
+//               <ProtectedRoute>
+//                 <TaskDescriptionEntry />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/TaskAuthentication" element={
+//               <ProtectedRoute>
+//                 <TaskAuthentication />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/TaskReports" element={
+//               <ProtectedRoute>
+//                 <UserwiseTaskReport />
+//               </ProtectedRoute>
+//             } />
+//           </Routes>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// function App() {
+//   return (
+//     <Router>
+//       <Routes>
+//         <Route path="/" element={<Login />} />
+//         <Route path="/event-list" element={<EventList />} />
+//         <Route path="/taskdashboard" element={<TaskDashboard />} />
+
+//         <Route path="/*" element={
+//           <ProtectedRoute>
+//             <Layout />
+//           </ProtectedRoute>
+//         } />
+
+//         <Route path="*" element={<NotFound />} />
+//       </Routes>
+//     </Router>
+//   );
+// }
+
+// export default App;
+
+
+
+
+
+
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import EditProfile from "./components/EditProfile/EditProfile";
-import Testimonials from "./components/Testimonials/Testimonials"
+import Testimonials from "./components/Testimonials/Testimonials";
 import DeliverableMaster from "./components/EventMasters/DeliverableMaster";
-import CategoryMaster from "./components/EventMasters/CategoryMaster"
+import CategoryMaster from "./components/EventMasters/CategoryMaster";
 import CategorySubMaster from "./components/EventMasters/CategorySubMaster";
-import EventSuperMaster from "./components/EventMasters/EventSuperMaster"
+import EventSuperMaster from "./components/EventMasters/EventSuperMaster";
 import EventMaster from "./components/EventMasters/EventMaster";
-import CategoryWiseDeliverableMaster from "./components/EventMasters/CategoryWiseDeliverableMaster"
-import SponsorMaster from "./components/EventMasters/sponsorMaster"
+import CategoryWiseDeliverableMaster from "./components/EventMasters/CategoryWiseDeliverableMaster";
+import SponsorMaster from "./components/EventMasters/sponsorMaster";
 import ExpoRegistryTracker from "./components/ExpoRegistryTracker/ExpoRegistryTracker";
 import AwardMaster from "./components/EventMasters/AwardMaster";
 import AwardRegistryTracker from "./components/ExpoRegistryTracker/AwardRegistryTracker";
@@ -22,19 +721,24 @@ import NotFound from "./components/PageNotFound/PageNotFound";
 import SpeakerTracker from "./components/ExpoRegistryTracker/SpeakerTracker";
 import Dashboard from "./Pages/Dashboard/Dashboard";
 import EventList from "./Pages/Login/EventList";
-import SecretarialRoundTableTracker from "./components/ExpoRegistryTracker/SecretarialRoundTableTracker"
+import SecretarialRoundTableTracker from "./components/ExpoRegistryTracker/SecretarialRoundTableTracker";
 import NetworkingSlotTracker from "./components/ExpoRegistryTracker/NetworkingSlot";
 import Userdashboard from "./Pages/Dashboard/Userdashboard";
 import { decryptData } from "./common/Functions/DecryptData";
+import AwardSubCategory from "./components/EventMasters/AwardSubCategoryMaster";
 
 //Task Management Routes
-import TaskDashboard from "./TaskManagement/TaskDashboard";
+import TaskLayout from "./TaskManagement/TaskDashboard";
+import TaskDescriptionEntry from "./TaskManagement/taskDescription";
+import TaskAuthentication from "./TaskManagement/TaskAuthentication";
+import UserwiseTaskReport from "./TaskManagement/AllTaskReport";
+import TaskDashBorardUtility from "./TaskManagement/DashBoard"
 
 const Layout = () => {
   const location = useLocation();
 
-  const hideLayoutRoutes = ["/", "/verifyotp", "/event-list"];
-  const noSidebarRoutes = ["/", "/verifyotp", "/event-list"];
+  const hideLayoutRoutes = ["/", "/verifyotp", "/event-list", "/taskdashboard"];
+  const noSidebarRoutes = ["/", "/verifyotp", "/event-list", "/taskdashboard"];
 
   const isAuthenticated = () => {
     const encryptedToken = sessionStorage.getItem('access_token');
@@ -63,8 +767,8 @@ const Layout = () => {
     return (
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
         <Route path="/event-list" element={<EventList />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     );
   }
@@ -84,6 +788,7 @@ const Layout = () => {
     "/CategoryWiseDeliverableMaster",
     "/sponsor-master",
     "/exporegistry-tracker",
+    "/award-subcategory",
     "/award-master",
     "/award-registry",
     "/curated-sessions",
@@ -96,9 +801,6 @@ const Layout = () => {
     "/event-list",
     "/SecretarialRoundTable",
     "/NetworkingSlotTracker",
-
-    //Task Dashbaord
-    "taskdashboard"
   ];
 
   const userRoutes = [
@@ -114,14 +816,11 @@ const Layout = () => {
     "/passess-registry",
     "/SecretarialRoundTable",
     "/NetworkingSlotTracker",
-
-    //Task Dashbaord
-    "taskdashboard"
-
   ];
 
   const allowedRoutes = userType === 'A' ? adminRoutes : userRoutes;
-  const isValidRoute = allowedRoutes.includes(location.pathname);
+  const isTaskRoute = location.pathname.startsWith('/taskdashboard');
+  const isValidRoute = allowedRoutes.includes(location.pathname) || isTaskRoute;
 
   if (!isValidRoute) {
     return <NotFound />;
@@ -135,7 +834,6 @@ const Layout = () => {
           <Routes>
             {userType === 'A' && (
               <>
-
                 <Route path="/testimonials" element={
                   <ProtectedRoute>
                     <Testimonials />
@@ -176,6 +874,11 @@ const Layout = () => {
                     <AwardMaster />
                   </ProtectedRoute>
                 } />
+                <Route path="/award-subcategory" element={
+                  <ProtectedRoute>
+                    <AwardSubCategory />
+                  </ProtectedRoute>
+                } />
                 <Route path="/slot-master" element={
                   <ProtectedRoute>
                     <SlotMaster />
@@ -188,8 +891,6 @@ const Layout = () => {
                 } />
               </>
             )}
-
-            {/* Routes available to both Admin and User */}
             <Route path="/sponsor-master" element={
               <ProtectedRoute>
                 <SponsorMaster />
@@ -262,9 +963,14 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/taskdashboard" element={
-          <TaskDashboard />
-        } />
+        <Route path="/event-list" element={<EventList />} />
+        <Route path="/taskdashboard" element={<ProtectedRoute><TaskLayout /></ProtectedRoute>}>
+          <Route index element={<TaskDescriptionEntry />} />
+          <Route path="TaskDescription" element={<TaskDescriptionEntry />} />
+          <Route path="TaskAuthentication" element={<TaskAuthentication />} />
+          <Route path="TaskReports" element={<UserwiseTaskReport />} />
+          <Route path="Taskutility" element={<TaskDashBorardUtility />} />
+        </Route>
 
         <Route path="/*" element={
           <ProtectedRoute>

@@ -17,6 +17,7 @@ import { passesRegistryApi } from '../services/passesRegistryApi';
 import { speakerTrackerApi } from '../services/speakerTrackerApi';
 import { secretarialRoundtableApi } from '../services/secretarialRoundtableApi';
 import { networkingSlotApi } from '../services/networkingSlotApi';
+import { awardSubCategoryApi } from '../services/awardSubCategoryApi';
 
 export const listenerMiddleware = createListenerMiddleware();
 
@@ -175,6 +176,12 @@ listenerMiddleware.startListening({
             );
             listenerApi.dispatch(
                 sponsorMasterApi.util.invalidateTags(['SponsorMaster'])
+            );
+        }
+        else if (action.payload === "refresh_award_subcategories") {
+            console.log("Received refresh signal. Invalidating Award Sub Category cache.");
+            listenerApi.dispatch(
+                awardSubCategoryApi.util.invalidateTags(['AwardSubCategory'])
             );
         }
     },

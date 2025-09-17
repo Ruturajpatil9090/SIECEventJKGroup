@@ -20,6 +20,9 @@ import { speakerTrackerApi } from '../services/speakerTrackerApi';
 import { accountMasterApi } from '../services/accountMasterApi';
 import { secretarialRoundtableApi } from '../services/secretarialRoundtableApi';
 import { networkingSlotApi } from '../services/networkingSlotApi';
+import { awardSubCategoryApi } from '../services/awardSubCategoryApi';
+import { TaskDescriptionApi } from '../services/taskdescriptionApi';
+import { TaskReportApi } from '../services/taskreportApi';
 
 // WebSocket URL
 // const WS_URL = "wss://events-api.chinimandi.com/wss";
@@ -46,6 +49,9 @@ export const store = configureStore({
     [accountMasterApi.reducerPath]: accountMasterApi.reducer,
     [secretarialRoundtableApi.reducerPath]: secretarialRoundtableApi.reducer,
     [networkingSlotApi.reducerPath]: networkingSlotApi.reducer,
+    [awardSubCategoryApi.reducerPath]: awardSubCategoryApi.reducer,
+    [TaskDescriptionApi.reducerPath]: TaskDescriptionApi.reducer,
+    [TaskReportApi.reducerPath]: TaskReportApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -70,4 +76,7 @@ export const store = configureStore({
       .concat(accountMasterApi.middleware)
       .concat(secretarialRoundtableApi.middleware)
       .concat(networkingSlotApi.middleware)
+      .concat(awardSubCategoryApi.middleware)
+      .concat(TaskDescriptionApi.middleware)
+      .concat(TaskReportApi.middleware)
 });

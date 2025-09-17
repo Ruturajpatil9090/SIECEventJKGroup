@@ -26,7 +26,8 @@ import {
   Store,
   UsersRound,
   Network,
-  ArrowLeft
+  ArrowLeft,
+  Star
 } from "lucide-react";
 
 import { Link, useLocation } from "react-router-dom";
@@ -139,6 +140,7 @@ export default function Sidebar() {
                     <SidebarItem icon={<Grid className="h-5 w-5 text-orange-600" size={16} />} text="Category Master" path='/category-master' />
                     <SidebarItem icon={<Layers className="h-5 w-5 text-purple-600" size={16} />} text="Category Sub Master" path='/categorysub-master' />
                     <SidebarItem icon={<Trophy className="h-5 w-5 text-yellow-600" size={16} />} text="Award Master" path='/award-master' />
+                    <SidebarItem icon={<Star className="h-5 w-5 text-voilet-600" size={16} />} text="Award Sub Category Master" path='/award-subcategory' />
                   </ul>
                 )}
 
@@ -193,6 +195,12 @@ export default function Sidebar() {
                       icon={<Trophy className="h-5 w-5 text-yellow-600" size={16} />}
                       text="Award Master"
                       path='/award-master'
+                      forceExpand={true}
+                    />
+                    <SidebarItem
+                      icon={<Trophy className="h-5 w-5 text-yellow-600" size={16} />}
+                      text="Award Sub Category Master"
+                      path='/award-subcategory'
                       forceExpand={true}
                     />
                   </div>

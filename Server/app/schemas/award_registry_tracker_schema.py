@@ -8,6 +8,7 @@ class AwardRegistryTrackerBase(BaseModel):
     Deliverable_No: Optional[int] = None
     Award_Code: Optional[int] = None
     Doc_No: Optional[int] = None
+    Award_Sub_Code: Optional[int] = None
 
 class AwardRegistryTrackerCreate(AwardRegistryTrackerBase):
     pass
@@ -21,6 +22,7 @@ class AwardRegistryTracker(AwardRegistryTrackerBase):
     Sponsor_Name: Optional[str] = None 
     Deliverables: Optional[str] = None
     Award_Name: Optional[str] = None
+    AwardSubCategoryName: Optional[str] = None
 
     class Config:
         from_attributes = True
