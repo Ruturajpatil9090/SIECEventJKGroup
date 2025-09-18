@@ -18,6 +18,9 @@ import { speakerTrackerApi } from '../services/speakerTrackerApi';
 import { secretarialRoundtableApi } from '../services/secretarialRoundtableApi';
 import { networkingSlotApi } from '../services/networkingSlotApi';
 import { awardSubCategoryApi } from '../services/awardSubCategoryApi';
+import { TaskReportApi } from '../services/taskreportApi';
+import { TaskDescriptionApi } from '../services/taskdescriptionApi';
+
 
 export const listenerMiddleware = createListenerMiddleware();
 
@@ -182,6 +185,16 @@ listenerMiddleware.startListening({
             console.log("Received refresh signal. Invalidating Award Sub Category cache.");
             listenerApi.dispatch(
                 awardSubCategoryApi.util.invalidateTags(['AwardSubCategory'])
+            );
+        }
+        //Task related routes
+        else if (action.payload === "refresh_taskdescription") {
+            console.log("Received refresh signal. Invalidating task update cache.");
+            listenerApi.dispatch(
+                TaskReportApi.util.invalidateTags(['taskDescription'])
+            );
+             listenerApi.dispatch(
+                TaskDescriptionApi.util.invalidateTags(['taskupdated'])
             );
         }
     },

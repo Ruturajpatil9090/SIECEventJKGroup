@@ -2,13 +2,13 @@ from sqlalchemy import select, update, delete, asc, func,text,bindparam
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from fastapi import HTTPException
-from typing import List
+from typing import Any, Dict, List, Optional
 from datetime import datetime, timedelta,date
 from sqlalchemy import select,delete,update
 from ..models.taskdescription_models import TaskHead, TaskDetail
 from ..schemas.taskdescriptionschema import TaskUpdate
 from ..models.TaskMaster_model import TaskMaster
-
+from ..websockets.connection_manager import ConnectionManager
 
 from ..models.taskdescription_models import (
     TaskHead,
@@ -35,34 +35,34 @@ async def get_max_taskDescription_id(db: AsyncSession):
     max_id = result.scalar()
     return max_id if max_id is not None else 0
 
-async def get_all_data_with_details(db: AsyncSession, skip: int = 0, limit: int = 100):
+async def get_all_data_with_details(db: AsyncSession, user_id: int, ) -> List[Dict[str, Any]]:
     query = text("""
-   SELECT DISTINCT 
-                         dbo.Eve_TaskHead.taskno, dbo.Eve_TaskDetail.taskno AS Expr1, dbo.Eve_TaskHead.doc_date, dbo.Eve_TaskHead.purpose, dbo.Eve_TaskHead.taskdesc, dbo.Eve_TaskHead.tasktype, dbo.Eve_TaskHead.category, 
-                         dbo.Eve_TaskHead.deadlinedate, dbo.Eve_TaskHead.enddate, dbo.Eve_TaskHead.startdate, dbo.Eve_TaskHead.remindtask, dbo.Eve_TaskHead.reminddate, dbo.Eve_TaskHead.day, dbo.Eve_TaskHead.weekday, 
-                         dbo.Eve_TaskHead.month, dbo.Eve_TaskHead.time, dbo.Eve_TaskHead.priority, dbo.Eve_TaskHead.Company_Code, dbo.Eve_TaskHead.Created_By, dbo.Eve_TaskHead.Modified_By, dbo.Eve_TaskHead.tran_type, 
-                         dbo.tbluser.User_Id, dbo.tbluser.User_Name, dbo.Eve_TaskDetail.id, dbo.Eve_TaskDetail.userId
-FROM            dbo.Eve_TaskDetail RIGHT OUTER JOIN
-                         dbo.Eve_TaskHead ON dbo.Eve_TaskDetail.taskno = dbo.Eve_TaskHead.taskno LEFT OUTER JOIN
-                         dbo.tbluser ON dbo.Eve_TaskDetail.userId = dbo.tbluser.User_Id
-    ORDER BY Eve_TaskHead.taskno DESC
-    OFFSET :skip ROWS FETCH NEXT :limit ROWS ONLY
+     SELECT DISTINCT 
+                         TOP (100) PERCENT dbo.Eve_TaskHead.taskno, dbo.Eve_TaskDetail.taskno AS Expr1, dbo.Eve_TaskHead.doc_date, dbo.Eve_TaskHead.purpose, dbo.Eve_TaskHead.taskdesc, dbo.Eve_TaskHead.tasktype, 
+                         dbo.Eve_TaskHead.category, dbo.Eve_TaskHead.deadlinedate, dbo.Eve_TaskHead.enddate, dbo.Eve_TaskHead.startdate, dbo.Eve_TaskHead.remindtask, dbo.Eve_TaskHead.reminddate, dbo.Eve_TaskHead.day, 
+                         dbo.Eve_TaskHead.weekday, dbo.Eve_TaskHead.month, dbo.Eve_TaskHead.time, dbo.Eve_TaskHead.priority, dbo.Eve_TaskHead.Company_Code, dbo.Eve_TaskHead.Created_By, dbo.Eve_TaskHead.Modified_By, 
+                         dbo.Eve_TaskHead.tran_type, tbluser_1.User_Id, tbluser_1.User_Name, dbo.Eve_TaskDetail.id, dbo.Eve_TaskDetail.userId, dbo.tbluser.User_Name AS Expr2, dbo.Eve_TaskHead.Authorised_User AS AutherizedPerson
+FROM            dbo.tbluser INNER JOIN
+                         dbo.Eve_TaskHead ON dbo.tbluser.User_Id = dbo.Eve_TaskHead.Authorised_User LEFT OUTER JOIN
+                         dbo.Eve_TaskDetail ON dbo.Eve_TaskHead.taskno = dbo.Eve_TaskDetail.taskno LEFT OUTER JOIN
+                         dbo.tbluser AS tbluser_1 ON dbo.Eve_TaskDetail.userId = tbluser_1.User_Id
+WHERE     dbo.Eve_TaskHead.Authorised_User = :user_id
+ORDER BY dbo.Eve_TaskHead.taskno DESC
     """)
     
-    result = await db.execute(query, {"skip": skip, "limit": limit})
+    result = await db.execute(query, {"user_id": user_id})
     return result.mappings().all()
 
 
 async def get_all_data_ofTaskmaster(db: AsyncSession, skip: int = 0, limit: int = 100):
     query = text("""
 SELECT DISTINCT 
-                         dbo.Eve_TaskMaster.Id, dbo.Eve_TaskMaster.purpose, dbo.Eve_TaskMaster.reminddate, dbo.Eve_TaskMaster.deadline, dbo.Eve_TaskMaster.prioritys, dbo.Eve_TaskMaster.taskno, dbo.Eve_TaskHead.Created_By, 
-                         dbo.Eve_TaskMaster.userId
+        dbo.Eve_TaskMaster.Id, dbo.Eve_TaskMaster.purpose, dbo.Eve_TaskMaster.reminddate, dbo.Eve_TaskMaster.deadline, dbo.Eve_TaskMaster.prioritys, dbo.Eve_TaskMaster.taskno, 
+                         dbo.Eve_TaskHead.Created_By, dbo.Eve_TaskMaster.userId, dbo.Eve_TaskMaster.taskdesc, dbo.Eve_TaskMaster.category, dbo.Eve_TaskMaster.tasktype, dbo.Eve_TaskMaster.completed
 FROM            dbo.Eve_TaskMaster FULL OUTER JOIN
                          dbo.Eve_TaskHead ON dbo.Eve_TaskMaster.taskno = dbo.Eve_TaskHead.taskno
-    WHERE Completed = 'N'
-    ORDER BY Eve_TaskMaster.taskno DESC
-    OFFSET :skip ROWS FETCH NEXT :limit ROWS ONLY
+WHERE        (dbo.Eve_TaskMaster.completed = 'N') AND (dbo.Eve_TaskMaster.reminddate <= CAST(GETDATE() AS DATE))
+ORDER BY dbo.Eve_TaskMaster.taskno DESC
     """)
     
     
@@ -106,28 +106,7 @@ async def get_tasks_description(db: AsyncSession, skip: int = 0, limit: int = 10
     return result.scalars().all()
 
 
-
-# async def create_task(db: AsyncSession, task_data: TaskCreate):
-#     # Create main deliverable
-#     db_task = TaskHead(**task_data.model_dump(exclude={"details"}))
-#     db.add(db_task)
-#     await db.commit()
-#     await db.refresh(db_task)
-
-#     # Create details with sequential ID
-#     current_id = 0
-#     for detail in task_data.details:
-#         current_id += 1
-#         db_detail = TaskDetail(
-#             **detail.model_dump(exclude={"id","taskno"}),
-#             taskno=db_task.taskno,
-#         )
-#         db.add(db_detail)
-
-#     await db.commit()
-#     return await get_taskDescription(db, db_task.taskno)
-
-async def create_task(db: AsyncSession, task_data: TaskCreate):
+async def create_task(db: AsyncSession, task_data: TaskCreate,ws_manager: Optional[ConnectionManager] = None):
     # Step 1: Create the main task
     db_task = TaskHead(**task_data.model_dump(exclude={"details"}))
     db.add(db_task)
@@ -185,6 +164,9 @@ async def create_task(db: AsyncSession, task_data: TaskCreate):
                 raise HTTPException(status_code=400, detail=f"Invalid action '{action}'.")
 
     await db.commit()
+
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_taskdescription")
     return await get_task(db, taskno)
 
 
@@ -193,7 +175,7 @@ async def get_task(db: AsyncSession, taskno: int) -> TaskHead | None:
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
-async def update_task(db: AsyncSession, taskno: int, task_data: TaskUpdate):
+async def update_task(db: AsyncSession, taskno: int, task_data: TaskUpdate,ws_manager: Optional[ConnectionManager] = None):
     db_task = await get_task(db, taskno)
     if not db_task:
         raise HTTPException(status_code=404, detail="Task not found.")
@@ -247,8 +229,8 @@ async def update_task(db: AsyncSession, taskno: int, task_data: TaskUpdate):
                     )
 
     await db.commit()
-
-    # 3. Return updated task with details
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_taskdescription")
     return await get_task(db, taskno)
 
 async def delete_task(db: AsyncSession, taskno: int):
@@ -481,24 +463,6 @@ async def get_user_tasks(db: AsyncSession, Id: str):
 
     return filtered_tasks
 
-
-# async def get_systemmaster(db: AsyncSession):
-   
-#     result = await db.execute(
-#         select(
-#             SystemMaster.System_Name_E, 
-#             SystemMaster.systemid, 
-#             SystemMaster.System_Code, 
-#             SystemMaster.System_Type
-#         )
-#         .where(SystemMaster.System_Type == "L")
-#         .order_by(SystemMaster.systemid)
-#     )
-    
-#     # Return the result as a list of tuples
-#     return result.fetchall()
-
-
 async def get_systemmaster(db: AsyncSession, skip: int = 0, limit: int = 100):
     query = text("""
 SELECT        System_Name_E, systemid, System_Code, System_Type
@@ -571,8 +535,6 @@ async def get_TaskReportPending(from_date: date, to_date: date, db: AsyncSession
 
 
     return result.mappings().all()
-
-
 
 
 async def get_TaskReportCategorwise(
@@ -665,8 +627,6 @@ async def get_TaskReportUsersCategorwise(
     print("Query Params:", params)
     
     return result.mappings().all()
-
-
 
 
 async def get_TaskReportUserWisePending(from_date: date, to_date: date,user_id: List[int],db: AsyncSession, skip: int = 0, limit: int = 100):

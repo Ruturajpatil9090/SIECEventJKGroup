@@ -21,7 +21,7 @@ import { decryptData } from '../../common/Functions/DecryptData';
 
 import SponsorStatusChart from '../../common/Charts/SponsorStatusChart';
 import UserAssignmentsChart from '../../common/Charts/UserAssignmentsChart';
-import TopSponsorsChart from '../../common/Charts/TopSponsorsChart'; // New import
+import TopSponsorsChart from '../../common/Charts/TopSponsorsChart'; 
 
 function AssignedSponsorPopup({ userId, onClose }) {
   const { data, isLoading, error } = useGetDataByUserIdQuery(userId);

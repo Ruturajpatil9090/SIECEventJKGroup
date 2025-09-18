@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status,Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
+from typing import Any, Dict, List
 from ..models.database import get_db
 from ..schemas.taskdescriptionschema import TaskUpdate
 from ..schemas.TaskMaster_Schema import TaskMasterUpdate
@@ -10,6 +10,7 @@ from ..schemas.taskdescriptionschema import (
     TaskCreate,
     TaskUpdate
 )
+from app.websockets.connection_manager import manager
 
 from ..services.taskdescriptionservices import (
     get_taskDescription,
@@ -47,10 +48,57 @@ router = APIRouter(
 #     results = await get_tasks_description(db)
 #     return results
 
+# @router.get("/get_taskall")
+# async def get_task_data(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)):
+#     results = await get_all_data_with_details(db, skip, limit)
+
+#     grouped_results = {}
+#     for row in results:
+#         taskid = row['taskno']
+
+#         if taskid not in grouped_results:
+#             grouped_results[taskid] = {
+#                 "taskno": taskid,
+#                 "taskno": row['taskno'],
+#                 "doc_date": row['doc_date'],
+#                 "purpose": row['purpose'],
+#                 "taskdesc": row['taskdesc'],
+#                 "tasktype": row['tasktype'],
+#                 "category": row['category'],
+#                 "deadlinedate": row['deadlinedate'],
+#                 "startdate": row['startdate'],
+#                 "enddate": row['enddate'],
+#                 "remindtask": row['remindtask'],
+#                 "reminddate": row['reminddate'],
+#                 "day": row['day'],
+#                 "weekday": row['weekday'],
+#                 "month": row['month'],
+#                 "time": row['time'],
+#                 "priority": row['priority'],
+#                 "Company_Code": row['Company_Code'],
+#                 "Created_By": row['Created_By'],
+#                 "Modified_By": row['Modified_By'],
+#                 "tran_type": row['tran_type'],
+#                 "details": []
+#             }
+
+#         if row['User_Id'] is not None:
+#             grouped_results[taskid]["details"].append({
+#                 "User_Id": row['User_Id'],
+#                 "User_Name": row['User_Name'],
+#                 "id": row['id']
+#             })
+
+#     return list(grouped_results.values())
+
+
+
 @router.get("/get_taskall")
-async def get_task_data(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)):
-    results = await get_all_data_with_details(db, skip, limit)
-    print("DEBUG RESULTS:", results)   # 👈 check what type it is
+async def get_task_data(
+    user_id: int = Query(..., description="The ID of the user to filter by"),
+    db: AsyncSession = Depends(get_db)
+) -> List[Dict[str, Any]]:
+    results = await get_all_data_with_details(db, user_id)
 
     grouped_results = {}
     for row in results:
@@ -59,7 +107,6 @@ async def get_task_data(skip: int = 0, limit: int = 100, db: AsyncSession = Depe
         if taskid not in grouped_results:
             grouped_results[taskid] = {
                 "taskno": taskid,
-                "taskno": row['taskno'],
                 "doc_date": row['doc_date'],
                 "purpose": row['purpose'],
                 "taskdesc": row['taskdesc'],
@@ -92,25 +139,11 @@ async def get_task_data(skip: int = 0, limit: int = 100, db: AsyncSession = Depe
     return list(grouped_results.values())
 
 
+
 @router.get("/get_taskall_ofTaskmasterDashboard")
 async def get_task_data(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)):
     results = await get_all_data_ofTaskmaster(db, skip, limit)
-    print("DEBUG RESULTS:", results)   
-    # grouped_results = {}
-    # for row in results:
-    #     taskid = row['Id']
-
-        # if taskid not in grouped_results:
-        #     grouped_results[taskid] = {
-        #         "Id": taskid,
-        #         "taskno": row['taskno'],
-        #         "purpose": row['purpose'],
-        #         "reminddate": row['reminddate'],
-        #         "deadline": row['deadline'],
-        #         "prioritys": row['prioritys'],
-        #     }
     return results
-    # return list(grouped_results.values())
 
 
 @router.get("/get_taskall_ofAuthoriser")
@@ -132,7 +165,7 @@ async def create_taskdescription_endpoint(
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        return await create_task(db, task_data)
+        return await create_task(db, task_data,ws_manager=manager)
     except Exception as e:
         await db.rollback()
         raise HTTPException(
@@ -162,7 +195,8 @@ async def update_existing_task(
     updated_task = await update_task(
         db=db, 
         taskno=taskno, 
-        task_data=task_data
+        task_data=task_data,
+        ws_manager=manager
     )
     if updated_task is None:
         raise HTTPException(
@@ -190,7 +224,7 @@ async def delete_existing_task(
 @router.post("/generate-reminders", status_code=200)
 async def generate_reminders_endpoint(db: AsyncSession = Depends(get_db)):
     try:
-        await generate_task_reminders(db)  # This calls the service function
+        await generate_task_reminders(db)  
         return {"message": "Reminders generated successfully."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

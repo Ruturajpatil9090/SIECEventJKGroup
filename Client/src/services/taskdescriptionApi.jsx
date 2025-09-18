@@ -4,19 +4,24 @@ const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL
 export const TaskDescriptionApi = createApi({
     reducerPath: "TaskDescriptionApi",
     baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
-    tagTypes: ['taskDescription'],
+    tagTypes: ['taskupdated'],
     endpoints: (builder) => ({
-         getTaskDescription: builder.query({
-            query: () => '/taskDescription/get_taskall',
-            providesTags: ['taskDescription']
+
+        getTaskDescription: builder.query({
+            query: (params = {}) => {
+                const user_id = params.user_id ?? sessionStorage.getItem("user_id");
+                return `/taskDescription/get_taskall?user_id=${user_id}`;
+            },
+            providesTags: ['taskupdated']
         }),
+
         getTaskDescriptionById: builder.query({
             query: (id) => `/taskDescription/${id}`,
-            providesTags: ['taskDescription']
+            providesTags: ['taskupdated']
         }),
         getMaxTaskDescriptionId: builder.query({
             query: () => '/taskDescription/getlasttaskDescriptionId',
-            providesTags: ['taskDescription']
+            providesTags: ['taskupdated']
         }),
         addTaskDescription: builder.mutation({
             query: (deliverable) => ({
@@ -24,7 +29,7 @@ export const TaskDescriptionApi = createApi({
                 method: "POST",
                 body: deliverable
             }),
-            invalidatesTags: ['taskDescription']
+            invalidatesTags: ['taskupdated']
         }),
         addTaskGenerateReminder: builder.mutation({
             query: (deliverable) => ({
@@ -32,7 +37,7 @@ export const TaskDescriptionApi = createApi({
                 method: "POST",
                 body: deliverable
             }),
-            invalidatesTags: ['taskDescription']
+            invalidatesTags: ['taskupdated']
         }),
         updateTaskDescription: builder.mutation({
             query: ({ id, ...deliverable }) => ({
@@ -40,29 +45,29 @@ export const TaskDescriptionApi = createApi({
                 method: "PUT",
                 body: deliverable
             }),
-            invalidatesTags: ['taskDescription']
+            invalidatesTags: ['taskupdated']
         }),
         deleteTaskDescription: builder.mutation({
             query: (id) => ({
                 url: `/taskDescription/${id}`,
                 method: "DELETE",
             }),
-            invalidatesTags: ['taskDescription']
+            invalidatesTags: ['taskupdated']
         }),
         getSystemMaster: builder.query({
             query: () => '/taskDescription/systemmaster',
-            providesTags: ['taskDescription']
+            providesTags: ['taskupdated']
         })
     })
 })
 
-export const { 
-    useGetTaskDescriptionQuery, 
+export const {
+    useGetTaskDescriptionQuery,
     useGetTaskDescriptionByIdQuery,
     useGetMaxTaskDescriptionIdQuery,
     useGetSystemMasterQuery,
-    useAddTaskDescriptionMutation, 
+    useAddTaskDescriptionMutation,
     useAddTaskGenerateReminderMutation,
-    useUpdateTaskDescriptionMutation, 
+    useUpdateTaskDescriptionMutation,
     useDeleteTaskDescriptionMutation,
 } = TaskDescriptionApi;

@@ -55,7 +55,7 @@ function TaskDescriptionEntry() {
     const [enabled, setEnabled] = useState(false);
     const [selectedDeliverablesInModal, setSelectedDeliverablesInModal] = useState([]);
 
-    const { data: tableData = [], isLoading: isTableLoading, isError, refetch } = useGetTaskDescriptionQuery();
+    const { data: tableData = [], isLoading: isTableLoading, isError, refetch } = useGetTaskDescriptionQuery({ user_id: sessionStorage.getItem("user_id") });
 
     const { data: maxTaskDescriptionId = 0, isLoading: isMaxIdLoading, refetch: refetchMaxId } = useGetMaxTaskDescriptionIdQuery();
 
@@ -118,10 +118,14 @@ function TaskDescriptionEntry() {
             accessor: 'doc_date',
             cellRenderer: (value, row) => `${row.doc_date} - ${value}`
         },
+        // {
+        //     header: "Users",
+        //     accessor: "Created_By"
+        // },
 
         {
             header: "Users",
-            accessor: "details", // keep it a string for PropTypes
+            accessor: "details",
             formatter: (value, row) => {
                 if (Array.isArray(value) && value.length > 0) {
                     return value.map((d) => `${d.User_Name} (${d.User_Id})`).join(", ");
@@ -152,9 +156,7 @@ function TaskDescriptionEntry() {
                         <Trash2 className="h-5 w-5" />
                     </button>
                 </div>
-
             )
-
         },
     ];
 
@@ -175,7 +177,7 @@ function TaskDescriptionEntry() {
         })) || [];
 
 
-        const isWeekly = row.tasktype === 3;  // Weekly
+        const isWeekly = row.tasktype === 3;
         const isYearly = row.tasktype === 5;
 
 
@@ -232,8 +234,6 @@ function TaskDescriptionEntry() {
         setIsModalOpen(true);
     };
 
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         const payloadData = {
@@ -262,12 +262,8 @@ function TaskDescriptionEntry() {
         const addedUserIds = selectedUserIds.filter(id => !originalDetails.includes(id));
         const removedUserIds = originalDetails.filter(id => !selectedUserIds.includes(id));
         const retainedUserIds = selectedUserIds.filter(id => originalDetails.includes(id));
-        console.log("Selected Users before submit:", selectedUsers);
-
 
         const finalDetails = [];
-
-        // Newly added users → add
         for (const userId of addedUserIds) {
             finalDetails.push({
                 taskno: Number(formData.taskno),
@@ -276,7 +272,6 @@ function TaskDescriptionEntry() {
             });
         }
 
-        // Removed users → delete
         for (const userId of removedUserIds) {
             const detail = formData.details.find(d => d.userId === userId);
             finalDetails.push({
@@ -287,7 +282,6 @@ function TaskDescriptionEntry() {
             });
         }
 
-        // Retained users → update
         for (const userId of retainedUserIds) {
             const detail = formData.details.find(d => d.userId === userId);
             finalDetails.push({
@@ -297,8 +291,6 @@ function TaskDescriptionEntry() {
                 action: 'update'
             });
         }
-
-
 
         try {
 
@@ -344,18 +336,13 @@ function TaskDescriptionEntry() {
 
 
     const handleSetDefaults = () => {
-        // Example default category (System_Code)
         const defaultCategory = systemMasterOptions[0] || null;
         const defaultUsers = tblOptions.slice(0, 1);
-
-        // Update form data
         setFormData(prev => ({
             ...prev,
             category: defaultCategory?.value || null,
             userIds: defaultUsers.map(u => u.value),
         }));
-
-        // Update selected options in react-select
         setSelectedOptions(prev => ({
             ...prev,
             category: defaultCategory,
@@ -372,32 +359,22 @@ function TaskDescriptionEntry() {
                 ...prev,
                 [name]: ["tasktype", "weekday", "day", "month"].includes(name) ? Number(value) : value,
             };
-
-            // Only run tasktype-specific logic when tasktype changes
             if (name === "tasktype") {
                 const newTaskType = Number(value);
-
-                // One Time → enable date fields
                 if (newTaskType === 2) {
                     updated.deadlinedate = prev.deadlinedate || getCurrentDate();
                     updated.startdate = prev.startdate || getCurrentDate();
                     updated.enddate = prev.enddate || getCurrentDate();
                     updated.reminddate = prev.reminddate || getCurrentDate();
                 } else {
-                    // Disable One Time fields → reset to today's date
                     updated.deadlinedate = getCurrentDate();
                     updated.startdate = getCurrentDate();
                     updated.enddate = getCurrentDate();
                     updated.reminddate = getCurrentDate();
                 }
 
-                // Day field → only for Monthly
                 updated.day = newTaskType === 4 || newTaskType === 5 ? (prev.day || 1) : 0;
-
-                // Weekday → only for Weekly
                 updated.weekday = newTaskType === 3 ? prev.weekday : 1;
-
-                // Month → only for Yearly
                 updated.month = newTaskType === 5 ? prev.month : 1;
             }
 
@@ -717,7 +694,7 @@ function TaskDescriptionEntry() {
                                     <option value={1}>High</option>
                                     <option value={2}>Normal</option>
                                     <option value={3}>Low</option>
-                                    <option value={4}>Very High</option>
+                                    {/* <option value={4}>Very High</option> */}
                                 </select>
                             </div>
                             <div className="flex-1 min-w-[200px]">
@@ -814,8 +791,6 @@ function TaskDescriptionEntry() {
                         </button>
                     </div>
                 </div>
-
-
             </Modal>
         </>
     );

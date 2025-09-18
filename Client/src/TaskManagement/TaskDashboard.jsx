@@ -10,7 +10,8 @@ import {
     Calendar,
     ClipboardListIcon,
     ShieldCheck,
-    FileDown
+    FileDown,
+    Store
 } from "lucide-react";
 import logo from "../assets/jkIndia.png";
 import profile from "../assets/jklogo.png";
@@ -42,7 +43,7 @@ function TaskLayout() {
 
                     <SidebarContext.Provider value={{ expanded }}>
                         <ul className="flex-1 px-3 mt-2">
-                             <SidebarItem icon={<ClipboardListIcon className="h-5 w-5 text-red-600" size={20} />} text="Dashboard" path='/taskdashboard/Taskutility' />
+                             <SidebarItem icon={<Store className="h-5 w-5 text-orange-600" size={20} />} text="Dashboard" path='/taskdashboard/Taskutility' />
                             <SidebarItem icon={<ClipboardListIcon className="h-5 w-5 text-red-600" size={20} />} text="Task" path='/taskdashboard/TaskDescription' />
                             <SidebarItem icon={<ShieldCheck className="h-5 w-5 text-green-600" size={20} />} text="Authentication" path='/taskdashboard/TaskAuthentication' />
                             <SidebarItem icon={<FileDown className="h-5 w-5 text-black-600" size={20} />} text="Task Reports" path='/taskdashboard/TaskReports' />
