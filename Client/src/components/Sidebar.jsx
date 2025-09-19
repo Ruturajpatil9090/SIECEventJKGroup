@@ -225,7 +225,7 @@ export default function Sidebar() {
             <SidebarItem icon={<Gavel className="h-5 w-5 text-red-600" size={20} />} text="Ministerial RoundTable Session - Sponsors" path="/ministrial-sessions" />
             <SidebarItem icon={<UsersRound className="h-5 w-5 text-pink-600" size={20} />} text="Secretarial RoundTable Sessions" path="/SecretarialRoundTable" />
             <SidebarItem icon={<Network className="h-5 w-5 text-red-600" size={20} />} text="Networking Table Slots & Tracker" path="/NetworkingSlotTracker" />
-            <SidebarItem icon={<ArrowLeft className="h-5 w-5 text-red-600" size={20} />} text="Back To Task" path="/taskdashboard" />
+            <SidebarItem icon={<ArrowLeft className="h-5 w-5 text-red-600" size={20} />} text="Back To Task" path="/taskdashboard/Taskutility" />
             <hr className="my-3" />
             <Profile />
           </ul>

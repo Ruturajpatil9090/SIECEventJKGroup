@@ -52,7 +52,6 @@ function TaskLayout() {
                                 text="Event"
                                 path="/event-list"
                             />
-                            <Profile />
                         </ul>
                     </SidebarContext.Provider>
 

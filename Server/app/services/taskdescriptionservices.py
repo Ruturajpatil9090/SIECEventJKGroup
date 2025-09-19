@@ -165,6 +165,8 @@ async def create_task(db: AsyncSession, task_data: TaskCreate,ws_manager: Option
 
     await db.commit()
 
+    await generate_task_reminders(db, taskno)
+
     if ws_manager:
         await ws_manager.broadcast(message="refresh_taskdescription")
     return await get_task(db, taskno)
@@ -253,142 +255,278 @@ def to_datetime(d):
     return datetime(d.year, d.month, d.day)
 
 
-async def generate_task_reminders(db: AsyncSession):
+# async def generate_task_reminders(db: AsyncSession):
+#     today = datetime.today().date()
+
+#     result = await db.execute(select(TaskHead).options(selectinload(TaskHead.details)))
+#     tasks = result.scalars().all()
+
+#     if not tasks:
+#         raise HTTPException(status_code=404, detail="No tasks found.")
+
+#     reminders_created = 0
+
+#     for task in tasks:
+#         for detail in task.details:
+#             if task.remindtask != 1:
+#                 print(f"Skipping Task {task.taskno} for user {detail.userId}: remindtask is set to No.")
+#                 continue
+
+#             deadlines = []
+
+#             if task.tasktype == 1:  # Daily
+#                 for i in range(0,2):  # Next 2 days
+#                     deadline = today + timedelta(days=i)
+#                     deadlines.append(deadline)
+
+#             elif task.tasktype == 2:  # One-time
+#                 if task.deadlinedate and task.deadlinedate >= today:
+#                     deadlines.append(task.deadlinedate)
+
+#             elif task.tasktype == 3 and task.weekday is not None:  # Weekly
+#                 weekday_python = (task.weekday + 5) % 7
+#                 base_date = today
+#                 for i in range(0,2):  # Next 2 weeks
+#                     days_ahead = (weekday_python - base_date.weekday()) % 7
+#                     deadline = base_date + timedelta(days=days_ahead + i * 7)
+#                     if deadline >= today:
+#                         deadlines.append(deadline)
+
+#             elif task.tasktype == 4 and task.day:  # Monthly
+#                 added = 0
+#                 month_offset = 0  # Start from next month
+#                 while added < 2:  # Get exactly 2 valid future deadlines
+#                     year = today.year + (today.month + month_offset - 1) // 12
+#                     month = (today.month + month_offset - 1) % 12 + 1
+#                     try:
+#                         deadline = datetime(year, month, task.day).date()
+#                         if deadline >= today:
+#                             deadlines.append(deadline)
+#                             added += 1
+#                     except ValueError:
+#                         pass
+#                     month_offset += 1
+
+
+#             elif task.tasktype == 5 and task.day and task.month:  # Yearly
+#                 year = today.year
+#                 while len(deadlines) < 2:
+#                     try:
+#                         deadline = datetime(year, task.month, task.day).date()
+#                         if deadline >= today:
+#                             deadlines.append(deadline)
+#                     except ValueError:
+#                         pass  # Skip invalid dates
+#                     year += 1
+
+#             # Process each generated deadline
+#             for deadline in deadlines:
+#                 if not deadline or deadline < today:
+#                     continue
+
+#                 # Determine reminddate
+#                 if task.tasktype == 5:
+#                     reminddate = deadline - timedelta(days=30)
+#                 elif task.tasktype == 4:
+#                     reminddate = deadline - timedelta(days=7)
+#                 elif task.tasktype == 3:
+#                     reminddate = deadline - timedelta(days=7)
+#                 elif task.tasktype == 2:
+#                     reminddate = task.reminddate
+#                 else:
+#                     reminddate = deadline
+
+#                 if deadline < today:
+#                     print(f"Skipping Task {task.taskno} for user {detail.userId}: deadline {deadline} is in the past.")
+#                     continue
+
+#                 # Check for duplicate
+#                 dup_check = await db.execute(
+#                     select(TaskMaster).where(
+#                         TaskMaster.taskno == task.taskno,
+#                         TaskMaster.userId == detail.userId,
+#                         TaskMaster.deadline == deadline
+#                     )
+#                 )
+#                 existing = dup_check.scalar_one_or_none()
+#                 if existing:
+#                     print(f"Skipping duplicate: task {task.taskno}, user {detail.userId}, deadline {deadline}")
+#                     continue
+
+#                 # Determine startdate and enddate
+#                 # Determine startdate and enddate
+#                 if task.tasktype in [1, 3, 4, 5]:  # Daily, Weekly, Monthly, Yearly
+#                     startdate = to_datetime(deadline)
+#                     enddate = to_datetime(deadline)
+#                 else:  # One-time (2)
+#                     startdate = to_datetime(task.startdate)
+#                     enddate = to_datetime(task.enddate)
+
+#                 # Create TaskMaster entry
+#                 taskmaster = TaskMaster(
+#                     taskno=task.taskno,
+#                     userId=detail.userId,
+#                     purpose=task.purpose,
+#                     taskdesc=task.taskdesc,
+#                     tasktype=task.tasktype,
+#                     category=task.category,
+#                     deadline=to_datetime(deadline),
+#                     startdate=startdate,
+#                     enddate=enddate,
+#                     tasktime=task.time,
+#                     prioritys=task.priority,
+#                     tran_type=task.tran_type,
+#                     taskdate=to_datetime(today),
+#                     completed="N",
+#                     reminddate=to_datetime(reminddate),
+#                     companycode=task.Company_Code,
+#                     Authorised_User=task.Authorised_User,
+#                     Authorised="N"
+#                 )
+
+#                 db.add(taskmaster)
+#                 reminders_created += 1
+#                 print(f"Reminder created: task {task.taskno}, user {detail.userId}, deadline {deadline}")
+
+#     await db.commit()
+
+#     return {"message": "Reminders generated successfully.", "created": reminders_created}
+
+
+
+
+async def generate_task_reminders(db: AsyncSession, taskno: int):
     today = datetime.today().date()
 
-    result = await db.execute(select(TaskHead).options(selectinload(TaskHead.details)))
-    tasks = result.scalars().all()
+    result = await db.execute(
+        select(TaskHead)
+        .options(selectinload(TaskHead.details))
+        .where(TaskHead.taskno == taskno)
+    )
+    task = result.scalar_one_or_none()
 
-    if not tasks:
-        raise HTTPException(status_code=404, detail="No tasks found.")
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task {taskno} not found.")
 
     reminders_created = 0
 
-    for task in tasks:
-        for detail in task.details:
-            if task.remindtask != 1:
-                print(f"Skipping Task {task.taskno} for user {detail.userId}: remindtask is set to No.")
-                continue
+    for detail in task.details:
+        if task.remindtask != 1:
+            print(f"Skipping Task {task.taskno} for user {detail.userId}: remindtask is set to No.")
+            continue
 
-            deadlines = []
+        deadlines = []
 
-            if task.tasktype == 1:  # Daily
-                for i in range(0,2):  # Next 2 days
-                    deadline = today + timedelta(days=i)
+        if task.tasktype == 1:  
+            for i in range(0,2):  
+                deadline = today + timedelta(days=i)
+                deadlines.append(deadline)
+
+        elif task.tasktype == 2:  
+            if task.deadlinedate and task.deadlinedate >= today:
+                deadlines.append(task.deadlinedate)
+
+        elif task.tasktype == 3 and task.weekday is not None:  
+            weekday_python = (task.weekday + 5) % 7
+            base_date = today
+            for i in range(0,2):  
+                days_ahead = (weekday_python - base_date.weekday()) % 7
+                deadline = base_date + timedelta(days=days_ahead + i * 7)
+                if deadline >= today:
                     deadlines.append(deadline)
 
-            elif task.tasktype == 2:  # One-time
-                if task.deadlinedate and task.deadlinedate >= today:
-                    deadlines.append(task.deadlinedate)
-
-            elif task.tasktype == 3 and task.weekday is not None:  # Weekly
-                weekday_python = (task.weekday + 5) % 7
-                base_date = today
-                for i in range(0,2):  # Next 2 weeks
-                    days_ahead = (weekday_python - base_date.weekday()) % 7
-                    deadline = base_date + timedelta(days=days_ahead + i * 7)
+        elif task.tasktype == 4 and task.day: 
+            added = 0
+            month_offset = 0  
+            while added < 2:  
+                year = today.year + (today.month + month_offset - 1) // 12
+                month = (today.month + month_offset - 1) % 12 + 1
+                try:
+                    deadline = datetime(year, month, task.day).date()
                     if deadline >= today:
                         deadlines.append(deadline)
+                        added += 1
+                except ValueError:
+                    pass
+                month_offset += 1
 
-            elif task.tasktype == 4 and task.day:  # Monthly
-                added = 0
-                month_offset = 0  # Start from next month
-                while added < 2:  # Get exactly 2 valid future deadlines
-                    year = today.year + (today.month + month_offset - 1) // 12
-                    month = (today.month + month_offset - 1) % 12 + 1
-                    try:
-                        deadline = datetime(year, month, task.day).date()
-                        if deadline >= today:
-                            deadlines.append(deadline)
-                            added += 1
-                    except ValueError:
-                        pass
-                    month_offset += 1
+        elif task.tasktype == 5 and task.day and task.month:
+            year = today.year
+            while len(deadlines) < 2:
+                try:
+                    deadline = datetime(year, task.month, task.day).date()
+                    if deadline >= today:
+                        deadlines.append(deadline)
+                except ValueError:
+                    pass 
+                year += 1
 
+        for deadline in deadlines:
+            if not deadline or deadline < today:
+                continue
 
-            elif task.tasktype == 5 and task.day and task.month:  # Yearly
-                year = today.year
-                while len(deadlines) < 2:
-                    try:
-                        deadline = datetime(year, task.month, task.day).date()
-                        if deadline >= today:
-                            deadlines.append(deadline)
-                    except ValueError:
-                        pass  # Skip invalid dates
-                    year += 1
+            if task.tasktype == 5:
+                reminddate = deadline - timedelta(days=30)
+            elif task.tasktype == 4:
+                reminddate = deadline - timedelta(days=7)
+            elif task.tasktype == 3:
+                reminddate = deadline - timedelta(days=7)
+            elif task.tasktype == 2:
+                reminddate = task.reminddate
+            else:
+                reminddate = deadline
 
-            # Process each generated deadline
-            for deadline in deadlines:
-                if not deadline or deadline < today:
-                    continue
+            if deadline < today:
+                print(f"Skipping Task {task.taskno} for user {detail.userId}: deadline {deadline} is in the past.")
+                continue
 
-                # Determine reminddate
-                if task.tasktype == 5:
-                    reminddate = deadline - timedelta(days=30)
-                elif task.tasktype == 4:
-                    reminddate = deadline - timedelta(days=7)
-                elif task.tasktype == 3:
-                    reminddate = deadline - timedelta(days=7)
-                elif task.tasktype == 2:
-                    reminddate = task.reminddate
-                else:
-                    reminddate = deadline
-
-                if deadline < today:
-                    print(f"Skipping Task {task.taskno} for user {detail.userId}: deadline {deadline} is in the past.")
-                    continue
-
-                # Check for duplicate
-                dup_check = await db.execute(
-                    select(TaskMaster).where(
-                        TaskMaster.taskno == task.taskno,
-                        TaskMaster.userId == detail.userId,
-                        TaskMaster.deadline == deadline
-                    )
+            dup_check = await db.execute(
+                select(TaskMaster).where(
+                    TaskMaster.taskno == task.taskno,
+                    TaskMaster.userId == detail.userId,
+                    TaskMaster.deadline == deadline
                 )
-                existing = dup_check.scalar_one_or_none()
-                if existing:
-                    print(f"Skipping duplicate: task {task.taskno}, user {detail.userId}, deadline {deadline}")
-                    continue
+            )
+            existing = dup_check.scalar_one_or_none()
+            if existing:
+                print(f"Skipping duplicate: task {task.taskno}, user {detail.userId}, deadline {deadline}")
+                continue
 
-                # Determine startdate and enddate
-                # Determine startdate and enddate
-                if task.tasktype in [1, 3, 4, 5]:  # Daily, Weekly, Monthly, Yearly
-                    startdate = to_datetime(deadline)
-                    enddate = to_datetime(deadline)
-                else:  # One-time (2)
-                    startdate = to_datetime(task.startdate)
-                    enddate = to_datetime(task.enddate)
+            if task.tasktype in [1, 3, 4, 5]: 
+                startdate = to_datetime(deadline)
+                enddate = to_datetime(deadline)
+            else:  
+                startdate = to_datetime(task.startdate)
+                enddate = to_datetime(task.enddate)
 
-                # Create TaskMaster entry
-                taskmaster = TaskMaster(
-                    taskno=task.taskno,
-                    userId=detail.userId,
-                    purpose=task.purpose,
-                    taskdesc=task.taskdesc,
-                    tasktype=task.tasktype,
-                    category=task.category,
-                    deadline=to_datetime(deadline),
-                    startdate=startdate,
-                    enddate=enddate,
-                    tasktime=task.time,
-                    prioritys=task.priority,
-                    tran_type=task.tran_type,
-                    taskdate=to_datetime(today),
-                    completed="N",
-                    reminddate=to_datetime(reminddate),
-                    companycode=task.Company_Code,
-                    Authorised_User=task.Authorised_User,
-                    Authorised="N"
-                )
+            taskmaster = TaskMaster(
+                taskno=task.taskno,
+                userId=detail.userId,
+                purpose=task.purpose,
+                taskdesc=task.taskdesc,
+                tasktype=task.tasktype,
+                category=task.category,
+                deadline=to_datetime(deadline),
+                startdate=startdate,
+                enddate=enddate,
+                tasktime=task.time,
+                prioritys=task.priority,
+                tran_type=task.tran_type,
+                taskdate=to_datetime(today),
+                completed="N",
+                reminddate=to_datetime(reminddate),
+                companycode=task.Company_Code,
+                Authorised_User=task.Authorised_User,
+                Authorised="N"
+            )
 
-                db.add(taskmaster)
-                reminders_created += 1
-                print(f"Reminder created: task {task.taskno}, user {detail.userId}, deadline {deadline}")
+            db.add(taskmaster)
+            reminders_created += 1
+            print(f"Reminder created: task {task.taskno}, user {detail.userId}, deadline {deadline}")
 
     await db.commit()
 
-    return {"message": "Reminders generated successfully.", "created": reminders_created}
+    return {"message": f"Reminders for task {taskno} generated successfully.", "created": reminders_created}
 
 
 async def update_task_completion(
@@ -400,6 +538,8 @@ async def update_task_completion(
     comp_date: datetime = None,
     remark: str = None,
     Authorised: str = None,
+    authoriser_remark: str = None,
+    ws_manager: Optional[ConnectionManager] = None
 ):
     # Fetch the existing task
     result = await db.execute(select(TaskMaster).where(TaskMaster.Id == Id))
@@ -433,6 +573,9 @@ async def update_task_completion(
         values(**update_data)
     )
     await db.commit()
+
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_taskdescription")
 
     # Optionally, fetch the updated record and return it
     updated_result = await db.execute(select(TaskMaster).where(TaskMaster.Id == Id))

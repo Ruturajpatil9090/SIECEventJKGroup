@@ -966,12 +966,11 @@ function App() {
         <Route path="/event-list" element={<EventList />} />
         <Route path="/taskdashboard" element={<ProtectedRoute><TaskLayout /></ProtectedRoute>}>
           <Route index element={<TaskDescriptionEntry />} />
+          <Route path="Taskutility" element={<TaskDashBorardUtility />} />
           <Route path="TaskDescription" element={<TaskDescriptionEntry />} />
           <Route path="TaskAuthentication" element={<TaskAuthentication />} />
           <Route path="TaskReports" element={<UserwiseTaskReport />} />
-          <Route path="Taskutility" element={<TaskDashBorardUtility />} />
         </Route>
-
         <Route path="/*" element={
           <ProtectedRoute>
             <Layout />

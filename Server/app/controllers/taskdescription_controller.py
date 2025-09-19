@@ -243,6 +243,7 @@ async def complete_task(
         comp_hrs=task_update.comp_hrs,
         comp_date=task_update.comp_date,
         Authorised=task_update.Authorised,
+        ws_manager=manager
     )
     return {"message": "Task updated successfully", "task": updated_task}
 

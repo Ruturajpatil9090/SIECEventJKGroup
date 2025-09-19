@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey,Date
+from sqlalchemy import Column, Integer, String, ForeignKey,Date,Text
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -8,7 +8,7 @@ class TaskHead(Base):
     taskno = Column(Integer, primary_key=True, index=True, autoincrement=True)
     doc_date = Column(Date,nullable=True)
     purpose = Column(String(255), nullable=True)
-    taskdesc = Column(String(255), nullable=True)
+    taskdesc = Column(Text, nullable=True)
     tasktype = Column(Integer, nullable=True)
     category = Column(Integer, nullable=True)
     deadlinedate = Column(Date,nullable=True)

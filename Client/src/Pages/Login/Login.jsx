@@ -44,7 +44,7 @@ function LoginPage() {
             sessionStorage.setItem('access_token', encryptData(response.access_token));
             sessionStorage.setItem('user_id', response.user_id);
 
-            navigate('/taskdashboard');
+            navigate('/taskdashboard/Taskutility');
             //  navigate('/event-list');
 
         } catch (err) {

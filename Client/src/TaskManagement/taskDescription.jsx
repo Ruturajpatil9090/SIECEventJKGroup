@@ -27,6 +27,8 @@ function TaskDescriptionEntry() {
     const [selectedAuthorisedUsers, setSelectedAuthorisedUsers] = useState([]);
     const [createdBy, setCreatedBy] = useState('');
 
+    const user_id = sessionStorage.getItem("user_id")
+
     const [formData, setFormData] = useState({
         taskno: '',
         doc_date: getCurrentDate(),
@@ -45,7 +47,7 @@ function TaskDescriptionEntry() {
         time: 0,
         priority: 1,
         Created_By: '',
-        Authorised_User: '',
+        Authorised_User: "",
         details: []
     });
 
@@ -220,7 +222,7 @@ function TaskDescriptionEntry() {
             })
             : [];
 
-        console.log("Selected User", selectedUsersFromRow)
+
         setSelectedUsers(selectedUsersFromRow);
 
         const selectedCategoryOption = systemMasterOptions.find(option => option.value === row.category) || null;
@@ -252,7 +254,7 @@ function TaskDescriptionEntry() {
             weekday: formData.weekday || 1,
             month: formData.month || 1,
             time: formData.time || null,
-            Authorised_User: formData.Authorised_User || null,
+            Authorised_User: formData.Authorised_User || user_id,
             details: [],
             priority: Number(formData.priority) || 1,
             Created_By: createdBy,
@@ -446,57 +448,59 @@ function TaskDescriptionEntry() {
                     setIsModalOpen(false);
                     resetForm();
                 }}
-                title={editId ? 'Edit Category Wise Deliverable' : 'Task'}
+                title={editId ? 'Edit Task' : 'Create Task'}
                 size="2xl"
                 width="1500px"
             >
-                <form onSubmit={handleSubmit} className="space-y-1">
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <div>
-                            <label htmlFor="taskno" className="block text-sm font-medium text-gray-700 mb-1">
-                                Task No
-                            </label>
-                            <input
-                                id="taskno"
-                                type="number"
-                                name="taskno"
-                                value={formData.taskno}
-                                className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md cursor-not-allowed"
-                                readOnly
-                                aria-label="Task No (auto-generated)"
-                            />
-                            <p className="mt-1 text-xs text-gray-500">
-                                {isMaxIdLoading ? 'Loading Max ID...' : 'Auto-generated'}
-                            </p>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-6 gap-2">
+                            <div className="sm:col-span-1">
+                                <label htmlFor="taskno" className="block text-sm font-medium text-gray-700">
+                                    Task No
+                                </label>
+                                <input
+                                    id="taskno"
+                                    type="number"
+                                    name="taskno"
+                                    value={formData.taskno}
+                                    className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md cursor-not-allowed"
+                                    readOnly
+                                    aria-label="Task No (auto-generated)"
+                                />
+                                <p className="mt-1 text-xs text-gray-500">
+                                    {isMaxIdLoading ? 'Loading Max ID...' : 'Auto-generated'}
+                                </p>
+                            </div>
+
+                            <div className="sm:col-span-1">
+                                <label className="block text-sm font-medium text-gray-700">Date</label>
+                                <input
+                                    type="date"
+                                    name="doc_date"
+                                    value={formData.doc_date}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                                />
+                            </div>
+
+                            <div className="sm:col-span-4">
+                                <label className="block text-sm font-medium text-gray-700">Purpose</label>
+                                <input
+                                    type="text"
+                                    name="purpose"
+                                    value={formData.purpose}
+                                    onChange={handleInputChange}
+                                    onKeyDown={handleKeyDown}
+                                    autoComplete="off"
+                                    className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                                    required
+                                />
+                            </div>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                            <input
-                                type="date"
-                                name="doc_date"
-                                value={formData.doc_date}
-                                onChange={handleInputChange}
-                                className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
-                            />
-                        </div>
-
-                        <div className='col-span-2'>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Purpose</label>
-                            <input
-                                type="text"
-                                name="purpose"
-                                value={formData.purpose}
-                                onChange={handleInputChange}
-                                onKeyDown={handleKeyDown}
-                                autoComplete='off'
-                                className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
-                                required
-                            />
-                        </div>
-
-                        <div className="col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Task Description</label>
+                            <label className="block text-sm font-medium text-gray-700">Task Description</label>
                             <textarea
                                 name="taskdesc"
                                 value={formData.taskdesc}
@@ -505,11 +509,14 @@ function TaskDescriptionEntry() {
                                 className="w-full h-32 px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 resize-none"
                             />
                         </div>
+                    </div>
 
-
-                        <div className="flex flex-wrap gap-6 items-end">
-                            <div className="w-40">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Task Type</label>
+                    <hr className="border-gray-200" />
+                    <div className="space-y-2">
+                        <h2 className="text-xl font-bold text-gray-800">Scheduling</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2">
+                            <div className="w-full">
+                                <label className="block text-sm font-medium text-gray-700">Task Type</label>
                                 <select
                                     name="tasktype"
                                     value={formData.tasktype}
@@ -525,33 +532,8 @@ function TaskDescriptionEntry() {
                                 </select>
                             </div>
 
-                            <div className="flex-1 min-w-[200px]">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                                <Select
-                                    id="category"
-                                    options={systemMasterOptions}
-                                    value={selectedOptions.category}
-                                    onChange={(option) => {
-                                        setSelectedOptions(prev => ({ ...prev, category: option }));
-                                        setFormData(prev => ({ ...prev, category: option?.value || null }));
-                                    }}
-                                    placeholder="Select System Code..."
-                                    isSearchable
-                                    styles={{
-                                        container: (provided) => ({ ...provided, width: '100%' }),
-                                        placeholder: (provided) => ({
-                                            ...provided,
-                                            whiteSpace: 'nowrap',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                        }),
-                                    }}
-                                />
-                            </div>
-
-
-                            <div className="w-30">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Deadline Date</label>
+                            <div className="w-full">
+                                <label className="block text-sm font-medium text-gray-700">Deadline Date</label>
                                 <input
                                     type="date"
                                     name="deadlinedate"
@@ -562,8 +544,8 @@ function TaskDescriptionEntry() {
                                 />
                             </div>
 
-                            <div className="w-30">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Expected Start Date</label>
+                            <div className="w-full">
+                                <label className="block text-sm font-medium text-gray-700">Expected Start Date</label>
                                 <input
                                     type="date"
                                     name="startdate"
@@ -574,8 +556,8 @@ function TaskDescriptionEntry() {
                                 />
                             </div>
 
-                            <div className="w-48">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                            <div className="w-full">
+                                <label className="block text-sm font-medium text-gray-700">End Date</label>
                                 <input
                                     type="date"
                                     name="enddate"
@@ -585,35 +567,8 @@ function TaskDescriptionEntry() {
                                     className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 disabled:bg-gray-200 disabled:text-gray-700 disabled:cursor-not-allowed"
                                 />
                             </div>
-
-
-
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Remind Task</label>
-                                <select
-                                    name="remindtask"
-                                    value={formData.remindtask}
-                                    onChange={handleInputChange}
-                                    className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
-                                    required
-                                >
-                                    <option value={1}>Yes</option>
-                                    <option value={0}>No</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Remind Date</label>
-                                <input
-                                    type="date"
-                                    name="reminddate"
-                                    value={formData.reminddate}
-                                    onChange={handleInputChange}
-                                    disabled={formData.tasktype !== 2}
-                                    className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 disabled:bg-gray-200 disabled:text-gray-700 disabled:cursor-not-allowed"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Day</label>
+                                <label className="block text-sm font-medium text-gray-700">Day</label>
                                 <input
                                     type="number"
                                     name="day"
@@ -626,7 +581,7 @@ function TaskDescriptionEntry() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Week Day</label>
+                                <label className="block text-sm font-medium text-gray-700">Week Day</label>
                                 <select
                                     name="weekday"
                                     value={formData.weekday}
@@ -644,9 +599,8 @@ function TaskDescriptionEntry() {
                                     <option value={7}>Saturday</option>
                                 </select>
                             </div>
-
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Month</label>
+                                <label className="block text-sm font-medium text-gray-700">Month</label>
                                 <select
                                     name="month"
                                     value={formData.month}
@@ -670,8 +624,103 @@ function TaskDescriptionEntry() {
                                 </select>
                             </div>
 
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                        </div>
+                    </div>
+
+                    <hr className="border-gray-200" />
+                    <div className="space-y-4">
+                        <h2 className="text-xl font-bold text-gray-800">Assignment & Priority</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                            <div className="flex-1 min-w-[200px]">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                <Select
+                                    id="category"
+                                    options={systemMasterOptions}
+                                    value={selectedOptions.category}
+                                    onChange={(option) => {
+                                        setSelectedOptions(prev => ({ ...prev, category: option }));
+                                        setFormData(prev => ({ ...prev, category: option?.value || null }));
+                                    }}
+                                    placeholder="Select System Code..."
+                                    isSearchable
+                                    styles={{
+                                        container: (provided) => ({ ...provided, width: '100%' }),
+                                        placeholder: (provided) => ({
+                                            ...provided,
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                        }),
+                                    }}
+                                />
+                            </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Time Required</label>
+                                <label htmlFor="userId" className="block text-sm font-medium text-gray-700">Select User</label>
+                                <Select
+                                    id="userId"
+                                    options={tblOptions}
+                                    value={selectedUsers}
+                                    onChange={(options) => {
+                                        setSelectedUsers(options || []);
+                                        setFormData(prev => ({ ...prev, userIds: (options || []).map(opt => opt.value) }));
+                                    }}
+                                    placeholder="Select Users..."
+                                    isSearchable
+                                    isMulti
+                                    required
+                                />
+                            </div>
+
+                            {/* <div>
+                                <label htmlFor="Authorised_User" className="block text-sm font-medium text-gray-700">Authorised User</label>
+                                <Select
+                                    id="Authorised_User"
+                                    options={tblOptions}
+                                    value={selectedAuthorisedUsers}
+                                    onChange={(option) => {
+                                        setSelectedAuthorisedUsers(option || null);
+                                        setFormData(prev => ({ ...prev, Authorised_User: option ? option.value : null, }));
+                                    }}
+                                    placeholder="Select Authorised User..."
+                                    isSearchable
+                                />
+                            </div> */}
+                            <div>
+                                <label htmlFor="Authorised_User" className="block text-sm font-medium text-gray-700">Authorised User</label>
+                                <Select
+                                    id="Authorised_User"
+                                    options={tblOptions}
+                                    value={selectedAuthorisedUsers}
+                                    onChange={(option) => {
+                                        setSelectedAuthorisedUsers(option || null);
+                                        setFormData(prev => ({ ...prev, Authorised_User: option ? option.value : null, }));
+                                    }}
+                                    placeholder="Select Authorised User..."
+                                    isSearchable
+                                    isClearable
+                                    isMulti
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Task Priority</label>
+                                <select
+                                    name="priority"
+                                    value={formData.priority}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 disabled:bg-gray-200 disabled:text-gray-700 disabled:cursor-not-allowed"
+                                    required
+                                    disabled={!!editId}
+                                >
+                                    <option value={1}>High</option>
+                                    <option value={2}>Medium</option>
+                                    <option value={3}>Low</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Time Required</label>
                                 <input
                                     type="text"
                                     name="time"
@@ -680,61 +729,39 @@ function TaskDescriptionEntry() {
                                     className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
                                 />
                             </div>
+                        </div>
 
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+                        </div>
+                    </div>
+                    <hr className="border-gray-200" />
+                    <div className="space-y-4">
+                        <h2 className="text-xl font-bold text-gray-800">Notifications</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                                <label className="block text-sm font-medium text-gray-700">Remind Task</label>
                                 <select
-                                    name="priority"
-                                    value={formData.priority}
+                                    name="remindtask"
+                                    value={formData.remindtask}
                                     onChange={handleInputChange}
                                     className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
                                     required
-                                    disabled={!!editId}
                                 >
-                                    <option value={1}>High</option>
-                                    <option value={2}>Normal</option>
-                                    <option value={3}>Low</option>
-                                    {/* <option value={4}>Very High</option> */}
+                                    <option value={1}>Yes</option>
+                                    <option value={0}>No</option>
                                 </select>
                             </div>
-                            <div className="flex-1 min-w-[200px]">
-                                <label htmlFor="userId" className="block text-sm font-medium text-gray-700 mb-1">User</label>
-                                <Select
-                                    id="userId"
-                                    options={tblOptions}
-                                    value={selectedUsers}   // array of selected users
-                                    onChange={(options) => {
-                                        setSelectedUsers(options || []);
-                                        setFormData(prev => ({
-                                            ...prev,
-                                            userIds: (options || []).map(opt => opt.value)
-                                        }));
-                                    }}
-                                    placeholder="Select Users..."
-                                    isSearchable
-                                    isMulti
-                                    required
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Remind Date</label>
+                                <input
+                                    type="date"
+                                    name="reminddate"
+                                    value={formData.reminddate}
+                                    onChange={handleInputChange}
+                                    disabled={formData.tasktype !== 2}
+                                    className="w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 disabled:bg-gray-200 disabled:text-gray-700 disabled:cursor-not-allowed"
                                 />
-
-                            </div>
-
-                            <div className="flex-1 min-w-[200px]">
-                                <label htmlFor="Authorised_User" className="block text-sm font-medium text-gray-700 mb-1">Authorised User</label>
-                                <Select
-                                    id="Authorised_User"
-                                    options={tblOptions}
-                                    value={selectedAuthorisedUsers}
-                                    onChange={(option) => {
-                                        setSelectedAuthorisedUsers(option || null);
-                                        setFormData(prev => ({
-                                            ...prev,
-                                            Authorised_User: option ? option.value : null,
-                                        }));
-                                    }}
-                                    placeholder="Select Authorised User..."
-                                    isSearchable
-                                />
-
                             </div>
                         </div>
                     </div>
@@ -758,12 +785,11 @@ function TaskDescriptionEntry() {
                             onClick={handleSetDefaults}
                             disabled={!enabled}
                             className={`px-4 py-2 ml-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white transition-colors duration-200
-                                        ${enabled ? "bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" : "bg-gray-400 cursor-not-allowed"}`}
+                    ${enabled ? "bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" : "bg-gray-400 cursor-not-allowed"}`}
                         >
                             Default Way To Save
                         </button>
                     </div>
-
                 </form>
             </Modal>
 
