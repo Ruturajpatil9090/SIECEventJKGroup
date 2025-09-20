@@ -21,15 +21,15 @@ function AllPendingreport({ fromDate, toDate, category }) {
     //     }
     // }, [data, shouldGenerate]);
     const getTaskTypeString = (type) => {
-    switch (String(type)) {
-      case '1': return 'Daily';
-      case '2': return 'One Time';
-      case '3': return 'Weekly';
-      case '4': return 'Monthly';
-      case '5': return 'Yearly';
-      default: return '-';
-    }
-  };
+        switch (String(type)) {
+            case '1': return 'Daily';
+            case '2': return 'One Time';
+            case '3': return 'Weekly';
+            case '4': return 'Monthly';
+            case '5': return 'Yearly';
+            default: return '-';
+        }
+    };
 
     const onGenerateClick = async () => {
         if (!fromDate || !toDate) {
@@ -38,10 +38,10 @@ function AllPendingreport({ fromDate, toDate, category }) {
         }
 
         try {
-            const response = await fetchReport({ fromDate, toDate }).unwrap(); 
+            const response = await fetchReport({ fromDate, toDate }).unwrap();
             if (response) {
-                setReportData(response); 
-                generateCategoryPDF(response); 
+                setReportData(response);
+                generateCategoryPDF(response);
             }
         } catch (err) {
             console.error("Error fetching report:", err);

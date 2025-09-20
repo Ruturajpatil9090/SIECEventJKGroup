@@ -733,6 +733,7 @@ import TaskDescriptionEntry from "./TaskManagement/taskDescription";
 import TaskAuthentication from "./TaskManagement/TaskAuthentication";
 import UserwiseTaskReport from "./TaskManagement/AllTaskReport";
 import TaskDashBorardUtility from "./TaskManagement/DashBoard"
+import CalendarView from "./TaskManagement/Calendar/CalendarView";
 
 const Layout = () => {
   const location = useLocation();
@@ -970,6 +971,8 @@ function App() {
           <Route path="TaskDescription" element={<TaskDescriptionEntry />} />
           <Route path="TaskAuthentication" element={<TaskAuthentication />} />
           <Route path="TaskReports" element={<UserwiseTaskReport />} />
+          <Route path="Calendar" element={<CalendarView />} />
+
         </Route>
         <Route path="/*" element={
           <ProtectedRoute>

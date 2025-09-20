@@ -20,6 +20,7 @@ import { networkingSlotApi } from '../services/networkingSlotApi';
 import { awardSubCategoryApi } from '../services/awardSubCategoryApi';
 import { TaskReportApi } from '../services/taskreportApi';
 import { TaskDescriptionApi } from '../services/taskdescriptionApi';
+import { calendarApi } from '../services/calendarApi';
 
 
 export const listenerMiddleware = createListenerMiddleware();
@@ -195,6 +196,13 @@ listenerMiddleware.startListening({
             );
              listenerApi.dispatch(
                 TaskDescriptionApi.util.invalidateTags(['taskupdated'])
+            );
+        }
+
+         else if (action.payload === "refresh_calender") {
+            console.log("Received refresh signal. Invalidating calender update cache.");
+            listenerApi.dispatch(
+                calendarApi.util.invalidateTags(['CalendarEvent'])
             );
         }
     },
