@@ -1,3 +1,315 @@
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import Sidebar from "./components/Sidebar";
+import EditProfile from "./components/EditProfile/EditProfile";
+import Testimonials from "./components/Testimonials/Testimonials";
+import DeliverableMaster from "./components/EventMasters/DeliverableMaster";
+import CategoryMaster from "./components/EventMasters/CategoryMaster";
+import CategorySubMaster from "./components/EventMasters/CategorySubMaster";
+import EventSuperMaster from "./components/EventMasters/EventSuperMaster";
+import EventMaster from "./components/EventMasters/EventMaster";
+import CategoryWiseDeliverableMaster from "./components/EventMasters/CategoryWiseDeliverableMaster";
+import SponsorMaster from "./components/EventMasters/sponsorMaster";
+import ExpoRegistryTracker from "./components/ExpoRegistryTracker/ExpoRegistryTracker";
+import AwardMaster from "./components/EventMasters/AwardMaster";
+import AwardRegistryTracker from "./components/ExpoRegistryTracker/AwardRegistryTracker";
+import CuratedSession from "./components/ExpoRegistryTracker/CuratedSession";
+import MinisterialSession from "./components/ExpoRegistryTracker/MinisterialSession";
+import SlotMaster from "./components/EventMasters/SlotMaster";
+import PassessRegistry from "./components/ExpoRegistryTracker/PassessRegistry";
+import Login from "./Pages/Login/Login";
+import ProtectedRoute from "./common/ProtectedRoutes/ProtectedRoute";
+import NotFound from "./components/PageNotFound/PageNotFound";
+import SpeakerTracker from "./components/ExpoRegistryTracker/SpeakerTracker";
+import Dashboard from "./Pages/Dashboard/Dashboard";
+import EventList from "./Pages/Login/EventList";
+import SecretarialRoundTableTracker from "./components/ExpoRegistryTracker/SecretarialRoundTableTracker";
+import NetworkingSlotTracker from "./components/ExpoRegistryTracker/NetworkingSlot";
+import Userdashboard from "./Pages/Dashboard/Userdashboard";
+import { decryptData } from "./common/Functions/DecryptData";
+import AwardSubCategory from "./components/EventMasters/AwardSubCategoryMaster";
+
+//Task Management Routes
+import TaskLayout from "./TaskManagement/TaskDashboard";
+import TaskDescriptionEntry from "./TaskManagement/taskDescription";
+import TaskAuthentication from "./TaskManagement/TaskAuthentication";
+import UserwiseTaskReport from "./TaskManagement/AllTaskReport";
+import TaskDashBorardUtility from "./TaskManagement/DashBoard"
+import CalendarView from "./TaskManagement/Calendar/CalendarView";
+import TabViewComponent from "./TaskManagement/TabsView/TabsView"
+
+
+const TaskManagementRoutes = () => {
+  return (
+    <Route path="/taskdashboard" element={<ProtectedRoute><TaskLayout /></ProtectedRoute>}>
+      <Route index element={<TaskLayoutWithTabs><TaskDescriptionEntry /></TaskLayoutWithTabs>} />
+      <Route path="dashboard" element={<TaskLayoutWithTabs><TabViewComponent /></TaskLayoutWithTabs>} />
+      <Route path="Taskutility" element={<TaskLayoutWithTabs><TaskDashBorardUtility /></TaskLayoutWithTabs>} />
+      <Route path="TaskDescription" element={<TaskLayoutWithTabs><TaskDescriptionEntry /></TaskLayoutWithTabs>} />
+      <Route path="TaskAuthentication" element={<TaskLayoutWithTabs><TaskAuthentication /></TaskLayoutWithTabs>} />
+      <Route path="TaskReports" element={<TaskLayoutWithTabs><UserwiseTaskReport /></TaskLayoutWithTabs>} />
+      <Route path="Calendar" element={<TaskLayoutWithTabs><CalendarView /></TaskLayoutWithTabs>} />
+    </Route>
+  );
+};
+
+
+const TaskLayoutWithTabs = ({ children }) => {
+  return (
+    <div className="task-management-container mt-12">
+      <TabViewComponent />
+      <div className="task-content">
+        {children}
+      </div>
+    </div>
+  );
+};
+
+const Layout = () => {
+  const location = useLocation();
+
+  const hideLayoutRoutes = ["/", "/verifyotp", "/event-list", "/taskdashboard"];
+  const noSidebarRoutes = ["/", "/verifyotp", "/event-list", "/taskdashboard"];
+
+  const isAuthenticated = () => {
+    const encryptedToken = sessionStorage.getItem('access_token');
+    return !!encryptedToken;
+  };
+
+  const getUserData = () => {
+    try {
+      const encryptedUserData = sessionStorage.getItem('user_data');
+      if (encryptedUserData) {
+        return decryptData(encryptedUserData);
+      }
+    } catch (error) {
+      console.error("Error decrypting user data:", error);
+    }
+    return null;
+  };
+
+  const userData = getUserData();
+  const userType = userData?.user_type;
+
+  const shouldHideLayout = hideLayoutRoutes.includes(location.pathname);
+  const shouldHideSidebar = noSidebarRoutes.includes(location.pathname);
+
+  if (shouldHideLayout) {
+    return (
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/event-list" element={<EventList />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    );
+  }
+
+  if (!isAuthenticated()) {
+    return <Navigate to="/" replace />;
+  }
+
+  const adminRoutes = [
+    "/editprofile",
+    "/testimonials",
+    "/deliverable-master",
+    "/category-master",
+    "/categorysub-master",
+    "/eventsupermaster",
+    "/eventmaster",
+    "/CategoryWiseDeliverableMaster",
+    "/sponsor-master",
+    "/exporegistry-tracker",
+    "/award-subcategory",
+    "/award-master",
+    "/award-registry",
+    "/curated-sessions",
+    "/ministrial-sessions",
+    "/slot-master",
+    "/passess-registry",
+    "/speaker-tracker",
+    "/dashboard",
+    "/userdashboard",
+    "/event-list",
+    "/SecretarialRoundTable",
+    "/NetworkingSlotTracker",
+  ];
+
+  const userRoutes = [
+    "/editprofile",
+    "/sponsor-master",
+    "/exporegistry-tracker",
+    "/award-registry",
+    "/curated-sessions",
+    "/ministrial-sessions",
+    "/speaker-tracker",
+    "/dashboard",
+    "/userdashboard",
+    "/passess-registry",
+    "/SecretarialRoundTable",
+    "/NetworkingSlotTracker",
+  ];
+
+  const allowedRoutes = userType === 'A' ? adminRoutes : userRoutes;
+  const isTaskRoute = location.pathname.startsWith('/taskdashboard');
+  const isValidRoute = allowedRoutes.includes(location.pathname) || isTaskRoute;
+
+  if (!isValidRoute) {
+    return <NotFound />;
+  }
+
+  return (
+    <div className="flex h-screen">
+      <Sidebar userType={userType} />
+      <div className="flex-1 flex flex-col min-h-screen">
+        <div className="flex-1 overflow-y-auto p-4">
+          <Routes>
+            {userType === 'A' && (
+              <>
+                <Route path="/testimonials" element={
+                  <ProtectedRoute>
+                    <Testimonials />
+                  </ProtectedRoute>
+                } />
+                <Route path="/deliverable-master" element={
+                  <ProtectedRoute>
+                    <DeliverableMaster />
+                  </ProtectedRoute>
+                } />
+                <Route path="/category-master" element={
+                  <ProtectedRoute>
+                    <CategoryMaster />
+                  </ProtectedRoute>
+                } />
+                <Route path="/categorysub-master" element={
+                  <ProtectedRoute>
+                    <CategorySubMaster />
+                  </ProtectedRoute>
+                } />
+                <Route path="/eventsupermaster" element={
+                  <ProtectedRoute>
+                    <EventSuperMaster />
+                  </ProtectedRoute>
+                } />
+                <Route path="/eventmaster" element={
+                  <ProtectedRoute>
+                    <EventMaster />
+                  </ProtectedRoute>
+                } />
+                <Route path="/CategoryWiseDeliverableMaster" element={
+                  <ProtectedRoute>
+                    <CategoryWiseDeliverableMaster />
+                  </ProtectedRoute>
+                } />
+                <Route path="/award-master" element={
+                  <ProtectedRoute>
+                    <AwardMaster />
+                  </ProtectedRoute>
+                } />
+                <Route path="/award-subcategory" element={
+                  <ProtectedRoute>
+                    <AwardSubCategory />
+                  </ProtectedRoute>
+                } />
+                <Route path="/slot-master" element={
+                  <ProtectedRoute>
+                    <SlotMaster />
+                  </ProtectedRoute>
+                } />
+                <Route path="/passess-registry" element={
+                  <ProtectedRoute>
+                    <PassessRegistry />
+                  </ProtectedRoute>
+                } />
+              </>
+            )}
+            <Route path="/sponsor-master" element={
+              <ProtectedRoute>
+                <SponsorMaster />
+              </ProtectedRoute>
+            } />
+            <Route path="/exporegistry-tracker" element={
+              <ProtectedRoute>
+                <ExpoRegistryTracker />
+              </ProtectedRoute>
+            } />
+            <Route path="/award-registry" element={
+              <ProtectedRoute>
+                <AwardRegistryTracker />
+              </ProtectedRoute>
+            } />
+            <Route path="/passess-registry" element={
+              <ProtectedRoute>
+                <PassessRegistry />
+              </ProtectedRoute>
+            } />
+            <Route path="/curated-sessions" element={
+              <ProtectedRoute>
+                <CuratedSession />
+              </ProtectedRoute>
+            } />
+            <Route path="/ministrial-sessions" element={
+              <ProtectedRoute>
+                <MinisterialSession />
+              </ProtectedRoute>
+            } />
+            <Route path="/speaker-tracker" element={
+              <ProtectedRoute>
+                <SpeakerTracker />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/userdashboard" element={
+              <ProtectedRoute>
+                <Userdashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/event-list" element={
+              <ProtectedRoute>
+                <EventList />
+              </ProtectedRoute>
+            } />
+            <Route path="/SecretarialRoundTable" element={
+              <ProtectedRoute>
+                <SecretarialRoundTableTracker />
+              </ProtectedRoute>
+            } />
+            <Route path="/NetworkingSlotTracker" element={
+              <ProtectedRoute>
+                <NetworkingSlotTracker />
+              </ProtectedRoute>
+            } />
+          </Routes>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/event-list" element={<EventList />} />
+        {TaskManagementRoutes()}
+        <Route path="/*" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        } />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
+
+
+
 // // import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 // // import Sidebar from "./components/Sidebar";
 // // import EditProfile from "./components/EditProfile/EditProfile";
@@ -697,293 +1009,294 @@
 
 
 
-import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
-import Sidebar from "./components/Sidebar";
-import EditProfile from "./components/EditProfile/EditProfile";
-import Testimonials from "./components/Testimonials/Testimonials";
-import DeliverableMaster from "./components/EventMasters/DeliverableMaster";
-import CategoryMaster from "./components/EventMasters/CategoryMaster";
-import CategorySubMaster from "./components/EventMasters/CategorySubMaster";
-import EventSuperMaster from "./components/EventMasters/EventSuperMaster";
-import EventMaster from "./components/EventMasters/EventMaster";
-import CategoryWiseDeliverableMaster from "./components/EventMasters/CategoryWiseDeliverableMaster";
-import SponsorMaster from "./components/EventMasters/sponsorMaster";
-import ExpoRegistryTracker from "./components/ExpoRegistryTracker/ExpoRegistryTracker";
-import AwardMaster from "./components/EventMasters/AwardMaster";
-import AwardRegistryTracker from "./components/ExpoRegistryTracker/AwardRegistryTracker";
-import CuratedSession from "./components/ExpoRegistryTracker/CuratedSession";
-import MinisterialSession from "./components/ExpoRegistryTracker/MinisterialSession";
-import SlotMaster from "./components/EventMasters/SlotMaster";
-import PassessRegistry from "./components/ExpoRegistryTracker/PassessRegistry";
-import Login from "./Pages/Login/Login";
-import ProtectedRoute from "./common/ProtectedRoutes/ProtectedRoute";
-import NotFound from "./components/PageNotFound/PageNotFound";
-import SpeakerTracker from "./components/ExpoRegistryTracker/SpeakerTracker";
-import Dashboard from "./Pages/Dashboard/Dashboard";
-import EventList from "./Pages/Login/EventList";
-import SecretarialRoundTableTracker from "./components/ExpoRegistryTracker/SecretarialRoundTableTracker";
-import NetworkingSlotTracker from "./components/ExpoRegistryTracker/NetworkingSlot";
-import Userdashboard from "./Pages/Dashboard/Userdashboard";
-import { decryptData } from "./common/Functions/DecryptData";
-import AwardSubCategory from "./components/EventMasters/AwardSubCategoryMaster";
+// import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
+// import Sidebar from "./components/Sidebar";
+// import EditProfile from "./components/EditProfile/EditProfile";
+// import Testimonials from "./components/Testimonials/Testimonials";
+// import DeliverableMaster from "./components/EventMasters/DeliverableMaster";
+// import CategoryMaster from "./components/EventMasters/CategoryMaster";
+// import CategorySubMaster from "./components/EventMasters/CategorySubMaster";
+// import EventSuperMaster from "./components/EventMasters/EventSuperMaster";
+// import EventMaster from "./components/EventMasters/EventMaster";
+// import CategoryWiseDeliverableMaster from "./components/EventMasters/CategoryWiseDeliverableMaster";
+// import SponsorMaster from "./components/EventMasters/sponsorMaster";
+// import ExpoRegistryTracker from "./components/ExpoRegistryTracker/ExpoRegistryTracker";
+// import AwardMaster from "./components/EventMasters/AwardMaster";
+// import AwardRegistryTracker from "./components/ExpoRegistryTracker/AwardRegistryTracker";
+// import CuratedSession from "./components/ExpoRegistryTracker/CuratedSession";
+// import MinisterialSession from "./components/ExpoRegistryTracker/MinisterialSession";
+// import SlotMaster from "./components/EventMasters/SlotMaster";
+// import PassessRegistry from "./components/ExpoRegistryTracker/PassessRegistry";
+// import Login from "./Pages/Login/Login";
+// import ProtectedRoute from "./common/ProtectedRoutes/ProtectedRoute";
+// import NotFound from "./components/PageNotFound/PageNotFound";
+// import SpeakerTracker from "./components/ExpoRegistryTracker/SpeakerTracker";
+// import Dashboard from "./Pages/Dashboard/Dashboard";
+// import EventList from "./Pages/Login/EventList";
+// import SecretarialRoundTableTracker from "./components/ExpoRegistryTracker/SecretarialRoundTableTracker";
+// import NetworkingSlotTracker from "./components/ExpoRegistryTracker/NetworkingSlot";
+// import Userdashboard from "./Pages/Dashboard/Userdashboard";
+// import { decryptData } from "./common/Functions/DecryptData";
+// import AwardSubCategory from "./components/EventMasters/AwardSubCategoryMaster";
 
-//Task Management Routes
-import TaskLayout from "./TaskManagement/TaskDashboard";
-import TaskDescriptionEntry from "./TaskManagement/taskDescription";
-import TaskAuthentication from "./TaskManagement/TaskAuthentication";
-import UserwiseTaskReport from "./TaskManagement/AllTaskReport";
-import TaskDashBorardUtility from "./TaskManagement/DashBoard"
-import CalendarView from "./TaskManagement/Calendar/CalendarView";
+// //Task Management Routes
+// import TaskLayout from "./TaskManagement/TaskDashboard";
+// import TaskDescriptionEntry from "./TaskManagement/taskDescription";
+// import TaskAuthentication from "./TaskManagement/TaskAuthentication";
+// import UserwiseTaskReport from "./TaskManagement/AllTaskReport";
+// import TaskDashBorardUtility from "./TaskManagement/DashBoard"
+// import CalendarView from "./TaskManagement/Calendar/CalendarView";
+// import TabViewComponent from "./TaskManagement/TabsView/TabsView"
 
-const Layout = () => {
-  const location = useLocation();
+// const Layout = () => {
+//   const location = useLocation();
 
-  const hideLayoutRoutes = ["/", "/verifyotp", "/event-list", "/taskdashboard"];
-  const noSidebarRoutes = ["/", "/verifyotp", "/event-list", "/taskdashboard"];
+//   const hideLayoutRoutes = ["/", "/verifyotp", "/event-list", "/taskdashboard"];
+//   const noSidebarRoutes = ["/", "/verifyotp", "/event-list", "/taskdashboard"];
 
-  const isAuthenticated = () => {
-    const encryptedToken = sessionStorage.getItem('access_token');
-    return !!encryptedToken;
-  };
+//   const isAuthenticated = () => {
+//     const encryptedToken = sessionStorage.getItem('access_token');
+//     return !!encryptedToken;
+//   };
 
-  const getUserData = () => {
-    try {
-      const encryptedUserData = sessionStorage.getItem('user_data');
-      if (encryptedUserData) {
-        return decryptData(encryptedUserData);
-      }
-    } catch (error) {
-      console.error("Error decrypting user data:", error);
-    }
-    return null;
-  };
+//   const getUserData = () => {
+//     try {
+//       const encryptedUserData = sessionStorage.getItem('user_data');
+//       if (encryptedUserData) {
+//         return decryptData(encryptedUserData);
+//       }
+//     } catch (error) {
+//       console.error("Error decrypting user data:", error);
+//     }
+//     return null;
+//   };
 
-  const userData = getUserData();
-  const userType = userData?.user_type;
+//   const userData = getUserData();
+//   const userType = userData?.user_type;
 
-  const shouldHideLayout = hideLayoutRoutes.includes(location.pathname);
-  const shouldHideSidebar = noSidebarRoutes.includes(location.pathname);
+//   const shouldHideLayout = hideLayoutRoutes.includes(location.pathname);
+//   const shouldHideSidebar = noSidebarRoutes.includes(location.pathname);
 
-  if (shouldHideLayout) {
-    return (
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/event-list" element={<EventList />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    );
-  }
+//   if (shouldHideLayout) {
+//     return (
+//       <Routes>
+//         <Route path="/" element={<Login />} />
+//         <Route path="/event-list" element={<EventList />} />
+//         <Route path="*" element={<Navigate to="/" replace />} />
+//       </Routes>
+//     );
+//   }
 
-  if (!isAuthenticated()) {
-    return <Navigate to="/" replace />;
-  }
+//   if (!isAuthenticated()) {
+//     return <Navigate to="/" replace />;
+//   }
 
-  const adminRoutes = [
-    "/editprofile",
-    "/testimonials",
-    "/deliverable-master",
-    "/category-master",
-    "/categorysub-master",
-    "/eventsupermaster",
-    "/eventmaster",
-    "/CategoryWiseDeliverableMaster",
-    "/sponsor-master",
-    "/exporegistry-tracker",
-    "/award-subcategory",
-    "/award-master",
-    "/award-registry",
-    "/curated-sessions",
-    "/ministrial-sessions",
-    "/slot-master",
-    "/passess-registry",
-    "/speaker-tracker",
-    "/dashboard",
-    "/userdashboard",
-    "/event-list",
-    "/SecretarialRoundTable",
-    "/NetworkingSlotTracker",
-  ];
+//   const adminRoutes = [
+//     "/editprofile",
+//     "/testimonials",
+//     "/deliverable-master",
+//     "/category-master",
+//     "/categorysub-master",
+//     "/eventsupermaster",
+//     "/eventmaster",
+//     "/CategoryWiseDeliverableMaster",
+//     "/sponsor-master",
+//     "/exporegistry-tracker",
+//     "/award-subcategory",
+//     "/award-master",
+//     "/award-registry",
+//     "/curated-sessions",
+//     "/ministrial-sessions",
+//     "/slot-master",
+//     "/passess-registry",
+//     "/speaker-tracker",
+//     "/dashboard",
+//     "/userdashboard",
+//     "/event-list",
+//     "/SecretarialRoundTable",
+//     "/NetworkingSlotTracker",
+//   ];
 
-  const userRoutes = [
-    "/editprofile",
-    "/sponsor-master",
-    "/exporegistry-tracker",
-    "/award-registry",
-    "/curated-sessions",
-    "/ministrial-sessions",
-    "/speaker-tracker",
-    "/dashboard",
-    "/userdashboard",
-    "/passess-registry",
-    "/SecretarialRoundTable",
-    "/NetworkingSlotTracker",
-  ];
+//   const userRoutes = [
+//     "/editprofile",
+//     "/sponsor-master",
+//     "/exporegistry-tracker",
+//     "/award-registry",
+//     "/curated-sessions",
+//     "/ministrial-sessions",
+//     "/speaker-tracker",
+//     "/dashboard",
+//     "/userdashboard",
+//     "/passess-registry",
+//     "/SecretarialRoundTable",
+//     "/NetworkingSlotTracker",
+//   ];
 
-  const allowedRoutes = userType === 'A' ? adminRoutes : userRoutes;
-  const isTaskRoute = location.pathname.startsWith('/taskdashboard');
-  const isValidRoute = allowedRoutes.includes(location.pathname) || isTaskRoute;
+//   const allowedRoutes = userType === 'A' ? adminRoutes : userRoutes;
+//   const isTaskRoute = location.pathname.startsWith('/taskdashboard');
+//   const isValidRoute = allowedRoutes.includes(location.pathname) || isTaskRoute;
 
-  if (!isValidRoute) {
-    return <NotFound />;
-  }
+//   if (!isValidRoute) {
+//     return <NotFound />;
+//   }
 
-  return (
-    <div className="flex h-screen">
-      <Sidebar userType={userType} />
-      <div className="flex-1 flex flex-col min-h-screen">
-        <div className="flex-1 overflow-y-auto p-4">
-          <Routes>
-            {userType === 'A' && (
-              <>
-                <Route path="/testimonials" element={
-                  <ProtectedRoute>
-                    <Testimonials />
-                  </ProtectedRoute>
-                } />
-                <Route path="/deliverable-master" element={
-                  <ProtectedRoute>
-                    <DeliverableMaster />
-                  </ProtectedRoute>
-                } />
-                <Route path="/category-master" element={
-                  <ProtectedRoute>
-                    <CategoryMaster />
-                  </ProtectedRoute>
-                } />
-                <Route path="/categorysub-master" element={
-                  <ProtectedRoute>
-                    <CategorySubMaster />
-                  </ProtectedRoute>
-                } />
-                <Route path="/eventsupermaster" element={
-                  <ProtectedRoute>
-                    <EventSuperMaster />
-                  </ProtectedRoute>
-                } />
-                <Route path="/eventmaster" element={
-                  <ProtectedRoute>
-                    <EventMaster />
-                  </ProtectedRoute>
-                } />
-                <Route path="/CategoryWiseDeliverableMaster" element={
-                  <ProtectedRoute>
-                    <CategoryWiseDeliverableMaster />
-                  </ProtectedRoute>
-                } />
-                <Route path="/award-master" element={
-                  <ProtectedRoute>
-                    <AwardMaster />
-                  </ProtectedRoute>
-                } />
-                <Route path="/award-subcategory" element={
-                  <ProtectedRoute>
-                    <AwardSubCategory />
-                  </ProtectedRoute>
-                } />
-                <Route path="/slot-master" element={
-                  <ProtectedRoute>
-                    <SlotMaster />
-                  </ProtectedRoute>
-                } />
-                <Route path="/passess-registry" element={
-                  <ProtectedRoute>
-                    <PassessRegistry />
-                  </ProtectedRoute>
-                } />
-              </>
-            )}
-            <Route path="/sponsor-master" element={
-              <ProtectedRoute>
-                <SponsorMaster />
-              </ProtectedRoute>
-            } />
-            <Route path="/exporegistry-tracker" element={
-              <ProtectedRoute>
-                <ExpoRegistryTracker />
-              </ProtectedRoute>
-            } />
-            <Route path="/award-registry" element={
-              <ProtectedRoute>
-                <AwardRegistryTracker />
-              </ProtectedRoute>
-            } />
-            <Route path="/passess-registry" element={
-              <ProtectedRoute>
-                <PassessRegistry />
-              </ProtectedRoute>
-            } />
-            <Route path="/curated-sessions" element={
-              <ProtectedRoute>
-                <CuratedSession />
-              </ProtectedRoute>
-            } />
-            <Route path="/ministrial-sessions" element={
-              <ProtectedRoute>
-                <MinisterialSession />
-              </ProtectedRoute>
-            } />
-            <Route path="/speaker-tracker" element={
-              <ProtectedRoute>
-                <SpeakerTracker />
-              </ProtectedRoute>
-            } />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/userdashboard" element={
-              <ProtectedRoute>
-                <Userdashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/event-list" element={
-              <ProtectedRoute>
-                <EventList />
-              </ProtectedRoute>
-            } />
-            <Route path="/SecretarialRoundTable" element={
-              <ProtectedRoute>
-                <SecretarialRoundTableTracker />
-              </ProtectedRoute>
-            } />
-            <Route path="/NetworkingSlotTracker" element={
-              <ProtectedRoute>
-                <NetworkingSlotTracker />
-              </ProtectedRoute>
-            } />
-          </Routes>
-        </div>
-      </div>
-    </div>
-  );
-};
+//   return (
+//     <div className="flex h-screen">
+//       <Sidebar userType={userType} />
+//       <div className="flex-1 flex flex-col min-h-screen">
+//         <div className="flex-1 overflow-y-auto p-4">
+//           <Routes>
+//             {userType === 'A' && (
+//               <>
+//                 <Route path="/testimonials" element={
+//                   <ProtectedRoute>
+//                     <Testimonials />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/deliverable-master" element={
+//                   <ProtectedRoute>
+//                     <DeliverableMaster />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/category-master" element={
+//                   <ProtectedRoute>
+//                     <CategoryMaster />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/categorysub-master" element={
+//                   <ProtectedRoute>
+//                     <CategorySubMaster />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/eventsupermaster" element={
+//                   <ProtectedRoute>
+//                     <EventSuperMaster />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/eventmaster" element={
+//                   <ProtectedRoute>
+//                     <EventMaster />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/CategoryWiseDeliverableMaster" element={
+//                   <ProtectedRoute>
+//                     <CategoryWiseDeliverableMaster />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/award-master" element={
+//                   <ProtectedRoute>
+//                     <AwardMaster />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/award-subcategory" element={
+//                   <ProtectedRoute>
+//                     <AwardSubCategory />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/slot-master" element={
+//                   <ProtectedRoute>
+//                     <SlotMaster />
+//                   </ProtectedRoute>
+//                 } />
+//                 <Route path="/passess-registry" element={
+//                   <ProtectedRoute>
+//                     <PassessRegistry />
+//                   </ProtectedRoute>
+//                 } />
+//               </>
+//             )}
+//             <Route path="/sponsor-master" element={
+//               <ProtectedRoute>
+//                 <SponsorMaster />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/exporegistry-tracker" element={
+//               <ProtectedRoute>
+//                 <ExpoRegistryTracker />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/award-registry" element={
+//               <ProtectedRoute>
+//                 <AwardRegistryTracker />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/passess-registry" element={
+//               <ProtectedRoute>
+//                 <PassessRegistry />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/curated-sessions" element={
+//               <ProtectedRoute>
+//                 <CuratedSession />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/ministrial-sessions" element={
+//               <ProtectedRoute>
+//                 <MinisterialSession />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/speaker-tracker" element={
+//               <ProtectedRoute>
+//                 <SpeakerTracker />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/dashboard" element={
+//               <ProtectedRoute>
+//                 <Dashboard />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/userdashboard" element={
+//               <ProtectedRoute>
+//                 <Userdashboard />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/event-list" element={
+//               <ProtectedRoute>
+//                 <EventList />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/SecretarialRoundTable" element={
+//               <ProtectedRoute>
+//                 <SecretarialRoundTableTracker />
+//               </ProtectedRoute>
+//             } />
+//             <Route path="/NetworkingSlotTracker" element={
+//               <ProtectedRoute>
+//                 <NetworkingSlotTracker />
+//               </ProtectedRoute>
+//             } />
+//           </Routes>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
 
-function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/event-list" element={<EventList />} />
-        <Route path="/taskdashboard" element={<ProtectedRoute><TaskLayout /></ProtectedRoute>}>
-          <Route index element={<TaskDescriptionEntry />} />
-          <Route path="Taskutility" element={<TaskDashBorardUtility />} />
-          <Route path="TaskDescription" element={<TaskDescriptionEntry />} />
-          <Route path="TaskAuthentication" element={<TaskAuthentication />} />
-          <Route path="TaskReports" element={<UserwiseTaskReport />} />
-          <Route path="Calendar" element={<CalendarView />} />
+// function App() {
+//   return (
+//     <Router>
+//       <Routes>
+//         <Route path="/" element={<Login />} />
+//         <Route path="/event-list" element={<EventList />} />
+//         <Route path="/taskdashboard" element={<ProtectedRoute><TaskLayout /></ProtectedRoute>}>
+//           <Route index element={<TaskDescriptionEntry />} />
+//           <Route path="dashboard" element={<TabViewComponent />} />
+//           <Route path="Taskutility" element={<TaskDashBorardUtility />} />
+//           <Route path="TaskDescription" element={<TaskDescriptionEntry />} />
+//           <Route path="TaskAuthentication" element={<TaskAuthentication />} />
+//           <Route path="TaskReports" element={<UserwiseTaskReport />} />
+//           <Route path="Calendar" element={<CalendarView />} />
+//         </Route>
+//         <Route path="/*" element={
+//           <ProtectedRoute>
+//             <Layout />
+//           </ProtectedRoute>
+//         } />
 
-        </Route>
-        <Route path="/*" element={
-          <ProtectedRoute>
-            <Layout />
-          </ProtectedRoute>
-        } />
+//         <Route path="*" element={<NotFound />} />
+//       </Routes>
+//     </Router>
+//   );
+// }
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router>
-  );
-}
-
-export default App;
+// export default App;

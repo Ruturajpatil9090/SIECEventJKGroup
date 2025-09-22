@@ -1,5 +1,5 @@
 import { useState, createContext, useContext } from "react";
-import { Link, useLocation, Outlet } from "react-router-dom"; // Import Outlet
+import { Link, useLocation, Outlet } from "react-router-dom";
 import {
     ChevronFirst,
     ChevronLast,
@@ -44,19 +44,22 @@ function TaskLayout() {
                     <SidebarContext.Provider value={{ expanded }}>
                         <ul className="flex-1 px-3 mt-2">
                             <SidebarItem icon={<Store className="h-5 w-5 text-orange-600" size={20} />} text="Dashboard" path='/taskdashboard/Taskutility' />
-                            <SidebarItem icon={<ClipboardListIcon className="h-5 w-5 text-red-600" size={20} />} text="Task" path='/taskdashboard/TaskDescription' />
-                            <SidebarItem icon={<ShieldCheck className="h-5 w-5 text-green-600" size={20} />} text="Authentication" path='/taskdashboard/TaskAuthentication' />
-                            <SidebarItem icon={<FileDown className="h-5 w-5 text-black-600" size={20} />} text="Task Reports" path='/taskdashboard/TaskReports' />
-                            <SidebarItem
+                            {/* <SidebarItem icon={<ClipboardListIcon className="h-5 w-5 text-red-600" size={20} />} text="Task" path='/taskdashboard/TaskDescription' /> */}
+                            {/* <SidebarItem icon={<ShieldCheck className="h-5 w-5 text-green-600" size={20} />} text="Authentication" path='/taskdashboard/TaskAuthentication' /> */}
+                            {/* <SidebarItem icon={<FileDown className="h-5 w-5 text-black-600" size={20} />} text="Task Reports" path='/taskdashboard/TaskReports' /> */}
+                            {/* <SidebarItem
                                 icon={<Calendar className="h-5 w-5 text-purple-600" size={20} />}
                                 text="Calendar"
                                 path="/taskdashboard/Calendar"
-                            />
+                            /> */}
                             <SidebarItem
                                 icon={<Calendar className="h-5 w-5 text-purple-600" size={20} />}
                                 text="Event"
                                 path="/event-list"
                             />
+
+                            <hr className="my-3" />
+                            <Profile />
 
                         </ul>
                     </SidebarContext.Provider>
@@ -80,8 +83,6 @@ function TaskLayout() {
                 </nav>
             </aside>
 
-            {/* Main content area */}
-            {/* The Outlet component will render the content of the nested routes */}
             <main className="flex-1 p-4 overflow-y-auto">
                 <Outlet />
             </main>
@@ -93,7 +94,7 @@ function TaskLayout() {
 function SidebarItem({ icon, text, path = "/" }) {
     const { expanded } = useContext(SidebarContext);
     const location = useLocation();
-    const isActive = location.pathname.startsWith(path); // Use startsWith for nested routes
+    const isActive = location.pathname.startsWith(path);
 
     return (
         <Link to={path}>

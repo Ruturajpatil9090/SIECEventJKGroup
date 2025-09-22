@@ -240,7 +240,7 @@ function TaskAuthentication() {
     if (isError) return <div className="text-center py-8 text-red-600">Error loading events. Please try again.</div>;
 
     return (
-        <div className="bg-gray-50 min-h-screen font-inter">
+        <div className="bg-gray-50 min-h-screen font-inter " style={{ marginTop: "-80px" }}>
             {notification.show && (
                 <div className={`fixed top-4 right-4 z-50 flex items-center p-4 rounded-md shadow-lg ${notification.type === 'success'
                     ? 'bg-green-50 text-green-800 border border-green-200'
@@ -256,8 +256,7 @@ function TaskAuthentication() {
             )}
 
             <TableUtility
-
-                title="Authorise Master"
+                title="Task Approvals"
                 columns={columns}
                 data={tableData}
                 pageSize={10}
