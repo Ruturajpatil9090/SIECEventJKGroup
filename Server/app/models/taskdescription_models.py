@@ -26,6 +26,7 @@ class TaskHead(Base):
     Modified_By = Column(String, nullable=True)
     tran_type = Column(String, nullable=True)
     Authorised_User = Column(Integer,nullable=True)
+    TeamMasterId = Column(Integer,nullable=True)
 
     details = relationship(
         "TaskDetail", 

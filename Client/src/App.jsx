@@ -36,6 +36,8 @@ import UserwiseTaskReport from "./TaskManagement/AllTaskReport";
 import TaskDashBorardUtility from "./TaskManagement/DashBoard"
 import CalendarView from "./TaskManagement/Calendar/CalendarView";
 import TabViewComponent from "./TaskManagement/TabsView/TabsView"
+import Notifications from "./TaskManagement/UserNotifications/UserNotifications";
+import TeamMaster from "./TaskManagement/Teams/TeamMaster";
 
 
 const TaskManagementRoutes = () => {
@@ -48,6 +50,8 @@ const TaskManagementRoutes = () => {
       <Route path="TaskAuthentication" element={<TaskLayoutWithTabs><TaskAuthentication /></TaskLayoutWithTabs>} />
       <Route path="TaskReports" element={<TaskLayoutWithTabs><UserwiseTaskReport /></TaskLayoutWithTabs>} />
       <Route path="Calendar" element={<TaskLayoutWithTabs><CalendarView /></TaskLayoutWithTabs>} />
+      <Route path="Notification" element={<TaskLayoutWithTabs><Notifications /></TaskLayoutWithTabs>} />
+      <Route path="teammaster" element={<TaskLayoutWithTabs><TeamMaster /></TaskLayoutWithTabs>} />
     </Route>
   );
 };

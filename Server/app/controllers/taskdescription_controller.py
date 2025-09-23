@@ -35,63 +35,10 @@ from ..services.taskdescriptionservices import (
 
 )
 
-
 router = APIRouter(
     prefix="/taskDescription",
     tags=["taskDescription"]
 )
-
-
-
-# @router.get("/get_taskall", response_model=List[Task])
-# async def get_task_data(db: AsyncSession = Depends(get_db)):
-#     results = await get_tasks_description(db)
-#     return results
-
-# @router.get("/get_taskall")
-# async def get_task_data(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)):
-#     results = await get_all_data_with_details(db, skip, limit)
-
-#     grouped_results = {}
-#     for row in results:
-#         taskid = row['taskno']
-
-#         if taskid not in grouped_results:
-#             grouped_results[taskid] = {
-#                 "taskno": taskid,
-#                 "taskno": row['taskno'],
-#                 "doc_date": row['doc_date'],
-#                 "purpose": row['purpose'],
-#                 "taskdesc": row['taskdesc'],
-#                 "tasktype": row['tasktype'],
-#                 "category": row['category'],
-#                 "deadlinedate": row['deadlinedate'],
-#                 "startdate": row['startdate'],
-#                 "enddate": row['enddate'],
-#                 "remindtask": row['remindtask'],
-#                 "reminddate": row['reminddate'],
-#                 "day": row['day'],
-#                 "weekday": row['weekday'],
-#                 "month": row['month'],
-#                 "time": row['time'],
-#                 "priority": row['priority'],
-#                 "Company_Code": row['Company_Code'],
-#                 "Created_By": row['Created_By'],
-#                 "Modified_By": row['Modified_By'],
-#                 "tran_type": row['tran_type'],
-#                 "details": []
-#             }
-
-#         if row['User_Id'] is not None:
-#             grouped_results[taskid]["details"].append({
-#                 "User_Id": row['User_Id'],
-#                 "User_Name": row['User_Name'],
-#                 "id": row['id']
-#             })
-
-#     return list(grouped_results.values())
-
-
 
 @router.get("/get_taskall")
 async def get_task_data(
@@ -126,6 +73,7 @@ async def get_task_data(
                 "Created_By": row['Created_By'],
                 "Modified_By": row['Modified_By'],
                 "tran_type": row['tran_type'],
+                "TeamMasterId": row.get('TeamMasterId'),
                 "details": []
             }
 
@@ -219,8 +167,6 @@ async def delete_existing_task(
     return {"message": "Task deleted successfully"}
 
 
-# Controllers For Table TaskMaster As Below
-
 @router.post("/generate-reminders", status_code=200)
 async def generate_reminders_endpoint(db: AsyncSession = Depends(get_db)):
     try:
@@ -271,7 +217,6 @@ async def get_taskall_ForReport(
     limit: int = 100,
     db: AsyncSession = Depends(get_db)
 ):
-    
     results = await get_TaskReport(from_date, to_date, db, skip, limit)
     return results
 

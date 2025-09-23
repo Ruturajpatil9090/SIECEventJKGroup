@@ -6,7 +6,8 @@ import {
     Bell,
     ClipboardCheck,
     UserCheck,
-    PieChart
+    PieChart,
+    Users2Icon
 } from 'lucide-react';
 
 const TabNavigation = () => {
@@ -33,6 +34,11 @@ const TabNavigation = () => {
             path: '/taskdashboard/TaskAuthentication',
             icon: <UserCheck className="h-4 w-4 text-green-600" />
         },
+            {
+            label: 'Team Master',
+            path: '/taskdashboard/teammaster',
+            icon: <Users2Icon className="h-4 w-4 text-pink-600" />
+        },
         {
             label: 'Report',
             path: '/taskdashboard/TaskReports',
@@ -44,8 +50,8 @@ const TabNavigation = () => {
             icon: <Calendar className="h-4 w-4 text-orange-600" />
         },
         {
-            label: 'Notifications',
-            path: '/taskdashboard/Notifications',
+            label: 'Notification',
+            path: '/taskdashboard/Notification',
             icon: <Bell className="h-4 w-4 text-red-500" />
         }
     ];

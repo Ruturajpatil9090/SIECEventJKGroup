@@ -41,6 +41,7 @@ class TaskHeadBase(BaseModel):
     Modified_By: Optional[str] = None
     tran_type: Optional[str] = None
     Authorised_User: Optional[int] = None
+    TeamMasterId: Optional[int] = None
     details: List[TaskDetailCreate] = []
     
 class TaskCreate(TaskHeadBase):
@@ -67,6 +68,7 @@ class TaskUpdate(BaseModel):
     Created_By: Optional[str] = None
     Modified_By: Optional[str] = None
     tran_type: Optional[str] = None
+    TeamMasterId: Optional[int] = None
     details: Optional[List[TaskDetailCreate]] = None
 
 class Task(TaskHeadBase):

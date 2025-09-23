@@ -24,6 +24,7 @@ import { awardSubCategoryApi } from '../services/awardSubCategoryApi';
 import { TaskDescriptionApi } from '../services/taskdescriptionApi';
 import { TaskReportApi } from '../services/taskreportApi';
 import { calendarApi } from '../services/calendarApi';
+import { teamMasterApi } from '../services/teamMasterApi';
 
 // WebSocket URL
 // const WS_URL = "wss://events-api.chinimandi.com/wss";
@@ -54,6 +55,7 @@ export const store = configureStore({
     [TaskDescriptionApi.reducerPath]: TaskDescriptionApi.reducer,
     [TaskReportApi.reducerPath]: TaskReportApi.reducer,
     [calendarApi.reducerPath]: calendarApi.reducer,
+    [teamMasterApi.reducerPath]: teamMasterApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -82,4 +84,5 @@ export const store = configureStore({
       .concat(TaskDescriptionApi.middleware)
       .concat(TaskReportApi.middleware)
       .concat(calendarApi.middleware)
+      .concat(teamMasterApi.middleware),
 });
