@@ -7,6 +7,7 @@ class TaskDetailBase(BaseModel):
     id: Optional[int] = None
     taskno: Optional[int] = None
     userId: Optional[int] = None
+    notify: Optional[str] = None
 
 class TaskDetailCreate(TaskDetailBase):
     action: Literal["add", "delete", "update"]

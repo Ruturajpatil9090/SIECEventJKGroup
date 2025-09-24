@@ -686,3 +686,50 @@ async def get_TaskReportForUsers(
 
     result = await db.execute(text(sql), params)
     return result.mappings().all()
+
+
+#Notification 
+async def get_notified_tasks(db: AsyncSession, user_id: int):
+    query = text("""
+    SELECT        dbo.Eve_TaskHead.taskno, dbo.Eve_TaskHead.doc_date, dbo.Eve_TaskHead.purpose, dbo.Eve_TaskHead.taskdesc, dbo.Eve_TaskHead.tasktype, dbo.Eve_TaskHead.category, dbo.Eve_TaskHead.deadlinedate, 
+                         dbo.Eve_TaskHead.startdate, dbo.Eve_TaskHead.enddate, dbo.Eve_TaskHead.remindtask, dbo.Eve_TaskHead.reminddate, dbo.Eve_TaskHead.day, dbo.Eve_TaskHead.weekday, dbo.Eve_TaskHead.month, 
+                         dbo.Eve_TaskHead.time, dbo.Eve_TaskHead.priority, dbo.Eve_TaskHead.Company_Code, dbo.Eve_TaskHead.Created_By, dbo.Eve_TaskHead.Modified_By, dbo.Eve_TaskHead.tran_type, dbo.Eve_TaskHead.Authorised_User, 
+                         dbo.Eve_TaskHead.TeamMasterId, dbo.Eve_TaskDetail.notify, dbo.Eve_TaskDetail.userId
+FROM            dbo.Eve_TaskHead INNER JOIN
+                         dbo.Eve_TaskDetail ON dbo.Eve_TaskHead.taskno = dbo.Eve_TaskDetail.taskno
+        WHERE
+            dbo.Eve_TaskDetail.notify = 'Y' AND dbo.Eve_TaskDetail.userId = :user_id
+    """)
+    result = await db.execute(query, {"user_id": user_id})
+    return result.mappings().all()
+
+async def update_task_notification(
+    db: AsyncSession, 
+    taskno: int, 
+    user_id: int,
+    ws_manager: Optional[ConnectionManager] = None
+):
+    query = text("""
+        UPDATE dbo.Eve_TaskDetail 
+        SET notify = 'N' 
+        WHERE taskno = :taskno AND userId = :user_id AND notify = 'Y'
+    """)
+    
+    result = await db.execute(query, {"taskno": taskno, "user_id": user_id})
+    await db.commit()
+    
+    if result.rowcount == 0:
+        raise HTTPException(
+            status_code=404, 
+            detail=f"Task with taskno {taskno} and user_id {user_id} not found or notify was already 'N'"
+        )
+
+    if ws_manager:
+        await ws_manager.broadcast(message="refresh_taskdescription")
+    
+    return {
+        "message": f"Notification updated successfully for taskno {taskno} and user_id {user_id}",
+        "taskno": taskno,
+        "user_id": user_id,
+        "notify": "N"
+    }

@@ -46,6 +46,7 @@ class TaskDetail(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     taskno = Column(Integer, ForeignKey("Eve_TaskHead.taskno"))
     userId = Column(Integer,nullable=True)
+    notify = Column(String, nullable=True)
 
     task = relationship("TaskHead", back_populates="details")
 

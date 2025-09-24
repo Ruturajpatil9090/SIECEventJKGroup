@@ -7,7 +7,7 @@ import {
     useGetMaxTeamMasterIdQuery
 } from '../../services/teamMasterApi';
 import { useGetUserMastersQuery } from '../../services/userMasterApi';
-import { Plus, Edit, Trash2, Users, User, Save, X, Eye,Calendar, Shield } from 'lucide-react';
+import { Plus, Edit, Trash2, Users, User, Save, X, Eye, Calendar, Shield } from 'lucide-react';
 import Select from 'react-select';
 
 const TeamMaster = () => {
@@ -371,11 +371,27 @@ const TeamMaster = () => {
                 </div>
             )}
 
+
+
+
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
+                        {/* Close Icon */}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setIsModalOpen(false);
+                                resetMainForm();
+                            }}
+                            className="absolute top-4 right-4 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-200 z-10"
+                            aria-label="Close modal"
+                        >
+                            <X size={24} />
+                        </button>
+
                         <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl">
-                            <h2 className="text-2xl font-bold text-gray-900">
+                            <h2 className="text-2xl font-bold text-gray-900 pr-10"> {/* Added padding-right for icon space */}
                                 {editId ? 'Edit Team' : 'Create New Team'}
                             </h2>
                         </div>
@@ -387,7 +403,7 @@ const TeamMaster = () => {
                                 </div>
                             )}
 
-                            <div className="grid grid-cols-1 gap-6">
+                            <div className="grid grid-cols-1 gap-2">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-3">
                                         Team Name *
@@ -405,22 +421,21 @@ const TeamMaster = () => {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-3">
-                                        Team Purpose *
+                                        Team Purpose
                                     </label>
                                     <textarea
                                         value={formData.Team_Purpose}
                                         onChange={(e) => setFormData(prev => ({ ...prev, Team_Purpose: e.target.value }))}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                        className="w-full px-4 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                         rows={3}
                                         placeholder="Describe the purpose of this team"
-                                        required
                                         maxLength={255}
                                     />
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-3">
-                                        Supervisor *
+                                        Supervisor
                                     </label>
                                     <Select
                                         options={supervisorOptions}
@@ -527,8 +542,8 @@ const TeamMaster = () => {
                         <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl">
                             <div className="flex justify-between items-center">
                                 <div>
-                                    <h2 className="text-3xl font-bold text-gray-900">{selectedTeam.Team_Name}</h2>
-                                    <p className="text-gray-600 mt-1">{selectedTeam.Team_Purpose}</p>
+                                    <h2 className="textxl font-bold text-gray-900">{selectedTeam.Team_Name}</h2>
+                                    <p className="text-green-600 mt-1">{selectedTeam.Team_Purpose}</p>
                                 </div>
                                 <button
                                     onClick={closeTeamView}

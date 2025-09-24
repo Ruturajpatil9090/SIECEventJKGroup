@@ -57,7 +57,37 @@ export const TaskDescriptionApi = createApi({
         getSystemMaster: builder.query({
             query: () => '/taskDescription/systemmaster',
             providesTags: ['taskupdated']
-        })
+        }),
+        getNotifyTask: builder.query({
+            query: () => {
+                const user_id = sessionStorage.getItem("user_id");
+                if (!user_id) {
+                    throw new Error("User ID not found in session storage.");
+                }
+                return `/taskDescription/notified_tasks?user_id=${user_id}`;
+            },
+            providesTags: ['taskupdated']
+        }),
+        //  updateTaskNotification: builder.mutation({
+        //     query: (taskno) => ({
+        //         url: `/taskDescription/update_task_notification/${taskno}`,
+        //         method: "PUT",
+        //     }),
+        //     invalidatesTags: ['taskupdated']
+        // }),
+        updateTaskNotification: builder.mutation({
+            query: (taskno) => {
+                const user_id = sessionStorage.getItem("user_id");
+                if (!user_id) {
+                    throw new Error("User ID not found in session storage.");
+                }
+                return {
+                    url: `/taskDescription/update_task_notification/${taskno}/${user_id}`,
+                    method: "PUT",
+                };
+            },
+            invalidatesTags: ['taskupdated']
+        }),
     })
 })
 
@@ -70,4 +100,6 @@ export const {
     useAddTaskGenerateReminderMutation,
     useUpdateTaskDescriptionMutation,
     useDeleteTaskDescriptionMutation,
+    useGetNotifyTaskQuery,
+    useUpdateTaskNotificationMutation
 } = TaskDescriptionApi;

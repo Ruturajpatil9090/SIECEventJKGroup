@@ -32,6 +32,8 @@ from ..services.taskdescriptionservices import (
     get_TaskReportCategorwise,
     get_TaskReportUsersCategorwise,
     get_TaskReportUserWisePending,
+    get_notified_tasks,
+    update_task_notification
 
 )
 
@@ -285,3 +287,20 @@ async def get_taskall_TaskReportUserWisePending(
         "count": len(results),
         "data": results
     }
+
+
+@router.get("/notified_tasks")
+async def get_notified_tasks_endpoint(
+    user_id: int = Query(..., description="The ID of the user to filter by"),
+    db: AsyncSession = Depends(get_db)
+) -> List[Dict[str, Any]]:
+    return await get_notified_tasks(db, user_id)
+
+
+@router.put("/update_task_notification/{taskno}/{user_id}")
+async def update_task_notification_endpoint(
+    taskno: int,
+    user_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    return await update_task_notification(db, taskno, user_id, ws_manager=manager)

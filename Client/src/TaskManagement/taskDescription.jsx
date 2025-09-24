@@ -134,7 +134,8 @@ function TaskDescriptionCardView() {
         teamsData.map(team => ({
             value: team.TeamMasterId,
             label: `${team.Team_Name} (${team.details?.length || 0} members)`,
-            teamData: team
+            teamData: team,
+            supervisor: team.Supervisor
         })),
         [teamsData]);
 
@@ -142,9 +143,6 @@ function TaskDescriptionCardView() {
 
     const handleTeamSelect = (selectedOption) => {
         setSelectedTeam(selectedOption);
-
-
-        console.log("selectedoption", selectedOption);
 
         if (selectedOption && selectedOption.teamData.details) {
             const teamUserIds = selectedOption.teamData.details.map(detail => detail.User_Id);
@@ -163,7 +161,8 @@ function TaskDescriptionCardView() {
             setFormData(prev => ({
                 ...prev,
                 userIds: userOptions.map(opt => opt.value),
-                TeamMasterId: selectedOption.teamData.TeamMasterId
+                TeamMasterId: selectedOption.teamData.TeamMasterId,
+                Authorised_User: selectedOption.teamData.Supervisor
             }));
         } else {
             setSelectedUsers([]);
@@ -280,9 +279,6 @@ function TaskDescriptionCardView() {
         const isWeekly = task.tasktype === 3;
         const isYearly = task.tasktype === 5;
 
-
-        console.log("Existing Details:", task.TeamMasterId);
-
         setFormData({
             taskno: task.taskno.toString(),
             doc_date: task.doc_date || '',
@@ -347,6 +343,11 @@ function TaskDescriptionCardView() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+
+        const authorisedUser = formData.Authorised_User ||
+            (selectedTeam ? selectedTeam.teamData.Supervisor : user_id);
+
         const payloadData = {
             ...formData,
             taskno: Number(formData.taskno),
@@ -363,7 +364,7 @@ function TaskDescriptionCardView() {
             weekday: formData.weekday || 1,
             month: formData.month || 1,
             time: formData.time || null,
-            Authorised_User: formData.Authorised_User || user_id,
+            Authorised_User: authorisedUser,
             details: [],
             priority: Number(formData.priority) || 1,
             Created_By: createdBy,
@@ -380,6 +381,7 @@ function TaskDescriptionCardView() {
             finalDetails.push({
                 taskno: Number(formData.taskno),
                 userId,
+                notify: "Y",
                 action: 'add'
             });
         }
@@ -404,12 +406,8 @@ function TaskDescriptionCardView() {
             });
         }
 
-
-        console.log("Final Details to submit:", finalDetails);
-
         try {
             const payload = { ...payloadData, details: finalDetails };
-            console.log("Final Details to submit:", payload);
             if (editId) {
                 await updateTaskDescription({ id: editId, ...payload }).unwrap();
             } else {
@@ -687,12 +685,6 @@ function TaskDescriptionCardView() {
                         <span>Create New Task</span>
                     </button>
                 </div>
-
-                <div className="flex flex-col md:flex-row gap-4 mb-4">
-
-
-                </div>
-
             </div>
 
             <div>
@@ -711,6 +703,7 @@ function TaskDescriptionCardView() {
                     ))
                 )}
             </div>
+
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => {
@@ -900,9 +893,9 @@ function TaskDescriptionCardView() {
 
                     <div className="space-y-2">
                         <h2 className="text-xl font-bold text-gray-800">Assignment & Priority</h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
 
-                            <div className="flex-1 min-w-[200px]">
+                            {/* <div className="flex-1 min-w-[200px]">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Select Team</label>
                                 <Select
                                     options={teamOptions}
@@ -918,7 +911,39 @@ function TaskDescriptionCardView() {
                                 <p className="mt-1 text-xs text-gray-500">
                                     Selecting a team will auto-populate users
                                 </p>
-                            </div>
+                            </div> */}
+
+
+
+                            {/* Add this to your form inside the modal */}
+                            {/* <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-3">
+                                    Select Team
+                                </label>
+                                <Select
+                                    options={teamOptions}
+                                    value={selectedTeam}
+                                    onChange={handleTeamSelect}
+                                    placeholder="Select a team..."
+                                    isSearchable
+                                    isClearable
+                                    className="text-sm"
+                                    styles={{
+                                        control: (provided) => ({
+                                            ...provided,
+                                            borderColor: 'rgb(209 213 219)',
+                                            borderRadius: '0.5rem',
+                                            padding: '0.5rem',
+                                            minHeight: '48px'
+                                        }),
+                                    }}
+                                />
+                                {selectedTeam && (
+                                    <p className="text-sm text-gray-500 mt-2">
+                                        Supervisor: {tbluser.find(user => user.User_Id === selectedTeam.teamData.Supervisor)?.User_Name || 'Not assigned'}
+                                    </p>
+                                )}
+                            </div> */}
 
                             {/* <div className="flex-1 min-w-[200px]">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
@@ -1106,10 +1131,6 @@ function TaskDescriptionCardView() {
 }
 
 export default TaskDescriptionCardView;
-
-
-
-
 
 
 

@@ -174,10 +174,9 @@ function TaskReport() {
     const decryptedUserData = decryptData(encryptedUserData);
     const loggedInUserId = decryptedUserData?.user_id;
 
-    // Filter tasks by the logged-in user first
+
     const userTasks = tableData.filter(task => String(task.userId) === String(loggedInUserId));
 
-    // Calculate counts for each priority from the user's tasks
     const taskCounts = userTasks.reduce((counts, task) => {
         const priorityKey = task.prioritys || '4';
         counts[priorityKey] = (counts[priorityKey] || 0) + 1;
@@ -186,12 +185,8 @@ function TaskReport() {
 
     const totalTasks = userTasks.length;
 
-    // Filter the user's tasks based on the selected priority filter and search query
     const filteredTasks = userTasks.filter(task => {
-        // Priority filter
         const priorityMatch = selectedFilter === 'All' || String(task.prioritys) === String(selectedFilter);
-
-        // Search filter
         const searchMatch = searchQuery === '' ||
             (task.purpose && task.purpose.toLowerCase().includes(searchQuery.toLowerCase())) ||
             (task.taskdesc && task.taskdesc.toLowerCase().includes(searchQuery.toLowerCase())) ||

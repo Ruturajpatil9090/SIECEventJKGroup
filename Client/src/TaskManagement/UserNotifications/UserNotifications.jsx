@@ -1,297 +1,349 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { BellIcon, CheckIcon, XMarkIcon, ClockIcon, CalendarIcon, UserGroupIcon } from '@heroicons/react/24/outline';
-import { useGetTaskDescriptionQuery } from '../../services/taskdescriptionApi';
-import { useGetUserMastersQuery } from '../../services/userMasterApi';
-import { decryptData } from '../../common/Functions/DecryptData';
+import React, { useState } from 'react';
+import {
+    useGetNotifyTaskQuery,
+    useUpdateTaskNotificationMutation
+} from '../../services/taskdescriptionApi';
+import { ChevronDown, ChevronUp, FileText, CheckCircle, BellRing, CircleOff, LucideFileText } from 'lucide-react';
 
-const Notifications = () => {
-    const [notifications, setNotifications] = useState([]);
-    const [readNotifications, setReadNotifications] = useState(new Set());
-    const [lastUpdate, setLastUpdate] = useState(Date.now());
+const UserNotifications = () => {
+    const {
+        data: notifications = [],
+        isLoading,
+        error,
+        isFetching
+    } = useGetNotifyTaskQuery();
 
-    const user_id = sessionStorage.getItem("user_id");
-    
-    const { data: tableData = [], isLoading, refetch } = useGetTaskDescriptionQuery({ user_id });
-    const { data: tbluser = [] } = useGetUserMastersQuery();
+    const [updateTaskNotification] = useUpdateTaskNotificationMutation();
+    const [expandedNotifications, setExpandedNotifications] = useState(new Set());
+    const [markedNotifications, setMarkedNotifications] = useState(new Set());
+    const [activeFilter, setActiveFilter] = useState('all');
 
-    // Listen for WebSocket updates
-    useEffect(() => {
-        const handleNewTask = () => {
-            setLastUpdate(Date.now());
-            refetch();
-        };
-
-        window.addEventListener('newTaskAssigned', handleNewTask);
-        window.addEventListener('notificationsOpened', handleNotificationsOpened);
-
-        return () => {
-            window.removeEventListener('newTaskAssigned', handleNewTask);
-            window.removeEventListener('notificationsOpened', handleNotificationsOpened);
-        };
-    }, [refetch]);
-
-    const handleNotificationsOpened = () => {
-        // Mark all as read when notifications are opened
-        const allIds = notifications.map(notif => notif.id);
-        setReadNotifications(prev => new Set([...prev, ...allIds]));
+    const toggleExpand = (taskno) => {
+        setExpandedNotifications(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(taskno)) {
+                newSet.delete(taskno);
+            } else {
+                newSet.add(taskno);
+            }
+            return newSet;
+        });
     };
 
-    // Get current user info
-    const currentUser = useMemo(() => {
-        const encryptedUserData = sessionStorage.getItem('user_data');
-        if (encryptedUserData) {
-            return decryptData(encryptedUserData);
-        }
-        return null;
-    }, []);
+    const markAsRead = async (taskno) => {
+        try {
+            if (!taskno) {
+                console.error('Invalid taskno:', taskno);
+                return;
+            }
 
-    // Generate notifications for tasks assigned to current user
-    useEffect(() => {
-        if (tableData.length > 0 && currentUser) {
-            const userNotifications = [];
-            
-            tableData.forEach(task => {
-                // Check if this task is assigned to current user
-                const isAssignedToUser = task.details?.some(detail => 
-                    detail.User_Id === parseInt(user_id)
-                );
+            setMarkedNotifications(prev => new Set(prev).add(taskno));
 
-                if (isAssignedToUser) {
-                    // Find the creator user info
-                    const createdByUser = tbluser.find(user => 
-                        user.User_Name === task.Created_By
-                    );
+            await updateTaskNotification(taskno).unwrap();
 
-                    // Check if task is new (created recently)
-                    const taskCreatedTime = new Date(task.doc_date).getTime();
-                    const isNewTask = (Date.now() - taskCreatedTime) < (24 * 60 * 60 * 1000); // Within 24 hours
+            setTimeout(() => {
+                setMarkedNotifications(prev => {
+                    const newSet = new Set(prev);
+                    newSet.delete(taskno);
+                    return newSet;
+                });
+            }, 1000);
 
-                    if (isNewTask) {
-                        userNotifications.push({
-                            id: task.taskno,
-                            type: 'TASK_ASSIGNED',
-                            title: 'New Task Assigned',
-                            message: `You have been assigned a new task: "${task.purpose}"`,
-                            taskData: {
-                                taskno: task.taskno,
-                                purpose: task.purpose,
-                                taskdesc: task.taskdesc,
-                                deadlinedate: task.deadlinedate,
-                                priority: task.priority,
-                                createdBy: task.Created_By,
-                                createdById: createdByUser?.User_Id,
-                                assignDate: task.doc_date
-                            },
-                            timestamp: taskCreatedTime,
-                            isRead: readNotifications.has(task.taskno),
-                            isNew: isNewTask
-                        });
-                    }
-                }
+        } catch (error) {
+            console.error('Error marking notification as read:', error);
+            setMarkedNotifications(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(taskno);
+                return newSet;
             });
-
-            // Sort by timestamp (newest first)
-            userNotifications.sort((a, b) => b.timestamp - a.timestamp);
-            setNotifications(userNotifications);
-        }
-    }, [tableData, currentUser, tbluser, user_id, readNotifications, lastUpdate]);
-
-    const unreadCount = notifications.filter(notification => !notification.isRead).length;
-
-    const markAsRead = (notificationId) => {
-        setReadNotifications(prev => new Set([...prev, notificationId]));
-        
-        setNotifications(prev => prev.map(notif => 
-            notif.id === notificationId ? { ...notif, isRead: true } : notif
-        ));
-    };
-
-    const markAllAsRead = () => {
-        const allIds = notifications.map(notif => notif.id);
-        setReadNotifications(prev => new Set([...prev, ...allIds]));
-        setNotifications(prev => prev.map(notif => ({ ...notif, isRead: true })));
-    };
-
-    const clearAllNotifications = () => {
-        setNotifications([]);
-        setReadNotifications(new Set());
-        localStorage.setItem('unreadNotifications', '0');
-    };
-
-    const formatDate = (timestamp) => {
-        return new Date(timestamp).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
-        });
-    };
-
-    const formatTime = (timestamp) => {
-        return new Date(timestamp).toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
-
-    const getPriorityColor = (priority) => {
-        switch (priority) {
-            case 1: return 'text-red-600 bg-red-50 border-red-200';
-            case 2: return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-            case 3: return 'text-blue-600 bg-blue-50 border-blue-200';
-            default: return 'text-gray-600 bg-gray-50 border-gray-200';
         }
     };
 
-    const getPriorityText = (priority) => {
-        switch (priority) {
-            case 1: return 'High Priority';
-            case 2: return 'Medium Priority';
-            case 3: return 'Low Priority';
-            default: return 'Normal Priority';
+    const markAllAsRead = async () => {
+        const unreadNotifications = getFilteredNotifications().filter(
+            notification => !markedNotifications.has(notification.taskno)
+        );
+
+        for (const notification of unreadNotifications) {
+            await markAsRead(notification.taskno);
         }
     };
+
+    const getNotificationIcon = (type) => {
+        const icons = {
+            info: 'ℹ️',
+            warning: '⚠️',
+            error: '❌',
+            success: '✅',
+            default: <BellRing size={24} className="text-blue-500" />
+        };
+        return icons[type] || icons.default;
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        } catch (error) {
+            return 'Invalid Date';
+        }
+    };
+
+    const getPriorityInfo = (priority) => {
+        const priorityMap = {
+            1: { label: 'High', color: 'bg-red-100 text-red-800 border-red-200', icon: '🔴', badgeColor: 'bg-red-500' },
+            2: { label: 'Medium', color: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: '🟡', badgeColor: 'bg-yellow-500' },
+            3: { label: 'Low', color: 'bg-green-100 text-green-800 border-green-200', icon: '🟢', badgeColor: 'bg-green-500' }
+        };
+        return priorityMap[priority] || { label: 'Unknown', color: 'bg-gray-100 text-gray-800 border-gray-200', icon: '⚫', badgeColor: 'bg-gray-500' };
+    };
+
+    const isOverdue = (deadline) => {
+        if (!deadline) return false;
+        try {
+            return new Date(deadline) < new Date();
+        } catch (error) {
+            return false;
+        }
+    };
+
+    const getFilteredNotifications = () => {
+        switch (activeFilter) {
+            case 'unread':
+                return notifications.filter(notification => !markedNotifications.has(notification.taskno));
+            case 'read':
+                return notifications.filter(notification => markedNotifications.has(notification.taskno));
+            default:
+                return notifications;
+        }
+    };
+
+    const filteredNotifications = getFilteredNotifications();
+    const unreadCount = notifications.filter(
+        notification => !markedNotifications.has(notification.taskno)
+    ).length;
+
+    const readCount = notifications.length - unreadCount;
 
     if (isLoading) {
         return (
-            <div className="max-w-4xl mx-auto p-6">
-                <div className="animate-pulse">
-                    <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-                    <div className="space-y-4">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className="h-20 bg-gray-200 rounded"></div>
-                        ))}
-                    </div>
+            <div className="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-lg border border-gray-200">
+                <div className="flex items-center justify-center space-x-3 py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    <span className="text-gray-600 text-lg">Loading notifications...</span>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-lg border border-red-200">
+                <div className="text-red-500 text-center flex flex-col items-center justify-center space-y-3 py-6">
+                    <span className="text-4xl">❌</span>
+                    <span className="text-lg font-medium">Error loading notifications</span>
+                    <div className="text-sm text-gray-500 mt-2 text-center">{error.message}</div>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="mt-4 bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors font-medium"
+                    >
+                        Retry Loading
+                    </button>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="max-w-4xl mx-auto p-6">
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-800">Notifications</h1>
-                    <p className="text-gray-600">
-                        {unreadCount > 0 
-                            ? `${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}`
-                            : 'All caught up!'
-                        }
-                    </p>
-                </div>
-                
-                {notifications.length > 0 && (
-                    <div className="flex space-x-2">
+        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            {/* Header */}
+            <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                <div className="flex justify-between items-center mb-4">
+                    <div className="flex items-center space-x-4">
+                        <div className="relative">
+                            <span className="text-3xl">
+                                <BellRing size={32} className="text-blue-500" />
+                            </span>
+                            {unreadCount > 0 && (
+                                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-sm rounded-full h-6 w-6 flex items-center justify-center animate-pulse font-medium">
+                                    {unreadCount}
+                                </span>
+                            )}
+                        </div>
+                        <h2 className="text-2xl font-bold text-gray-800">Your Notifications</h2>
+                    </div>
+
+                    <div className="flex space-x-3">
                         {unreadCount > 0 && (
                             <button
                                 onClick={markAllAsRead}
-                                className="px-4 py-2 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+                                disabled={isFetching}
+                                className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-md hover:shadow-lg"
                             >
-                                Mark all as read
+                                <CheckCircle size={20} />
+                                <span>{isFetching ? 'Marking All...' : 'Mark All as Read'}</span>
                             </button>
                         )}
-                        <button
-                            onClick={clearAllNotifications}
-                            className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-                        >
-                            Clear all
-                        </button>
                     </div>
-                )}
+                </div>
             </div>
 
-            {/* Notifications List */}
-            <div className="space-y-4">
-                {notifications.length === 0 ? (
-                    <div className="text-center py-12">
-                        <BellIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-500">No notifications</h3>
-                        <p className="text-gray-400">You're all caught up! New task assignments will appear here.</p>
+            <div className="max-h-[600px] overflow-y-auto">
+                {filteredNotifications.length === 0 ? (
+                    <div className="p-12 text-center text-gray-500">
+                        <div className="text-6xl mb-4">📭</div>
+                        <p className="text-lg font-medium mb-2">No notifications found</p>
+                        <p className="text-sm">You're all caught up! {activeFilter !== 'all' && `Try changing the filter.`}</p>
                     </div>
                 ) : (
-                    notifications.map((notification) => (
-                        <div
-                            key={notification.id}
-                            className={`border rounded-lg p-4 transition-all duration-200 ${
-                                notification.isRead 
-                                    ? 'bg-white border-gray-200' 
-                                    : 'bg-blue-50 border-blue-200 shadow-sm'
-                            }`}
-                        >
-                            <div className="flex justify-between items-start mb-2">
-                                <div className="flex items-center space-x-3">
-                                    <div className={`p-2 rounded-full ${
-                                        notification.isRead ? 'bg-gray-100' : 'bg-blue-100'
-                                    }`}>
-                                        <BellIcon className={`h-5 w-5 ${
-                                            notification.isRead ? 'text-gray-600' : 'text-blue-600'
-                                        }`} />
+                    filteredNotifications.map((notification) => {
+                        const isExpanded = expandedNotifications.has(notification.taskno);
+                        const isMarked = markedNotifications.has(notification.taskno);
+                        const isNew = !isMarked;
+                        const priorityInfo = getPriorityInfo(notification.priority);
+                        const isDeadlineOverdue = isOverdue(notification.deadlinedate);
+
+                        return (
+                            <div
+                                key={notification.taskno || notification.id}
+                                className={`p-6 border-b border-gray-100 transition-all duration-300 hover:bg-gray-50 ${isNew
+                                        ? 'bg-blue-50 border-l-4 border-l-blue-400 hover:bg-blue-100'
+                                        : 'bg-white opacity-90 hover:opacity-100'
+                                    } ${isMarked ? 'animate-pulse' : ''}`}
+                            >
+                                <div className="flex justify-between items-start space-x-4">
+                                    <div className="flex-shrink-0">
+                                        <div className="relative">
+                                            <span className="text-2xl">
+                                                {getNotificationIcon(notification.type)}
+                                            </span>
+                                            {isNew && (
+                                                <span className="absolute -top-1 -right-1 bg-blue-500 rounded-full w-3 h-3 animate-ping"></span>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 className={`font-semibold ${
-                                            notification.isRead ? 'text-gray-800' : 'text-blue-800'
-                                        }`}>
-                                            {notification.title}
-                                        </h3>
-                                        <p className="text-sm text-gray-600">
-                                            {formatDate(notification.timestamp)} at {formatTime(notification.timestamp)}
-                                        </p>
+
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex justify-between items-start mb-3">
+                                            <div className="flex-1">
+                                                <h3 className={`font-bold text-gray-900 text-lg mb-1 ${!isNew ? 'text-gray-500' : ''}`}>
+                                                    {`${notification.purpose}`}
+                                                    {!isNew && <CircleOff size={16} className="inline ml-2 text-gray-400" />}
+                                                </h3>
+                                                <div className="flex items-center space-x-3">
+                                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${priorityInfo.color}`}>
+                                                        {priorityInfo.icon} {priorityInfo.label} Priority
+                                                    </span>
+                                                    {isDeadlineOverdue && (
+                                                        <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold border border-red-200">
+                                                            ⏰ Overdue
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center space-x-2">
+                                                <button
+                                                    onClick={() => toggleExpand(notification.taskno)}
+                                                    className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                                                    title={isExpanded ? 'Collapse Details' : 'View Details'}
+                                                >
+                                                    {isExpanded ? <ChevronUp size={24} className="text-gray-600" /> : <ChevronDown size={24} className="text-gray-600" />}
+                                                </button>
+                                                {isNew && (
+                                                    <button
+                                                        onClick={() => markAsRead(notification.taskno)}
+                                                        disabled={isMarked}
+                                                        className="flex items-center space-x-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-md hover:shadow-lg"
+                                                    >
+                                                        <CheckCircle size={20} />
+                                                        <span>{isMarked ? 'Marking...' : 'Mark Read'}</span>
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Expandable Content */}
+                                        <div className={`space-y-3 transition-all duration-300 ease-in-out overflow-hidden ${isExpanded ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
+                                            {/* Task Purpose */}
+                                            {notification.purpose && (
+                                                <div className="bg-white p-3 rounded-lg border border-gray-200">
+                                                    <p className="text-sm font-semibold text-gray-700 mb-1">Purpose:</p>
+                                                    <p className="text-sm text-gray-600">{notification.purpose}</p>
+                                                </div>
+                                            )}
+
+                                            {/* Task Description */}
+                                            {notification.taskdesc && (
+                                                <div className="bg-white p-3 rounded-lg border border-gray-200">
+                                                    <p className="text-sm font-semibold text-gray-700 mb-1">Description:</p>
+                                                    <p className="text-sm text-gray-600 leading-relaxed">
+                                                        {notification.taskdesc}
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {/* Detailed Information */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                {/* Dates and Creator */}
+                                                <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                                    <p className="text-sm font-semibold text-gray-700 mb-2">Details:</p>
+                                                    <div className="space-y-2">
+                                                        {notification.Created_By && (
+                                                            <div className="flex justify-between">
+                                                                <span className="text-xs text-gray-500">Created By:</span>
+                                                                <span className="text-xs font-medium">{notification.Created_By}</span>
+                                                            </div>
+                                                        )}
+                                                        <div className="flex justify-between">
+                                                            <span className="text-xs text-gray-500">Created:</span>
+                                                            <span className="text-xs font-medium">{formatDate(notification.doc_date)}</span>
+                                                        </div>
+                                                        <div className="flex justify-between">
+                                                            <span className="text-xs text-gray-500">Deadline:</span>
+                                                            <span className={`text-xs font-medium ${isDeadlineOverdue ? 'text-red-600' : 'text-gray-700'}`}>
+                                                                {formatDate(notification.deadlinedate)}
+                                                                {isDeadlineOverdue && ' ⚠️'}
+                                                            </span>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Collapsed Summary */}
+                                        {!isExpanded && (
+                                            <div className="flex justify-between items-center mt-3 text-xs text-gray-500">
+                                                <div className="flex space-x-4">
+                                                    <span>Created: {formatDate(notification.doc_date)}</span>
+                                                    <span className={`${isDeadlineOverdue ? 'text-red-600 font-semibold' : ''}`}>
+                                                        Deadline: {formatDate(notification.deadlinedate)}
+                                                    </span>
+                                                </div>
+                                                <button
+                                                    onClick={() => toggleExpand(notification.taskno)}
+                                                    className="text-blue-500 hover:text-blue-700 font-medium flex items-center space-x-1"
+                                                >
+                                                    <LucideFileText size={16} />
+                                                    <span>Show Details</span>
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
-                                
-                                <div className="flex space-x-2">
-                                    {!notification.isRead && (
-                                        <button
-                                            onClick={() => markAsRead(notification.id)}
-                                            className="p-1 text-green-600 hover:text-green-800 transition-colors"
-                                            title="Mark as read"
-                                        >
-                                            <CheckIcon className="h-4 w-4" />
-                                        </button>
-                                    )}
                                 </div>
                             </div>
-
-                            <p className="text-gray-700 mb-3 ml-11">
-                                {notification.message}
-                            </p>
-
-                            {/* Task Details */}
-                            {notification.taskData && (
-                                <div className="ml-11 p-3 bg-white border border-gray-200 rounded-md">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                        <div>
-                                            <div className="flex items-center space-x-2 mb-2">
-                                                <UserGroupIcon className="h-4 w-4 text-gray-500" />
-                                                <span className="font-medium">Assigned by:</span>
-                                                <span>{notification.taskData.createdBy}</span>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <CalendarIcon className="h-4 w-4 text-gray-500" />
-                                                <span className="font-medium">Deadline:</span>
-                                                <span>{notification.taskData.deadlinedate}</span>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs border ${getPriorityColor(notification.taskData.priority)}`}>
-                                                {getPriorityText(notification.taskData.priority)}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    {notification.taskData.taskdesc && (
-                                        <div className="mt-2 text-sm text-gray-600">
-                                            <p className="font-medium">Description:</p>
-                                            <p className="line-clamp-2">{notification.taskData.taskdesc}</p>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    ))
+                        );
+                    })
                 )}
             </div>
         </div>
     );
 };
 
-export default Notifications;
+export default UserNotifications;

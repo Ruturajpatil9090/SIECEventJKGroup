@@ -4,8 +4,7 @@ const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL;
 export const calendarApi = createApi({
     reducerPath: "calendarApi",
     baseQuery: fetchBaseQuery({ 
-        baseUrl: API_BASE_URL,
-        credentials: 'include'
+        baseUrl: API_BASE_URL
     }),
     tagTypes: ['CalendarEvent'],
     endpoints: (builder) => ({
